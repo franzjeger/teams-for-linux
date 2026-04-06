@@ -173,7 +173,13 @@ if (gotTheLock) {
   ipcMain.on("config-file-changed", restartApp);
   // Get current application configuration
   ipcMain.handle("get-config", async () => {
-    return config;
+    // Return sanitized config - strip sensitive fields to prevent leaking secrets via IPC
+    const { clientCertPassword, ssoBasicAuthPasswordCommand, ...safeConfig } = config;
+    if (safeConfig.mqtt) {
+      const { password, ...safeMqtt } = safeConfig.mqtt;
+      safeConfig.mqtt = safeMqtt;
+    }
+    return safeConfig;
   });
 
   // Initialize notification service IPC handlers

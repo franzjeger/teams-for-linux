@@ -230,10 +230,16 @@ function isOnlineHttps(testUrl) {
       url: testUrl,
       method: "HEAD",
     });
+    const timeout = setTimeout(() => {
+      req.abort();
+      resolve(false);
+    }, 10000);
     req.on("response", () => {
+      clearTimeout(timeout);
       resolve(true);
     });
     req.on("error", () => {
+      clearTimeout(timeout);
       resolve(false);
     });
     req.end();

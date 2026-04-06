@@ -26,10 +26,6 @@ globalThis.electronAPI = {
   stopSharing: () => ipcRenderer.send("stop-screen-sharing-from-thumbnail"),
   sendSelectSource: () => ipcRenderer.send("select-source"),
   onSelectSource: (callback) => ipcRenderer.once("select-source", callback),
-  send: (channel, ...args) => {
-    return ipcRenderer.send(channel, ...args);
-  },
-
   // Configuration
   getConfig: () => ipcRenderer.invoke("get-config"),
 

@@ -306,7 +306,14 @@
 
     console.debug("[SCREEN_SHARE_DIAG] Starting UI monitoring for stop buttons");
 
-    uiObserver = new MutationObserver(processStopSharingButtons);
+    let debounceTimer = null;
+    uiObserver = new MutationObserver(() => {
+      if (debounceTimer) return;
+      debounceTimer = setTimeout(() => {
+        debounceTimer = null;
+        processStopSharingButtons();
+      }, 150);
+    });
 
     uiObserver.observe(document.body, {
       childList: true,

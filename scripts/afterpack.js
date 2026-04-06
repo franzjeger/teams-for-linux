@@ -33,6 +33,10 @@ exports.default = async function afterPack(context) {
     await flipFuses(appPath, {
       version: FuseVersion.V1,
       [FuseV1Options.EnableCookieEncryption]: true,
+      [FuseV1Options.RunAsNode]: false,
+      [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+      [FuseV1Options.EnableNodeCliInspectArguments]: false,
+      [FuseV1Options.OnlyLoadAppFromAsar]: true,
     });
   } catch (error) {
     console.error("afterPack error: ", error);

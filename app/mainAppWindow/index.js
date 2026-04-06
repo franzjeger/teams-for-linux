@@ -458,7 +458,11 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
     console.info('[AUTH_RECOVERY] Auth failure detected, scheduling recovery');
 
     // Delay to let Teams' own retry mechanism attempt recovery first
-    setTimeout(() => triggerAuthRecovery(), 5000);
+    setTimeout(() => {
+      triggerAuthRecovery();
+      // Reset flag after 60s to allow retry if recovery fails
+      setTimeout(() => { authRecoveryTriggered = false; }, 60000);
+    }, 5000);
   });
 
   login.handleLoginDialogTry(window, config.ssoBasicAuthUser, config.ssoBasicAuthPasswordCommand);
