@@ -1,5 +1,24 @@
 # WebAuthn / FIDO2 Hardware Security Key Support
 
+> [!IMPORTANT]
+> **Partially superseded.** The interception half of this plan now exists in
+> `app/passkey/` — the `navigator.credentials` shim, clientDataJSON and
+> base64url helpers, rpId validation against the frame origin, and the IPC
+> routing to the main process. See [`app/passkey/README.md`](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/passkey/README.md).
+>
+> What remains from this plan is the `fido2-tools` backend for **hardware**
+> security keys. Implement it as an additional backend behind the existing
+> shim: add a client alongside `arcaClient.js` and let `app/passkey/index.js`
+> choose between them. **Do not wrap `navigator.credentials` a second time** —
+> two wrappers over the same API is a failure that is painful to diagnose, and
+> the second one would install too late to win anyway.
+>
+> Several steps below are therefore already done or obsolete: the shim itself,
+> the helpers (`ceremony.js`), the config option (shipped as `passkey.enabled`,
+> not `auth.webauthn`), and the shaped-`PublicKeyCredential` work. The
+> validation spikes and the `fido2-tools` steps still stand. The ADR this plan
+> asks for is partly covered by the design notes in `app/passkey/README.md`.
+
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Enable hardware security key (FIDO2/WebAuthn) authentication in Teams for Linux on Linux, where Electron's Chromium engine lacks native support.

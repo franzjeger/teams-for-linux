@@ -155,7 +155,15 @@ stays `false` until stage 5.
    undocumented and change without notice. Needs authenticated testing against a
    real tenant.
 5. **Flip `contextIsolation: true`.** Only once stages 3 and 4 are verified
-   against a real Teams session.
+   against a real Teams session. **Blocked on an earlier injection point.** The
+   WebAuthn shim (`app/passkey/webauthnShim.js`) has to wrap
+   `navigator.credentials` before the page's own scripts run, and today it gets
+   there by being installed from the preload's top level --- which is the page's
+   world only while `contextIsolation` is `false`. The agent injects on
+   `DOMContentLoaded`, after Entra has already captured the API, so this stage
+   needs the agent to gain a pre-script injection point. Relocating the shim is
+   not sufficient. Verified in Electron: preload top level wins the race on
+   initial load and across a cross-origin navigation; `injectAgent` does not.
 6. **Evaluate `sandbox: true`** separately. It additionally forbids Node APIs in
    the preload, so `require("electron-log")` and the `require`-based module
    loader must go first. Treat as a follow-up, not part of this migration.
