@@ -197,6 +197,10 @@ function getHelpMenu(Menus) {
         click: () => Menus.showDocumentation(),
       },
       {
+        label: "Save Diagnostics...",
+        click: () => Menus.saveDiagnostics(),
+      },
+      {
         type: "separator",
       },
       {

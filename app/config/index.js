@@ -253,6 +253,17 @@ function extractYargConfig(configObject, appVersion) {
           "Cache management configuration to prevent daily logout issues",
         type: "object",
       },
+      crashReporter: {
+        default: {
+          enabled: true,
+          uploadToServer: false,
+          submitURL: "",
+          compress: true,
+        },
+        describe:
+          "Crash reporting. Minidumps are written to the local crashDumps directory and never leave the machine unless an administrator sets both uploadToServer and submitURL. No telemetry is collected.",
+        type: "object",
+      },
       clearStorageData: {
         default: null,
         describe:
@@ -399,7 +410,12 @@ function extractYargConfig(configObject, appVersion) {
               level: "info",
             },
             file: {
-              level: false,
+              // File logging is on by default so a support ticket has evidence
+              // to attach. Disk use is bounded: electron-log rotates to a
+              // single .old.log archive at maxSize, capping total use at twice
+              // maxSize. Set level to false to turn file logging off.
+              level: "info",
+              maxSize: 5 * 1024 * 1024,
             },
           },
         },

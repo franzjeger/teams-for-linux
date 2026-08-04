@@ -16,6 +16,7 @@ const DocumentationWindow = require("../documentationWindow");
 const GpuInfoWindow = require("../gpuInfoWindow");
 const JoinMeetingDialog = require("../joinMeetingDialog");
 const autoUpdaterModule = require("../autoUpdater");
+const diagnostics = require("../diagnostics");
 
 let _Menus_onSpellCheckerLanguageChanged = new WeakMap();
 class Menus {
@@ -138,6 +139,37 @@ class Menus {
 
   hide() {
     this.window.hide();
+  }
+
+  async saveDiagnostics() {
+    try {
+      const savedPath = await diagnostics.saveDiagnosticsBundle(
+        this.window,
+        this.configGroup.startupConfig,
+        new Date().toISOString()
+      );
+      if (!savedPath) return;
+
+      dialog.showMessageBox(this.window, {
+        type: "info",
+        title: "Diagnostics Saved",
+        message:
+          "Diagnostics were saved. Credentials, account identifiers and " +
+          "internal host names are removed, but review the file before " +
+          "sharing it.",
+        detail: savedPath,
+      });
+    } catch (error) {
+      console.error("[DIAGNOSTICS] Failed to save diagnostics", {
+        message: error.message,
+      });
+      dialog.showMessageBox(this.window, {
+        type: "error",
+        title: "Diagnostics Failed",
+        message: "Could not write the diagnostics file.",
+        detail: error.message,
+      });
+    }
   }
 
   initialize() {
