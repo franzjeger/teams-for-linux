@@ -145,9 +145,7 @@
         "summary": "Teams for Linux",
         "confinement": "strict",
         "grade": "stable",
-        "executableArgs": [
-          "--ozone-platform=x11"
-        ],
+        "executableArgs": null,
         "plugs": [
           "default",
           "audio-record",
@@ -165,7 +163,10 @@
               "allow-sandbox": true
             }
           }
-        ]
+        ],
+        "environment": {
+          "ELECTRON_OZONE_PLATFORM_HINT": "x11"
+        }
       }
     },
     "mac": {

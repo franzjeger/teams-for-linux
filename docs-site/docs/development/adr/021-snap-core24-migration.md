@@ -6,7 +6,7 @@ id: 021-snap-core24-migration
 
 ## Status
 
-Implemented (x64, arm64) --- armv7l unresolved, see Consequences
+Implemented --- armv7l outcome not yet established, see Consequences
 
 ## Context
 
@@ -71,8 +71,8 @@ by generating the descriptor both ways:
 
 | Config | Generated `command` |
 |---|---|
-| plugs without `browser-support` | `app/teams-for-linux --ozone-platform=x11 --no-sandbox` |
-| plugs with `browser-support` | `app/teams-for-linux --ozone-platform=x11` |
+| plugs without `browser-support` | `app/teams-for-linux --no-sandbox` |
+| plugs with `browser-support` | `app/teams-for-linux` |
 
 Shipping the first would disable Chromium's sandbox in every snap install. The
 plug list therefore ends with an explicit descriptor object:
@@ -87,6 +87,44 @@ electron-builder's own comment explains why the plug is needed at all: without
 `allow-sandbox: true` under strict confinement, Chromium cannot create user
 namespaces and the app dies with `FATAL: Permission denied (13)` in
 `credentials.cc`.
+
+### `executableArgs` must be cleared, not emptied
+
+snapcraft 9 rejects a `command` containing `=`:
+
+```
+app commands must consist of only alphanumeric characters, spaces, and the
+following characters: / . _ # : $ -
+(in field 'has-base.core24.apps.teams-for-linux.command',
+ input: 'app/teams-for-linux --ozone-platform=x11')
+```
+
+core24 appends `executableArgs` directly into the app's `command`, so
+`--ozone-platform=x11` made the descriptor invalid on **every** architecture.
+The X11 preference therefore moves to an environment variable, which Electron
+honours identically:
+
+```json
+"environment": { "ELECTRON_OZONE_PLATFORM_HINT": "x11" }
+```
+
+Removing it from `snapcraft.core24.executableArgs` alone is not enough. The
+snap options are built as `deepAssign({}, snapLinuxOptions, options)` where
+`snapLinuxOptions` carries the top-level `linux` block --- which also sets
+`executableArgs: ["--ozone-platform=x11"]` for deb/rpm/AppImage/tar.gz. And
+`deepAssign` **concatenates** arrays rather than replacing them:
+
+| `snapcraft.core24.executableArgs` | Resulting args |
+|---|---|
+| `[]` | `["--ozone-platform=x11"]` (inherited) |
+| `undefined` | `["--ozone-platform=x11"]` (inherited) |
+| `["--x"]` | `["--ozone-platform=x11", "--x"]` (concatenated) |
+| `null` | `[]` |
+
+Only `null` replaces. Hence the literal `"executableArgs": null` in the config
+--- it looks like a mistake, but an empty array silently inherits the very
+argument that breaks the build. The top-level `linux.executableArgs` is left
+alone so the other Linux package formats keep the flag.
 
 ### What core24 changes for free
 
@@ -107,14 +145,20 @@ core22 defaults.
 
 ### Negative / unresolved
 
-- **armv7l is unresolved.** The `snap-armv7l` CI job deliberately runs without
-  LXD, on the premise that "electron-builder handles armv7l cross-compilation
-  directly" --- true of the old Go-binary path, not of core24, which must run
+- **armv7l outcome is not yet known.** It was predicted to fail on
+  cross-compilation, but the first CI run never got that far: all three
+  architectures died on the shared `command` schema error above, so armhf
+  cross-building has still not actually been exercised. The concern remains
+  real --- the `snap-armv7l` job deliberately runs without LXD, on the premise
+  that "electron-builder handles armv7l cross-compilation directly", which was
+  true of the old Go-binary path but not of core24, which must run
   `snapcraft pack`. core24 emits a `platforms: { armhf: { build-on: amd64 } }`
-  block for cross-arch builds, but cross-building armhf on an amd64 runner needs
-  either an armhf container with qemu binfmt or a Launchpad remote build.
-  Neither is configured. x64 and arm64 are unaffected --- both run on native
-  runners (`ubuntu-latest` and `ubuntu-24.04-arm`).
+  block, but cross-building armhf on an amd64 runner needs either an armhf
+  container with qemu binfmt or a Launchpad remote build, and neither is
+  configured. If it does fail, the options are to configure `remoteBuild`, add
+  qemu, or drop the armv7l snap target --- the last being a user-facing
+  decision. x64 and arm64 build on native runners (`ubuntu-latest`,
+  `ubuntu-24.04-arm`) and are not affected by this.
 - The base moves from Ubuntu 22.04 to 24.04, so bundled system libraries change.
   This needs runtime verification, not just a successful build.
 - `--no-sandbox` regression risk is now a standing trap for anyone editing the
@@ -122,12 +166,19 @@ core22 defaults.
 
 ### Verification status
 
-Confirmed locally by generating and inspecting the descriptor
-(`base: core24`, root `browser-support` plug present, no `--no-sandbox`, all 21
-plugs resolved, `extensions: [gnome]`). The build cannot be completed in a
-sandbox without snapcraft and LXD, so per-architecture packaging and runtime
-behaviour --- screen sharing, camera and microphone, tray icon, Wayland and X11
---- must be checked against CI artifacts and a real install.
+Descriptor verified locally (`base: core24`, root `browser-support` plug
+present, no `--no-sandbox`, no `=` in the app command, all 21 plugs resolved,
+`extensions: [gnome]`).
+
+The first CI run caught what local inspection could not: the descriptor was
+well-formed to electron-builder but rejected by snapcraft's own schema, failing
+all three architectures identically. Local generation checks what
+electron-builder emits; only a real `snapcraft` run checks whether snapcraft
+accepts it. Treat a green local descriptor as necessary, not sufficient.
+
+Per-architecture packaging and runtime behaviour --- screen sharing, camera and
+microphone, tray icon, Wayland and X11 --- still need checking against CI
+artifacts and a real install, since the base moved from Ubuntu 22.04 to 24.04.
 
 ## References
 
