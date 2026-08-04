@@ -1,0 +1,1 @@
+build(arch): publish a pacman package and add a managed install script - by @franzjeger (#20)
