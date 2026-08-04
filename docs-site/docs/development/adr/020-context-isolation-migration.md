@@ -165,9 +165,27 @@ stays `false` until stage 5.
 Stages 3--5 cannot be validated against `about:blank` or a stub page, and the
 existing unauthenticated E2E suite will pass whether or not Teams integration
 works. Each of these stages requires the authenticated Playwright suite
-(`npm run test:authenticated`) against a real tenant, covering at minimum:
-sign-in, notification delivery, camera and microphone in a call, screen
-sharing, tray badge counts, and idle/presence reporting.
+(`npm run test:authenticated`) against a real tenant.
+
+`tests/e2e/authenticated/integration-surface.spec.js` exists for exactly this.
+Every assertion in it evaluates in the *page* world, which is where the
+instrumentation has to land for Teams to be affected by it, so a patch that
+quietly moves to the isolated world fails there rather than degrading in
+silence. It covers the Notification override and its lifecycle interface,
+`getUserMedia` patching, the page-exposed `electronAPI` surface, the absence of
+Node primitives in the page world, and ReactHandler reaching Teams core
+services.
+
+The ReactHandler assertion is deliberately written against the current
+pre-migration arrangement, where the handler is a page global because both
+worlds share one context. **Stage 4 must rewrite it to drive the handler through
+the bridge, not delete it.** Deleting it removes the only automated check that
+Teams' internals are reachable at all, which is precisely the failure this
+migration risks.
+
+Still uncovered, and worth adding before stage 4: tray badge counts and
+idle/presence reporting, both of which run through `activityHub` and therefore
+through `reactHandler`.
 
 ## Consequences
 

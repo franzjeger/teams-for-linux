@@ -7,7 +7,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
  * Launch the Electron app with a persisted session directory.
  * The app should load already authenticated (no login required).
  */
-async function launchAuthenticatedApp(sessionDir) {
+async function launchAuthenticatedApp(sessionDir, extraArgs = []) {
   const args = [path.join(PROJECT_ROOT, 'app/index.js')];
 
   if (process.env.CI && process.env.DOCKER_TEST !== 'true') {
@@ -34,6 +34,11 @@ async function launchAuthenticatedApp(sessionDir) {
       args.push('--ozone-platform=wayland');
     }
   }
+
+  // Config overrides for a single test, e.g. turning on an opt-in browser tool.
+  // Passed on the command line rather than written into the session directory,
+  // which is shared by every test and holds live auth tokens.
+  args.push(...extraArgs);
 
   const launchEnv = {
     ...process.env,
@@ -96,6 +101,33 @@ async function waitForTeamsWindow(electronApp) {
 }
 
 /**
+ * Wait until the preload has finished initialising its browser tools.
+ *
+ * The tools are set up on DOMContentLoaded, so a window that has merely
+ * navigated is not yet instrumented. Polls for a marker that only exists once
+ * the preload has run, rather than sleeping a fixed amount.
+ *
+ * @returns {Promise<boolean>} false if the marker never appeared
+ */
+async function waitForPreloadReady(page, timeoutMs = 30000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const ready = await page
+      .evaluate(() => {
+        // The Notification override is installed synchronously by the preload,
+        // before Teams itself loads, so it is the earliest reliable signal.
+        return typeof window.Notification === 'function' &&
+          window.Notification.name === 'CustomNotification';
+      })
+      .catch(() => false);
+
+    if (ready) return true;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  return false;
+}
+
+/**
  * Gracefully close the Electron app with a timeout fallback.
  */
 async function closeApp(electronApp) {
@@ -118,4 +150,9 @@ async function closeApp(electronApp) {
   }
 }
 
-module.exports = { launchAuthenticatedApp, waitForTeamsWindow, closeApp };
+module.exports = {
+  launchAuthenticatedApp,
+  waitForTeamsWindow,
+  waitForPreloadReady,
+  closeApp,
+};

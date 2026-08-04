@@ -80,7 +80,9 @@ These are the next priorities --- work the maintainer can drive without waiting 
 
 ~~**Validate Debian.**~~ Done. Debian passes all tests after the Node.js pinning fix.
 
-**Expand the authenticated test suite.** The current 6-7 tests cover app launch, screen sharing basics, and window management, but the features that actually break during Electron upgrades (notifications, media permissions, SSO recovery) are untested. Add tests for the notification stub interface, permission check handler responses, and auth recovery after token expiry.
+**Expand the authenticated test suite.** Partly done --- the suite went from 6 to 20 tests. `integration-surface.spec.js` covers the notification stub interface (construction, lifecycle methods, the async show event), the page-exposed `electronAPI` surface, absence of Node primitives in the page world, `getUserMedia` patching, and ReactHandler's ability to reach Teams core services. `permissions.spec.js` covers permission check handler responses for camera, microphone and notifications, plus geolocation denial and WebHID/WebSerial/WebUSB exposing no devices.
+
+Still missing: **auth recovery after token expiry**. It needs the session's auth cookies cleared mid-test, and the session directory is shared by every test in the run, so it needs either a disposable copy of the session or a way to restore it afterwards. Worth doing --- SSO recovery is exactly the kind of thing that breaks on an Electron upgrade --- but it should not be bolted onto the current fixture.
 
 **Clean up the PLAN document.** The `PLAN-docker-playwright-tests.md` has been partially updated (Fedora session issue and per-distro question marked resolved) but the architecture diagram and some status text are stale. Either fold the remaining decisions into this roadmap and delete the file, or finish updating it.
 
