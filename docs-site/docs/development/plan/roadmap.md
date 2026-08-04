@@ -54,6 +54,16 @@ The MQTT integration is mature for presence status, media state, inbound command
 
 The notification lifecycle is now stable ([#2248](https://github.com/IsmaelMartinez/teams-for-linux/issues/2248)). Remaining: the first notification after launch can show a `(N)` title prefix ([#2367](https://github.com/IsmaelMartinez/teams-for-linux/issues/2367)) --- fix in PR [#2377](https://github.com/IsmaelMartinez/teams-for-linux/pull/2377), awaiting user validation.
 
+### Enterprise Readiness
+
+Work aimed at deployments managed by an IT department rather than an individual user.
+
+Shipped: a `managedPolicy` section in the system-wide config lets administrators lock settings against user override, enforced after config files, environment variables and CLI arguments so no input path bypasses it. Crash reporting (local by default, upload only when an administrator configures an endpoint), file logging on by default with bounded rotation, renderer crash recovery instead of a silent `app.quit()`, and a *Help > Save Diagnostics* support bundle with secrets redacted. Permission, device and navigation guards for the main window. `disableAutoUpdate` and `disableDevTools` for fleets managed through a package manager.
+
+Supply chain: CycloneDX SBOM published per build, signed build-provenance attestations on release artifacts, `npm audit` gated at high.
+
+Remaining: `contextIsolation` is still `false`. [ADR-020](../adr/020-context-isolation-migration.md) documents why - `ReactHandler` reads a main-world React expando that an isolated world cannot see, and 12 of 16 browser tools depend on main-world execution. Stage 1 (shrinking the page-exposed `electronAPI` from 22 entries to 2) has shipped; the remaining stages need the authenticated test suite expanded first, which overlaps with the Phase 1 testing work below.
+
 ### Testing Infrastructure
 
 Cross-distro testing shipped in v2.7.9 with Docker-based environments supporting 9 configurations (3 distros x 3 display servers). Authenticated Playwright tests landed in v2.7.10. The infrastructure works well for Ubuntu (7/7 tests pass on X11 and XWayland, 6/6 on Wayland) but Fedora and Debian remain unvalidated. The current focus is closing these gaps and connecting cross-distro testing to the CI pipeline so it gates builds rather than running as a separate manual workflow.
@@ -76,7 +86,7 @@ These are the next priorities --- work the maintainer can drive without waiting 
 
 ### Phase 2 --- CI Integration
 
-**Gate builds on E2E tests.** Currently `linux_x64` packaging depends only on `lint_and_audit`. The `e2e_tests` job runs but failures don't block packaging or merges. Add `e2e_tests` to the `needs` list for packaging jobs.
+**~~Gate builds on E2E tests.~~** Done. All five packaging jobs (`linux_x64`, `linux_arm64`, `linux_arm`, `dmg`, `exe`) now list `e2e_tests` in `needs`, so a failing E2E suite blocks packaging. The same change raised the `npm audit` gate from `critical` to `high`, added a CycloneDX SBOM job, and added signed build-provenance attestations to release artifacts.
 
 **Cross-distro CI smoke test (implemented).** A GitHub Actions workflow (`cross-distro-smoke.yml`) runs 9 configurations in parallel on push to main, building Docker images and verifying the app starts and reaches the login page. See the [design spec](../research/cross-distro-ci-smoke-test-design.md) and [implementation plan](cross-distro-ci-smoke-test-plan.md). The test directory was also restructured: `testing/cross-distro/` moved to `tests/cross-distro/` with npm scripts (`npm run cross-distro`, `npm run cross-distro:list`) for project-root access.
 
