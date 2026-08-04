@@ -6,7 +6,7 @@ id: 020-context-isolation-migration
 
 ## Status
 
-Accepted --- staged migration, not yet implemented
+Accepted --- staged migration in progress (stages 1 and 2 shipped)
 
 ## Context
 
@@ -145,6 +145,7 @@ stays `false` until stage 5.
    `globalThis.electronAPI` that is not consumed. Done --- see below.
 2. **Build the bridge.** Agent loader, correlated messaging, validation, unit
    tests for the validation logic. No behaviour change; nothing uses it yet.
+   Done --- see below.
 3. **Migrate the page-global patchers.** `disableAutogain`, `cameraResolution`,
    `cameraAspectRatio`, `speakingIndicator`, the Notification override. These
    are self-contained and their failure modes are visible in ordinary use
@@ -164,9 +165,27 @@ stays `false` until stage 5.
 Stages 3--5 cannot be validated against `about:blank` or a stub page, and the
 existing unauthenticated E2E suite will pass whether or not Teams integration
 works. Each of these stages requires the authenticated Playwright suite
-(`npm run test:authenticated`) against a real tenant, covering at minimum:
-sign-in, notification delivery, camera and microphone in a call, screen
-sharing, tray badge counts, and idle/presence reporting.
+(`npm run test:authenticated`) against a real tenant.
+
+`tests/e2e/authenticated/integration-surface.spec.js` exists for exactly this.
+Every assertion in it evaluates in the *page* world, which is where the
+instrumentation has to land for Teams to be affected by it, so a patch that
+quietly moves to the isolated world fails there rather than degrading in
+silence. It covers the Notification override and its lifecycle interface,
+`getUserMedia` patching, the page-exposed `electronAPI` surface, the absence of
+Node primitives in the page world, and ReactHandler reaching Teams core
+services.
+
+The ReactHandler assertion is deliberately written against the current
+pre-migration arrangement, where the handler is a page global because both
+worlds share one context. **Stage 4 must rewrite it to drive the handler through
+the bridge, not delete it.** Deleting it removes the only automated check that
+Teams' internals are reachable at all, which is precisely the failure this
+migration risks.
+
+Still uncovered, and worth adding before stage 4: tray badge counts and
+idle/presence reporting, both of which run through `activityHub` and therefore
+through `reactHandler`.
 
 ## Consequences
 
@@ -226,6 +245,33 @@ Stage 1 shipped. `globalThis.electronAPI` went from 22 entries to 2:
 Quick Chat was unaffected: it is a separate window with its own isolated
 preload using different channels (`graph-api-search-people`,
 `graph-api-send-chat-message`).
+
+Stage 2 shipped. `app/browser/bridge/` contains the three pieces the remaining
+stages need:
+
+- `protocol.js` --- message format and validation, free of Electron and DOM so
+  the security decisions are directly testable.
+- `isolatedBridge.js` --- runs in the preload, owns `ipcRenderer`, injects the
+  agent, correlates requests with responses.
+- `mainWorldAgent.js` --- the agent runtime, stringified and injected rather
+  than required.
+
+Nothing uses it yet; it ships inert so the protocol could be reviewed before a
+tool depends on it. 67 unit tests cover the validation rules, request
+correlation and hostile inbound traffic, plus an interop suite that runs the
+real agent source in a vm context against a real bridge --- the two halves are
+written against the same protocol but never import each other, so only a round
+trip proves they agree.
+
+One correction to the design sketched above: the per-session id is described
+there as a nonce that stops page scripts guessing the channel. That
+overstates it. The agent runs in the page world, so any script sharing that
+world can read the id off the traffic. It prevents unrelated `postMessage`
+traffic being mistaken for bridge messages, nothing more. The controls that
+actually hold are the channel allowlist, the per-channel payload validators, and
+refusing responses that do not answer an outstanding request on the same
+channel. `app/browser/bridge/README.md` states this plainly so the id is not
+mistaken for authentication later.
 
 Related hardening shipped alongside: `webviewTag` is now `false` (no `<webview>`
 exists in the application), and a `will-attach-webview` guard forces isolation
