@@ -42,6 +42,7 @@ Architecture Decision Records capture important architectural decisions along wi
 | [017](017-workflow-run-pr-comments.md) | Use workflow_run for PR Artifact Comments | ✅ Implemented | 2026-02-26 | N/A |
 | [018](018-issue-triage-bot-github-app-migration.md) | Issue Triage Bot GitHub App Migration | ✅ Implemented | 2026-03-06 | N/A |
 | [019](019-repo-activity-dashboard.md) | Repository Activity Dashboard | ✅ Accepted | 2026-03-11 | N/A |
+| [020](020-context-isolation-migration.md) | Context Isolation Migration | 🚧 Proposed | 2026-08-04 | N/A |
 
 **Legend:**
 - ✅ **Implemented** - Decision accepted and code in production
@@ -106,6 +107,18 @@ Architecture Decision Records capture important architectural decisions along wi
 - Consolidated instruction files (removed 28% duplication)
 - Centralized markdown standards in contributing.md
 - Maintained tool-specific official standards
+
+### Security
+
+| ADR | Title | Summary |
+|-----|-------|---------|
+| [013](013-pii-log-sanitization.md) | PII Log Sanitization | Regex-based sanitizer applied through an electron-log hook |
+| [020](020-context-isolation-migration.md) | Context Isolation Migration | Staged main-world agent plus isolated-world bridge to reach `contextIsolation: true` |
+
+**Key Outcomes:**
+- Page-exposed `electronAPI` surface reduced from 22 entries to 2
+- Migration blocker identified: React internals are main-world expando properties
+- Staged plan keeps `contextIsolation: false` until authenticated testing covers the risky stages
 
 ### Release Process & Automation
 

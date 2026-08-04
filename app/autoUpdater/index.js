@@ -7,7 +7,15 @@ let mainWindow = null;
 let isManualCheck = false;
 let isChecking = false;
 
-function initialize(window) {
+let updatesDisabledByPolicy = false;
+
+function initialize(window, config) {
+	if (config?.disableAutoUpdate) {
+		updatesDisabledByPolicy = true;
+		console.info('[AutoUpdater] Disabled by configuration');
+		return;
+	}
+
 	if (!process.env.APPIMAGE) {
 		console.info('[AutoUpdater] Not running as AppImage, auto-updater disabled');
 		return;
@@ -30,6 +38,10 @@ function initialize(window) {
 }
 
 function checkForUpdates() {
+	if (updatesDisabledByPolicy) {
+		console.info('[AutoUpdater] Manual check ignored: updates disabled by configuration');
+		return;
+	}
 	if (!process.env.APPIMAGE) return;
 	if (isChecking) return;
 

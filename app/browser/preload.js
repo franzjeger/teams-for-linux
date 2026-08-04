@@ -1,35 +1,13 @@
 const { ipcRenderer } = require("electron");
 
-// Note: IPC validation handled by main process, no need for duplicate validation here
-globalThis.electronAPI = {
-  desktopCapture: {
-    chooseDesktopMedia: (sources, cb) => {
-      ipcRenderer
-        .invoke("choose-desktop-media", sources)
-        .then((streamId) => cb(streamId))
-        .catch(err => {
-          console.error('Desktop media choice failed:', err);
-          cb(null);
-        });
-      return Date.now();
-    },
-    cancelChooseDesktopMedia: () => ipcRenderer.send("cancel-desktop-media"),
-  },
-  // Screen sharing events
-  sendScreenSharingStarted: (sourceId) => {
-    if (sourceId === null || (typeof sourceId === 'string' && sourceId.length < 100)) {
-      return ipcRenderer.send("screen-sharing-started", sourceId);
-    }
-    console.error('Invalid sourceId for screen sharing');
-  },
-  sendScreenSharingStopped: () => ipcRenderer.send("screen-sharing-stopped"),
-  stopSharing: () => ipcRenderer.send("stop-screen-sharing-from-thumbnail"),
-  sendSelectSource: () => ipcRenderer.send("select-source"),
-  onSelectSource: (callback) => ipcRenderer.once("select-source", callback),
-  // Configuration
-  getConfig: () => ipcRenderer.invoke("get-config"),
-
-  // Notifications with input validation
+/**
+ * Notification helpers used by the Notification override further down.
+ *
+ * These live in preload scope rather than on the page global: the override runs
+ * in the same context as the preload, so nothing needs to reach them through
+ * `globalThis`.
+ */
+const notificationBridge = {
   showNotification: (options) => {
     if (!options || typeof options !== 'object') {
       return Promise.reject(new Error('Invalid notification options'));
@@ -48,90 +26,30 @@ globalThis.electronAPI = {
     }
     ipcRenderer.send("notification-show-toast", data);
   },
+};
 
-  // Badge count with validation
-  setBadgeCount: (count) => {
-    if (typeof count !== 'number' || count < 0 || count > 9999) {
-      console.error('Invalid badge count:', count);
-      return Promise.reject(new Error('Invalid badge count'));
+/**
+ * The only privileged surface published to the page's global scope.
+ *
+ * Everything here is reachable by the Teams page itself and by anything that
+ * manages to run script in it, so it is deliberately limited to the two calls
+ * that genuinely have no alternative: injectedScreenSharing.js is delivered
+ * with webContents.executeJavaScript and therefore runs in the page world,
+ * where `ipcRenderer` does not exist.
+ *
+ * Preload-loaded browser tools must NOT be added here - they share the preload
+ * scope and receive `ipcRenderer` through their init(config, ipcRenderer)
+ * signature instead. Every addition to this object widens what a compromised
+ * or injected page script can call.
+ */
+globalThis.electronAPI = {
+  sendScreenSharingStarted: (sourceId) => {
+    if (sourceId === null || (typeof sourceId === 'string' && sourceId.length < 100)) {
+      return ipcRenderer.send("screen-sharing-started", sourceId);
     }
-    return ipcRenderer.invoke("set-badge-count", count);
+    console.error('Invalid sourceId for screen sharing');
   },
-
-  // Tray icon with validation
-  updateTray: (icon, flash) => {
-    return ipcRenderer.send("tray-update", { icon, flash });
-  },
-
-  // Theme events
-  onSystemThemeChanged: (callback) => {
-    if (typeof callback !== 'function') {
-      console.error('Invalid callback for theme changed');
-      return;
-    }
-    return ipcRenderer.on("system-theme-changed", callback);
-  },
-
-  // User status with validation
-  setUserStatus: (data) => {
-    if (!data || typeof data !== 'object') {
-      return Promise.reject(new Error('Invalid user status data'));
-    }
-    return ipcRenderer.invoke("user-status-changed", data);
-  },
-
-  // Zoom with validation
-  getZoomLevel: (partition) => {
-    if (typeof partition !== 'string' || partition.length > 100) {
-      return Promise.reject(new Error('Invalid partition'));
-    }
-    return ipcRenderer.invoke("get-zoom-level", partition);
-  },
-  saveZoomLevel: (data) => {
-    if (!data || typeof data !== 'object' || typeof data.level !== 'number') {
-      return Promise.reject(new Error('Invalid zoom data'));
-    }
-    return ipcRenderer.invoke("save-zoom-level", data);
-  },
-
-  // Navigation
-  navigateBack: () => ipcRenderer.send("navigate-back"),
-  navigateForward: () => ipcRenderer.send("navigate-forward"),
-  getNavigationState: () => ipcRenderer.invoke("get-navigation-state"),
-  onNavigationStateChanged: (callback) => {
-    if (typeof callback !== 'function') {
-      console.error('Invalid callback for navigation state changed');
-      return;
-    }
-    return ipcRenderer.on("navigation-state-changed", callback);
-  },
-
-  // Microsoft Graph API
-  graphApi: {
-    getUserProfile: () => ipcRenderer.invoke("graph-api-get-user-profile"),
-    getCalendarEvents: (options) => ipcRenderer.invoke("graph-api-get-calendar-events", options),
-    getCalendarView: (start, end, options) => ipcRenderer.invoke("graph-api-get-calendar-view", start, end, options),
-    createCalendarEvent: (event) => ipcRenderer.invoke("graph-api-create-calendar-event", event),
-    getMailMessages: (options) => ipcRenderer.invoke("graph-api-get-mail-messages", options),
-  },
-
-  // Chat deep link navigation (for quick chat access feature)
-  openChatWithUser: (email) => {
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
-      console.error('Invalid email for chat deep link');
-      return false;
-    }
-    // Use the current Teams base URL (could be teams.cloud.microsoft or teams.microsoft.com)
-    const currentOrigin = globalThis.location.origin;
-    const chatPath = `/l/chat/0/0?users=${encodeURIComponent(email)}`;
-    const chatUrl = `${currentOrigin}${chatPath}`;
-    console.debug('[CHAT_LINK] Navigating to chat via deep link');
-    globalThis.location.href = chatUrl;
-    return true;
-  },
-
-  // System information (safe to expose)
-  sessionType: process.env.XDG_SESSION_TYPE || "x11",
+  sendScreenSharingStopped: () => ipcRenderer.send("screen-sharing-stopped"),
 };
 
 // Fetch config and override Notification immediately (matching v2.2.1 pattern)
@@ -178,13 +96,11 @@ function createNotificationStub() {
 
 // Helper functions for notification handling (extracted to reduce cognitive complexity)
 function playNotificationSound(notifSound) {
-  if (globalThis.electronAPI?.playNotificationSound) {
-    try {
-      console.debug("Requesting application to play sound");
-      globalThis.electronAPI.playNotificationSound(notifSound);
-    } catch (e) {
-      console.debug("playNotificationSound failed", e);
-    }
+  try {
+    console.debug("Requesting application to play sound");
+    notificationBridge.playNotificationSound(notifSound);
+  } catch (e) {
+    console.debug("playNotificationSound failed", e);
   }
 }
 
@@ -213,12 +129,10 @@ function createWebNotification(classicNotification, title, options) {
 
 function createElectronNotification(options) {
   // Use Electron notification
-  if (globalThis.electronAPI?.showNotification) {
-    try {
-      globalThis.electronAPI.showNotification(options);
-    } catch (e) {
-      console.debug("showNotification failed", e);
-    }
+  try {
+    notificationBridge.showNotification(options);
+  } catch (e) {
+    console.debug("showNotification failed", e);
   }
   return createNotificationStub();
 }
@@ -244,11 +158,7 @@ function createCustomNotification(title, options) {
 
   // Send to main process to show toast
   try {
-    if (globalThis.electronAPI?.sendNotificationToast) {
-      globalThis.electronAPI.sendNotificationToast(notificationData);
-    } else {
-      console.warn("sendNotificationToast API not available");
-    }
+    notificationBridge.sendNotificationToast(notificationData);
   } catch (e) {
     console.error("Failed to send custom notification:", e);
   }
@@ -352,7 +262,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     ];
 
     // CRITICAL: These modules need ipcRenderer for IPC communication (see CLAUDE.md)
-    const modulesRequiringIpc = new Set(["settings", "theme", "trayIconRenderer", "mqttStatusMonitor"]);
+    const modulesRequiringIpc = new Set([
+      "settings",
+      "theme",
+      "trayIconRenderer",
+      "mqttStatusMonitor",
+      "navigationButtons",
+    ]);
 
     let successCount = 0;
     for (const module of modules) {

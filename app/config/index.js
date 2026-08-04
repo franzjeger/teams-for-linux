@@ -4,6 +4,11 @@ const path = require("node:path");
 const { ipcMain } = require("electron");
 const logger = require("./logger");
 const defaults = require("./defaults");
+const {
+  buildPolicy,
+  mergeWithPolicy,
+  enforcePolicy,
+} = require("./managedPolicy");
 
 function getConfigFilePath(configPath) {
   return path.join(configPath, "config.json");
@@ -64,10 +69,20 @@ function populateConfigObjectFromFile(configObject, configPath) {
     }
   }
 
-  // Merge configs with user config taking precedence over system config
+  // Settings listed in the system config's managedPolicy section stay pinned to
+  // their system-wide value; everything else keeps user-config precedence.
+  const policy = buildPolicy(systemConfig);
+  configObject.policy = policy;
+
   if (hasUserConfig || hasSystemConfig) {
-    configObject.configFile = { ...systemConfig, ...userConfig };
+    const { merged, blocked } = mergeWithPolicy(
+      systemConfig,
+      userConfig,
+      policy
+    );
+    configObject.configFile = merged;
     configObject.isConfigFile = true;
+    configObject.policyBlocked = blocked;
 
     if (hasUserConfig && hasSystemConfig) {
       console.info(
@@ -77,6 +92,17 @@ function populateConfigObjectFromFile(configObject, configPath) {
       console.info("Using user configuration");
     } else {
       console.info("Using system-wide configuration (no user config found)");
+    }
+
+    if (policy.isManaged) {
+      console.info(
+        `[POLICY] Managed configuration active: ${policy.lockedSettings.length} setting(s) locked`
+      );
+    }
+    if (blocked.length > 0) {
+      console.warn(
+        `[POLICY] User config attempted to override locked setting(s): ${blocked.join(", ")}`
+      );
     }
   } else {
     console.warn(
@@ -227,6 +253,17 @@ function extractYargConfig(configObject, appVersion) {
           "Cache management configuration to prevent daily logout issues",
         type: "object",
       },
+      crashReporter: {
+        default: {
+          enabled: true,
+          uploadToServer: false,
+          submitURL: "",
+          compress: true,
+        },
+        describe:
+          "Crash reporting. Minidumps are written to the local crashDumps directory and never leave the machine unless an administrator sets both uploadToServer and submitURL. No telemetry is collected.",
+        type: "object",
+      },
       clearStorageData: {
         default: null,
         describe:
@@ -266,6 +303,18 @@ function extractYargConfig(configObject, appVersion) {
         describe: "DEPRECATED: Use media.microphone.disableAutogain instead",
         type: "boolean",
         deprecated: "Use media.microphone.disableAutogain instead",
+      },
+      disableAutoUpdate: {
+        default: false,
+        describe:
+          "Disable the built-in auto-updater. Intended for managed deployments where updates are delivered by the distribution's package manager.",
+        type: "boolean",
+      },
+      disableDevTools: {
+        default: false,
+        describe:
+          "Disable Chromium DevTools entirely, including the menu entry and the webDebug option. Intended for managed deployments.",
+        type: "boolean",
       },
       disableGpu: {
         default: false,
@@ -361,7 +410,12 @@ function extractYargConfig(configObject, appVersion) {
               level: "info",
             },
             file: {
-              level: false,
+              // File logging is on by default so a support ticket has evidence
+              // to attach. Disk use is bounded: electron-log rotates to a
+              // single .old.log archive at maxSize, capping total use at twice
+              // maxSize. Set level to false to turn file logging off.
+              level: "info",
+              maxSize: 5 * 1024 * 1024,
             },
           },
         },
@@ -428,6 +482,15 @@ function extractYargConfig(configObject, appVersion) {
     	  "Valid values: 'default', 'default_public_and_private_interfaces', 'default_public_interface_only', 'disable_non_proxied_udp'. " +
     	  "Disabled by default (opt-in).",
 	type: "object",
+      },
+      security: {
+        default: {
+          restrictNavigation: false,
+          additionalTrustedOrigins: [],
+        },
+        describe:
+          "Security guards for the main window. restrictNavigation: block navigation to origins outside the trusted list (off by default because enterprise SSO redirects through identity providers on customer-controlled domains). additionalTrustedOrigins: extra hostnames to trust, e.g. your identity provider.",
+        type: "object",
       },
       screenLockInhibitionMethod: {
         default: "Electron",
@@ -597,12 +660,30 @@ function argv(configPath, appVersion) {
     configError: null,
     configWarning: null,
     isConfigFile: false,
+    policy: null,
+    policyBlocked: [],
   };
 
   populateConfigObjectFromFile(configObject, configPath);
 
   // yargs v18: extractYargConfig now returns both the instance and parsed config
   const { yargsInstance, parsedConfig: config } = extractYargConfig(configObject, appVersion);
+
+  // Re-apply locked settings after yargs has merged environment variables and
+  // command line arguments, so no input path can bypass the policy.
+  const policy = configObject.policy ?? buildPolicy({});
+  const corrected = enforcePolicy(config, policy);
+  if (corrected.length > 0) {
+    console.warn(
+      `[POLICY] Reverted locked setting(s) overridden via environment or CLI: ${corrected.join(", ")}`
+    );
+  }
+
+  config.managedPolicy = {
+    isManaged: policy.isManaged,
+    lockedSettings: policy.lockedSettings,
+    blockedOverrides: [...(configObject.policyBlocked ?? []), ...corrected],
+  };
 
   if (configObject.configError) {
     config["error"] = configObject.configError;

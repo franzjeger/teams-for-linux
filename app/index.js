@@ -41,6 +41,23 @@ function isNetworkError(message) {
   return false;
 }
 
+/**
+ * Terminates after a fatal error, giving log transports a chance to flush.
+ *
+ * process.exit() truncates pending writes, which loses exactly the log lines
+ * that explain the crash. app.exit() runs Electron's shutdown path instead, and
+ * the timer bounds how long a wedged shutdown can hang.
+ */
+function terminateAfterFatalError(code = 1) {
+  const forceExit = setTimeout(() => process.exit(code), 2000);
+  forceExit.unref?.();
+  try {
+    app.exit(code);
+  } catch {
+    process.exit(code);
+  }
+}
+
 // Top-level error handlers for crash diagnostics
 process.on('uncaughtException', (error) => {
   const message = error instanceof Error ? error.message : String(error);
@@ -50,7 +67,7 @@ process.on('uncaughtException', (error) => {
     return;
   }
   console.error('[FATAL] Uncaught exception:', { message, stack });
-  process.exit(1);
+  terminateAfterFatalError(1);
 });
 
 process.on('unhandledRejection', (reason) => {
@@ -61,7 +78,7 @@ process.on('unhandledRejection', (reason) => {
     return;
   }
   console.error('[FATAL] Unhandled promise rejection:', { message, stack });
-  process.exit(1);
+  terminateAfterFatalError(1);
 });
 
 // Support for E2E testing: use temporary userData directory for clean state
@@ -83,6 +100,10 @@ const config = appConfig.startupConfig;
 config.appPath = path.join(__dirname, app.isPackaged ? "../../" : "");
 
 CommandLineManager.addSwitchesAfterConfigLoad(config);
+
+// Must run before the app is ready so early crashes are captured.
+const diagnostics = require("./diagnostics");
+diagnostics.initializeCrashReporter(config);
 
 let userStatus = -1;
 let mqttClient = null;
@@ -243,28 +264,79 @@ function restartApp() {
   app.exit();
 }
 
+// Renderer crash recovery state. A crash loop must not turn into an endless
+// reload loop, so recovery is attempted a bounded number of times within a
+// rolling window before falling back to asking the user.
+const RENDERER_RECOVERY_LIMIT = 3;
+const RENDERER_RECOVERY_WINDOW_MS = 5 * 60 * 1000;
+let rendererRecoveryAttempts = [];
+
 /**
  * Handles the 'render-process-gone' event.
  *
  * When a renderer process (which hosts the web content, i.e., the Teams PWA)
- * crashes or becomes unresponsive, Electron emits this event.
+ * crashes, Electron emits this event. Quitting outright loses the user's
+ * session without explanation - during a call, the app simply disappears.
  *
- * The decision to immediately quit the application here is a design choice.
- * A renderer process going "gone" often indicates a severe, unrecoverable
- * issue with the web content or its interaction with Electron. Attempting
- * to continue running with a crashed renderer can lead to an unstable
- * and unpredictable user experience (e.g., blank screens, unresponsive UI).
+ * Instead, reload the window in place. Teams restores its own state on reload,
+ * so a transient renderer crash becomes a visible blip rather than an outage.
+ * If crashes keep happening the reload is clearly not working, so we stop and
+ * let the user decide.
  *
- * Quitting ensures a clean restart, allowing the user to relaunch the
- * application and potentially recover from the issue.
+ * A clean exit ('clean-exit' reason) is not a crash and needs no recovery.
  *
  * @param {Electron.Event} event - The event object.
  * @param {Electron.WebContents} webContents - The WebContents that crashed.
  * @param {Electron.RenderProcessGoneDetails} details - Details about the crash.
  */
 function onRenderProcessGone(event, webContents, details) {
-  console.error(`render-process-gone ${JSON.stringify(details)}`);
-  app.quit();
+  console.error("[CRASH] Renderer process gone", {
+    reason: details?.reason,
+    exitCode: details?.exitCode,
+  });
+
+  if (details?.reason === "clean-exit") return;
+
+  const now = Date.now();
+  rendererRecoveryAttempts = rendererRecoveryAttempts.filter(
+    (timestamp) => now - timestamp < RENDERER_RECOVERY_WINDOW_MS
+  );
+
+  const window = mainAppWindow.getWindow();
+  const canReload = window && !window.isDestroyed();
+
+  if (canReload && rendererRecoveryAttempts.length < RENDERER_RECOVERY_LIMIT) {
+    rendererRecoveryAttempts.push(now);
+    console.warn("[CRASH] Reloading renderer", {
+      attempt: rendererRecoveryAttempts.length,
+      limit: RENDERER_RECOVERY_LIMIT,
+    });
+    try {
+      window.webContents.reload();
+      return;
+    } catch (error) {
+      console.error("[CRASH] Renderer reload failed", { message: error.message });
+    }
+  }
+
+  console.error("[CRASH] Renderer recovery exhausted, prompting user");
+  const choice = dialog.showMessageBoxSync({
+    type: "error",
+    title: "Teams for Linux stopped responding",
+    message:
+      "The Teams window crashed repeatedly and could not be recovered.\n\n" +
+      "Restarting the application usually resolves this. If it keeps happening, " +
+      "use Help > Save Diagnostics and send the file to your IT support.",
+    buttons: ["Restart", "Quit"],
+    defaultId: 0,
+    cancelId: 1,
+  });
+
+  if (choice === 0) {
+    restartApp();
+  } else {
+    app.quit();
+  }
 }
 
 function onAppTerminated() {
@@ -426,7 +498,7 @@ function initializeCacheManagement() {
 function initializeAutoUpdater() {
   const mainWindow = mainAppWindow.getWindow();
   if (mainWindow) {
-    AutoUpdater.initialize(mainWindow);
+    AutoUpdater.initialize(mainWindow, config);
   }
 }
 

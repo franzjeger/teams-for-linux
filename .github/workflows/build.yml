@@ -38,8 +38,40 @@ jobs:
       - name: Run linter
         run: npm run lint
 
+      # Gated at high rather than critical: a high-severity advisory in a
+      # dependency that ships to users is a release blocker, not a warning.
       - name: Audit dependencies
-        run: npm audit --audit-level=critical
+        run: npm audit --audit-level=high
+
+  sbom:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Describes what actually ships, so --omit dev. The generator is pinned
+      # and run through npx rather than added to devDependencies, so it cannot
+      # introduce advisories into the audit gate above.
+      - name: Generate CycloneDX SBOM
+        run: npm run sbom
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: sbom-cyclonedx
+          path: sbom.cdx.json
+          retention-days: 90
 
   e2e_tests:
     runs-on: ubuntu-latest
@@ -76,10 +108,12 @@ jobs:
           retention-days: 7
 
   linux_x64:
-    needs: [lint_and_audit]
+    needs: [lint_and_audit, e2e_tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Check out Git repository
@@ -100,6 +134,19 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: npm run dist:linux:x64 -- --publish always
 
+      # Signed, verifiable link between the published artifact and the workflow
+      # run that produced it. Consumers check it with:
+      #   gh attestation verify <file> --repo IsmaelMartinez/teams-for-linux
+      - name: Attest build provenance
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+            dist/*.AppImage
+
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
         run: npm run dist:linux:x64 -- --publish never
@@ -118,10 +165,12 @@ jobs:
           compression-level: 6
 
   linux_arm64:
-    needs: [lint_and_audit]
+    needs: [lint_and_audit, e2e_tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Check out Git repository
@@ -142,6 +191,19 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: npm run dist:linux:arm64 -- --publish always
 
+      # Signed, verifiable link between the published artifact and the workflow
+      # run that produced it. Consumers check it with:
+      #   gh attestation verify <file> --repo IsmaelMartinez/teams-for-linux
+      - name: Attest build provenance
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+            dist/*.AppImage
+
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
         run: npm run dist:linux:arm64 -- --publish never
@@ -160,10 +222,12 @@ jobs:
           compression-level: 6
 
   linux_arm:
-    needs: [lint_and_audit]
+    needs: [lint_and_audit, e2e_tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Check out Git repository
@@ -184,6 +248,19 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: npm run dist:linux:arm -- --publish always
 
+      # Signed, verifiable link between the published artifact and the workflow
+      # run that produced it. Consumers check it with:
+      #   gh attestation verify <file> --repo IsmaelMartinez/teams-for-linux
+      - name: Attest build provenance
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+            dist/*.AppImage
+
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
         run: npm run dist:linux:arm -- --publish never
@@ -202,10 +279,12 @@ jobs:
           compression-level: 6
 
   dmg:
-    needs: [lint_and_audit]
+    needs: [lint_and_audit, e2e_tests]
     runs-on: macos-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Check out Git repository
@@ -226,6 +305,16 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: npm run dist:mac:x64 -- --publish always
 
+      # Signed, verifiable link between the published artifact and the workflow
+      # run that produced it. Consumers check it with:
+      #   gh attestation verify <file> --repo IsmaelMartinez/teams-for-linux
+      - name: Attest build provenance
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            dist/*.dmg
+
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
         run: npm run dist:mac:x64 -- --publish never
@@ -240,10 +329,12 @@ jobs:
           compression-level: 6
 
   exe:
-    needs: [lint_and_audit]
+    needs: [lint_and_audit, e2e_tests]
     runs-on: windows-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Check out Git repository
@@ -263,6 +354,16 @@ jobs:
       - name: Build for Release
         if: github.ref == 'refs/heads/main'
         run: npm run dist:windows -- --publish always
+
+      # Signed, verifiable link between the published artifact and the workflow
+      # run that produced it. Consumers check it with:
+      #   gh attestation verify <file> --repo IsmaelMartinez/teams-for-linux
+      - name: Attest build provenance
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            dist/*.exe
 
       - name: Build for PR
         if: github.ref != 'refs/heads/main'

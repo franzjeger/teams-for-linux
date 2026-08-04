@@ -65,7 +65,7 @@ function setEventHandlers(self) {
       if (buttons.length > 0) {
         switch (action) {
           case 'ACCEPT_AUDIO':
-            if (buttons.length == 3) {
+            if (buttons.length === 3) {
               buttons[1].click();
             }
             break;

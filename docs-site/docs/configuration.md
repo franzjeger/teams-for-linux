@@ -29,11 +29,14 @@ This document details all available configuration options for the Teams for Linu
   - [Performance & Hardware](#performance--hardware)
   - [Wayland](#wayland)
   - [Cache & Storage](#cache--storage)
+  - [Enterprise Management](#enterprise-management)
+  - [Diagnostics & Crash Reporting](#diagnostics--crash-reporting)
   - [Development & Debug](#development--debug)
   - [Advanced Platform Options](#advanced-platform-options)
 - [Usage Examples & Guides](#usage-examples--guides)
   - [Basic Setup Examples](#basic-setup-examples)
   - [System-wide Configuration](#system-wide-configuration)
+  - [Managed Policy (Locking Settings)](#managed-policy-locking-settings)
   - [Electron CLI Flags](#electron-cli-flags)
   - [Incoming Call Command](#incoming-call-command)
   - [Cache Management](#cache-management)
@@ -465,12 +468,78 @@ Wayland display server settings are organized under the `wayland` configuration 
 > [!NOTE]
 > See [Cache Management](#cache-management) for detailed configuration and usage examples.
 
+### Enterprise Management
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `disableAutoUpdate` | `boolean` | `false` | Disable the built-in auto-updater. For fleets that receive updates through the distribution's package manager. |
+| `disableDevTools` | `boolean` | `false` | Disable Chromium DevTools entirely, including the menu entry, the keyboard shortcut and the `webDebug` option. |
+| `security` | `object` | `{ restrictNavigation: false, additionalTrustedOrigins: [] }` | Navigation guard for the main window. See [Navigation Restriction](#navigation-restriction). |
+
+The `managedPolicy` section, which lets an administrator lock any of these
+settings against user override, is documented under
+[Managed Policy](#managed-policy-locking-settings).
+
+#### Navigation Restriction
+
+`security.restrictNavigation` is off by default. Enterprise SSO redirects
+through identity providers on customer-controlled domains that cannot be known
+in advance, so a default-on allowlist would break sign-in.
+
+To turn it on, list the domains your sign-in flow passes through:
+
+```json
+{
+  "security": {
+    "restrictNavigation": true,
+    "additionalTrustedOrigins": ["sso.example.com", "adfs.example.com"]
+  }
+}
+```
+
+Microsoft's own Teams, authentication and CDN domains are trusted
+automatically, as is the host of your configured `url`. Navigation to anything
+else is blocked and handed to the external browser instead.
+
+Permission handling is always enforced and needs no configuration: only the
+permissions Teams uses are granted, camera/microphone/screen capture require a
+trusted origin, and WebHID, WebSerial and WebUSB are always denied.
+
+### Diagnostics & Crash Reporting
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `crashReporter` | `object` | `{ enabled: true, uploadToServer: false, submitURL: "", compress: true }` | Crash reporting. See below. |
+
+Crash minidumps are written to the local crash dumps directory and **never
+leave the machine** unless an administrator sets both `uploadToServer` and
+`submitURL`. There is no default endpoint and no telemetry is collected.
+
+```json
+{
+  "crashReporter": {
+    "enabled": true,
+    "uploadToServer": true,
+    "submitURL": "https://crashes.example.com/submit"
+  }
+}
+```
+
+Set `enabled` to `false` to turn crash reporting off entirely.
+
+**Diagnostics bundle.** *Help > Save Diagnostics...* writes a JSON file
+containing version, runtime, platform, session, policy and crash-dump
+information plus a 64 KB tail of the log. Credentials, account identifiers and
+internal host names are redacted, and the whole payload passes through the PII
+sanitizer. Crash dumps are listed by name only, never inlined. Review the file
+before sharing it.
+
 ### Development & Debug
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `webDebug` | `boolean` | `false` | Enable debug at start |
-| `logConfig` | `object` | `{ transports: { console: { level: "info" }, file: { level: false } } }` | Electron-log configuration |
+| `webDebug` | `boolean` | `false` | Enable debug at start. Has no effect when `disableDevTools` is set. |
+| `logConfig` | `object` | `{ transports: { console: { level: "info" }, file: { level: "info", maxSize: 5242880 } } }` | Electron-log configuration. File logging is enabled by default and rotates to a single archive at `maxSize`, so disk use is capped at twice that. Set `file.level` to `false` to disable it. |
 | `watchConfigFile` | `boolean` | `false` | Watch for changes in config file and reload the app |
 
 ### Advanced Platform Options
@@ -616,7 +685,7 @@ Teams for Linux supports system-wide configuration files for enterprise and mult
 3. **Default values**: Built-in application defaults
 
 > [!NOTE]
-> User configurations take precedence over system-wide configurations. This allows administrators to set organization-wide defaults while still allowing individual users to customize their settings.
+> By default, user configurations take precedence over system-wide configurations. This allows administrators to set organization-wide defaults while still allowing individual users to customize their settings. To make a setting non-overridable, see [Managed Policy](#managed-policy-locking-settings).
 
 #### Example System-wide Config
 
@@ -642,6 +711,83 @@ Create `/etc/teams-for-linux/config.json` to set organization-wide defaults:
 ```
 
 **Related GitHub Issues:** [Issue #1773](https://github.com/IsmaelMartinez/teams-for-linux/issues/1773)
+
+### Managed Policy (Locking Settings)
+
+System-wide defaults can be overridden by users, which is usually what you
+want. When a setting must be enforced instead, declare it in a `managedPolicy`
+section of `/etc/teams-for-linux/config.json`:
+
+```json
+{
+  "managedPolicy": {
+    "lockedSettings": ["url", "disableAutoUpdate", "disableDevTools", "mqtt.enabled"]
+  },
+  "url": "https://teams.microsoft.com/v2",
+  "disableAutoUpdate": true,
+  "disableDevTools": true,
+  "mqtt": { "enabled": false }
+}
+```
+
+Settings listed in `lockedSettings` keep their system-wide value. Everything
+else keeps the normal user-config precedence, so users can still customise the
+rest of their setup.
+
+**Enforcement covers every input path.** Locked settings are re-applied after
+the user config file, environment variables and command line arguments have all
+been processed, so none of them can be used to work around the policy. Override
+attempts are logged with a `[POLICY]` prefix.
+
+**Nested settings** use dotted paths. `"mqtt.enabled"` locks only that field and
+leaves the rest of the `mqtt` section user-configurable.
+
+**Locking everything** the system config defines:
+
+```json
+{
+  "managedPolicy": { "lockAll": true },
+  "url": "https://teams.microsoft.com/v2",
+  "disableAutoUpdate": true
+}
+```
+
+A `managedPolicy` section in a *user* config file is ignored and discarded, so
+users cannot declare their own policy.
+
+> [!NOTE]
+> This is a manageability control, not a security boundary. A user with write
+> access to the application's own files can still change its behaviour; the
+> policy prevents configuration drift, it does not defend against a determined
+> local administrator.
+
+#### Example: Locked Enterprise Baseline
+
+```json
+{
+  "managedPolicy": {
+    "lockedSettings": [
+      "url",
+      "disableAutoUpdate",
+      "disableDevTools",
+      "security",
+      "crashReporter"
+    ]
+  },
+  "url": "https://teams.microsoft.com/v2",
+  "disableAutoUpdate": true,
+  "disableDevTools": true,
+  "security": {
+    "restrictNavigation": true,
+    "additionalTrustedOrigins": ["sso.example.com"]
+  },
+  "crashReporter": {
+    "enabled": true,
+    "uploadToServer": true,
+    "submitURL": "https://crashes.example.com/submit"
+  }
+}
+```
 
 ### Electron CLI Flags
 

@@ -65,10 +65,11 @@ Supporting infrastructure, utilities, and cross-cutting concerns.
 | **Utils** | `app/utils/` | Shared utilities (window positioning, log sanitization) | — |
 | **Helpers** | `app/helpers/` | Shared utility functions and common logic | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/helpers/README.md) |
 | **Cache Manager** | `app/cacheManager/` | Application cache handling | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/cacheManager/README.md) |
-| **Config** | `app/config/` | Configuration file loading and parsing | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/config/README.md) |
+| **Config** | `app/config/` | Configuration file loading, parsing and managed-policy enforcement (`managedPolicy.js`) | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/config/README.md), [Managed Policy](../configuration.md#managed-policy-locking-settings) |
 | **Connection Manager** | `app/connectionManager/` | Network connectivity and connection state | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/connectionManager/README.md) |
 | **Partitions** | `app/partitions/` | Electron partition management for sessions | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/partitions/README.md) |
-| **Security** | `app/security/` | Security controls and validation | No README yet |
+| **Security** | `app/security/` | IPC channel allowlisting (`ipcValidator.js`) and permission, device and navigation guards for the main window (`webContentsGuards.js`) | [ADR 020](./adr/020-context-isolation-migration.md) |
+| **Diagnostics** | `app/diagnostics/` | Crash reporter startup and the Help > Save Diagnostics support bundle | [Configuration](../configuration.md#diagnostics--crash-reporting) |
 | **Certificate** | `app/certificate/` | Custom certificate handling | [User Guide](../certificate.md) |
 
 ## UI Components

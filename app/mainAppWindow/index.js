@@ -18,6 +18,7 @@ const TrayIconChooser = require("../browser/tools/trayIconChooser");
 require("../appConfiguration");
 const ConnectionManager = require("../connectionManager");
 const BrowserWindowManager = require("../mainAppWindow/browserWindowManager");
+const { applyWebContentsGuards } = require("../security/webContentsGuards");
 const os = require("node:os");
 const path = require("node:path");
 
@@ -404,6 +405,10 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
     window.webContents.setWebRTCIPHandlingPolicy(config.network.webRTCIPHandlingPolicy);
   }
 
+  // Permission, device and navigation guards. Applied before any content
+  // loads so the very first request is already covered.
+  applyWebContentsGuards(window.webContents.session, window.webContents, config);
+
   window.webContents.session.setDisplayMediaRequestHandler(
     (_request, callback) => {
       streamSelector.show((source) => {
@@ -538,7 +543,14 @@ function applyAppConfiguration(config, window) {
     window.hide();
   }
 
-  if (config.webDebug) {
+  if (config.disableDevTools) {
+    // Enforce the policy at the webContents level so menu entries, keyboard
+    // shortcuts and the webDebug option are all covered by a single check.
+    window.webContents.on("devtools-opened", () => {
+      console.warn("[POLICY] DevTools blocked by configuration");
+      window.webContents.closeDevTools();
+    });
+  } else if (config.webDebug) {
     window.openDevTools();
   }
 }

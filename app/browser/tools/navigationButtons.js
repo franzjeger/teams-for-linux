@@ -8,14 +8,18 @@ class NavigationButtons {
   #initialized = false;
   #backButton = null;
   #forwardButton = null;
+  #ipcRenderer = null;
 
-  init(config) {
+  init(_config, ipcRenderer) {
     if (this.#initialized) {
       return;
     }
 
     // Note: config parameter kept for API consistency with other modules
-    // but not currently used by navigation buttons functionality
+    // but not currently used by navigation buttons functionality.
+    // ipcRenderer is used directly rather than through a page-global bridge,
+    // so navigation does not need to be reachable from page scripts.
+    this.#ipcRenderer = ipcRenderer;
     this.#initialized = true;
 
     // Inject buttons with retry logic for Teams UI elements
@@ -129,18 +133,14 @@ class NavigationButtons {
     if (this.#backButton) {
       this.#backButton.addEventListener('click', () => {
         console.debug('Back button clicked');
-        if (globalThis.electronAPI?.navigateBack) {
-          globalThis.electronAPI.navigateBack();
-        }
+        this.#ipcRenderer?.send("navigate-back");
       });
     }
 
     if (this.#forwardButton) {
       this.#forwardButton.addEventListener('click', () => {
         console.debug('Forward button clicked');
-        if (globalThis.electronAPI?.navigateForward) {
-          globalThis.electronAPI.navigateForward();
-        }
+        this.#ipcRenderer?.send("navigate-forward");
       });
     }
 
@@ -148,21 +148,25 @@ class NavigationButtons {
     this.updateButtonStates();
 
     // Listen for navigation events to update button states
-    if (globalThis.electronAPI?.onNavigationStateChanged) {
-      globalThis.electronAPI.onNavigationStateChanged((event, canGoBack, canGoForward) => {
+    this.#ipcRenderer?.on(
+      "navigation-state-changed",
+      (_event, canGoBack, canGoForward) => {
         this.updateButtonStates(canGoBack, canGoForward);
-      });
-    }
+      }
+    );
   }
 
   updateButtonStates(canGoBack, canGoForward) {
     // If states not provided, request them
     if (canGoBack === undefined || canGoForward === undefined) {
-      if (globalThis.electronAPI?.getNavigationState) {
-        globalThis.electronAPI.getNavigationState().then(state => {
+      this.#ipcRenderer
+        ?.invoke("get-navigation-state")
+        .then((state) => {
           this.updateButtonStates(state.canGoBack, state.canGoForward);
+        })
+        .catch((error) => {
+          console.debug("Navigation state request failed:", error.message);
         });
-      }
       return;
     }
 

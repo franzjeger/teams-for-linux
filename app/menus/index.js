@@ -16,6 +16,7 @@ const DocumentationWindow = require("../documentationWindow");
 const GpuInfoWindow = require("../gpuInfoWindow");
 const JoinMeetingDialog = require("../joinMeetingDialog");
 const autoUpdaterModule = require("../autoUpdater");
+const diagnostics = require("../diagnostics");
 
 let _Menus_onSpellCheckerLanguageChanged = new WeakMap();
 class Menus {
@@ -123,6 +124,16 @@ class Menus {
   }
 
   debug() {
+    if (this.configGroup.startupConfig.disableDevTools) {
+      console.warn("[POLICY] DevTools blocked by configuration");
+      dialog.showMessageBox(this.window, {
+        type: "info",
+        title: "Developer Tools Disabled",
+        message:
+          "Developer tools have been disabled by your organization's configuration.",
+      });
+      return;
+    }
     this.window.openDevTools();
   }
 
@@ -130,10 +141,41 @@ class Menus {
     this.window.hide();
   }
 
+  async saveDiagnostics() {
+    try {
+      const savedPath = await diagnostics.saveDiagnosticsBundle(
+        this.window,
+        this.configGroup.startupConfig,
+        new Date().toISOString()
+      );
+      if (!savedPath) return;
+
+      dialog.showMessageBox(this.window, {
+        type: "info",
+        title: "Diagnostics Saved",
+        message:
+          "Diagnostics were saved. Credentials, account identifiers and " +
+          "internal host names are removed, but review the file before " +
+          "sharing it.",
+        detail: savedPath,
+      });
+    } catch (error) {
+      console.error("[DIAGNOSTICS] Failed to save diagnostics", {
+        message: error.message,
+      });
+      dialog.showMessageBox(this.window, {
+        type: "error",
+        title: "Diagnostics Failed",
+        message: "Could not write the diagnostics file.",
+        detail: error.message,
+      });
+    }
+  }
+
   initialize() {
     const menu = appMenu(this);
 
-    if (this.configGroup.startupConfig.menubar == "hidden") {
+    if (this.configGroup.startupConfig.menubar === "hidden") {
       this.window.removeMenu();
     } else {
       this.window.setMenu(Menu.buildFromTemplate([menu]));
@@ -520,7 +562,7 @@ function chooseLanguage(item, menus) {
 }
 
 function removeFromList(list, item) {
-  const itemIndex = list.findIndex((l) => l == item);
+  const itemIndex = list.findIndex((l) => l === item);
   if (itemIndex >= 0) {
     list.splice(itemIndex, 1);
   }
@@ -529,7 +571,7 @@ function removeFromList(list, item) {
 }
 
 function addToList(list, item) {
-  const itemIndex = list.findIndex((l) => l == item);
+  const itemIndex = list.findIndex((l) => l === item);
   if (itemIndex < 0) {
     list.push(item);
   }
