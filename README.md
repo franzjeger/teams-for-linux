@@ -54,9 +54,28 @@ sudo dnf -y install teams-for-linux
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/teams-for-linux)
 <a href='https://flathub.org/apps/details/com.github.IsmaelMartinez.teams_for_linux'><img width='170' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
+**Arch Linux:** besides the AUR package above, releases include a native
+`.pacman` package built from this repository:
+
+```bash
+sudo pacman -U teams-for-linux-*.pacman
+```
+
+For managed rollouts, `scripts/install-arch.sh` wraps that: it verifies the
+package and its dependencies before touching anything, and can deploy a
+system-wide policy file in the same step.
+
+```bash
+./scripts/install-arch.sh --check-only teams-for-linux-*.pacman   # no root needed
+sudo ./scripts/install-arch.sh teams-for-linux-*.pacman
+sudo ./scripts/install-arch.sh --policy corp-policy.json teams-for-linux-*.pacman
+```
+
+See the [installation guide](https://ismaelmartinez.github.io/teams-for-linux/installation) for details.
+
 ### Manual Download
 
-Download from [GitHub Releases](https://github.com/IsmaelMartinez/teams-for-linux/releases) — available as AppImage, deb, rpm, snap, tar.gz (plus Windows/macOS builds).
+Download from [GitHub Releases](https://github.com/IsmaelMartinez/teams-for-linux/releases) — available as AppImage, deb, rpm, snap, tar.gz, pacman (plus Windows/macOS builds).
 
 > [!TIP]
 > For AppImage files, use [`AppImageLauncher`](https://github.com/TheAssassin/AppImageLauncher) for better desktop integration.
