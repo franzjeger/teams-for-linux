@@ -6,7 +6,7 @@ id: 020-context-isolation-migration
 
 ## Status
 
-Accepted --- staged migration, not yet implemented
+Accepted --- staged migration in progress (stages 1 and 2 shipped)
 
 ## Context
 
@@ -145,6 +145,7 @@ stays `false` until stage 5.
    `globalThis.electronAPI` that is not consumed. Done --- see below.
 2. **Build the bridge.** Agent loader, correlated messaging, validation, unit
    tests for the validation logic. No behaviour change; nothing uses it yet.
+   Done --- see below.
 3. **Migrate the page-global patchers.** `disableAutogain`, `cameraResolution`,
    `cameraAspectRatio`, `speakingIndicator`, the Notification override. These
    are self-contained and their failure modes are visible in ordinary use
@@ -226,6 +227,33 @@ Stage 1 shipped. `globalThis.electronAPI` went from 22 entries to 2:
 Quick Chat was unaffected: it is a separate window with its own isolated
 preload using different channels (`graph-api-search-people`,
 `graph-api-send-chat-message`).
+
+Stage 2 shipped. `app/browser/bridge/` contains the three pieces the remaining
+stages need:
+
+- `protocol.js` --- message format and validation, free of Electron and DOM so
+  the security decisions are directly testable.
+- `isolatedBridge.js` --- runs in the preload, owns `ipcRenderer`, injects the
+  agent, correlates requests with responses.
+- `mainWorldAgent.js` --- the agent runtime, stringified and injected rather
+  than required.
+
+Nothing uses it yet; it ships inert so the protocol could be reviewed before a
+tool depends on it. 67 unit tests cover the validation rules, request
+correlation and hostile inbound traffic, plus an interop suite that runs the
+real agent source in a vm context against a real bridge --- the two halves are
+written against the same protocol but never import each other, so only a round
+trip proves they agree.
+
+One correction to the design sketched above: the per-session id is described
+there as a nonce that stops page scripts guessing the channel. That
+overstates it. The agent runs in the page world, so any script sharing that
+world can read the id off the traffic. It prevents unrelated `postMessage`
+traffic being mistaken for bridge messages, nothing more. The controls that
+actually hold are the channel allowlist, the per-channel payload validators, and
+refusing responses that do not answer an outstanding request on the same
+channel. `app/browser/bridge/README.md` states this plainly so the id is not
+mistaken for authentication later.
 
 Related hardening shipped alongside: `webviewTag` is now `false` (no `<webview>`
 exists in the application), and a `will-attach-webview` guard forces isolation
