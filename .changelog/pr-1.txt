@@ -1,1 +1,0 @@
-chore(deps): bump actions/stale from 9 to 10 (#1)

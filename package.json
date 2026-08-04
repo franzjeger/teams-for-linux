@@ -55,22 +55,22 @@
     "release": "electron-builder"
   },
   "dependencies": {
-    "@homebridge/dbus-native": "0.7.4",
-    "electron-log": "^5.4.3",
+    "@homebridge/dbus-native": "0.7.6",
+    "electron-log": "^5.4.4",
     "electron-store": "11.0.2",
-    "electron-updater": "^6.8.3",
+    "electron-updater": "^6.8.9",
     "electron-window-state": "5.0.3",
     "mqtt": "^5.15.1",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@electron/fuses": "^2.1.1",
+    "@electron/fuses": "^2.1.2",
     "@eslint/js": "^10.0.1",
     "electron": "41.1.0",
-    "@playwright/test": "1.59.0",
-    "electron-builder": "^26.8.1",
-    "eslint": "^10.1.0",
-    "globals": "^17.4.0",
+    "@playwright/test": "1.60.0",
+    "electron-builder": "^26.15.2",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
     "http-server": "^14.1.1",
     "xml2js": "^0.6.2"
   },
