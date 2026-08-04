@@ -1,0 +1,1 @@
+Context isolation migration: main-world bridge and authenticated test coverage - by @franzjeger (#18)
