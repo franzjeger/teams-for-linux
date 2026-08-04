@@ -1,0 +1,1 @@
+docs(readme): document the pacman package and the Arch install script - by @franzjeger (#23)
