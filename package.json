@@ -31,6 +31,7 @@
     "start": "electron ./app --trace-warnings",
     "start:dev": "electron ./app --trace-warnings --no-sandbox",
     "release:prepare": "node scripts/release-prepare.mjs",
+    "sbom": "npx --yes @cyclonedx/cyclonedx-npm@6.0.0 --omit dev --output-format JSON --output-file sbom.cdx.json",
     "generate-release-info": "node scripts/generateReleaseInfo.js",
     "generate-ipc-docs": "node scripts/generateIpcDocs.js",
     "generate-release-notes": "node scripts/generateReleaseNotes.mjs",
