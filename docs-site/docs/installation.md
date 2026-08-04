@@ -54,6 +54,41 @@ makepkg -si
 
 [![AUR: teams-for-linux](https://img.shields.io/badge/AUR-teams--for--linux-blue.svg)](https://aur.archlinux.org/packages/teams-for-linux)
 
+#### Arch Linux (pacman package)
+
+Builds also publish a native pacman package alongside the deb and rpm, for
+deployments that install from a build artifact rather than the AUR:
+
+```bash
+sudo pacman -U teams-for-linux-*.pacman
+```
+
+`scripts/install-arch.sh` wraps this for managed rollouts. It verifies the
+package, reports any dependency that cannot be satisfied, and can deploy a
+managed policy in the same step:
+
+```bash
+# Verify without installing, and without root
+./scripts/install-arch.sh --check-only teams-for-linux-2.8.0.pacman
+
+# Install
+sudo ./scripts/install-arch.sh teams-for-linux-2.8.0.pacman
+
+# Install and deploy a locked configuration
+sudo ./scripts/install-arch.sh --policy corp-policy.json teams-for-linux-2.8.0.pacman
+```
+
+The policy file is installed to `/etc/teams-for-linux/config.json` as
+`root:root 0644`, after backing up any existing file. It is written outside the
+package on purpose, so upgrading the package never overwrites a deployed policy.
+See [Managed Policy](configuration.md#managed-policy-locking-settings) for what
+belongs in it.
+
+Installing through pacman rather than unpacking a tarball keeps the app
+upgradable and removable like any other package, which is what makes
+`disableAutoUpdate` a sensible policy for a managed fleet: updates arrive
+through the package manager instead of the in-app updater.
+
 ### Ubuntu (Pacstall)
 
 ```bash

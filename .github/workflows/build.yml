@@ -127,6 +127,12 @@ jobs:
       - name: Build
         run: npm ci
 
+      # The pacman target shells out to bsdtar to build the package metadata.
+      # It is not present on the runner by default, and fpm fails with a bare
+      # exit 127 without it.
+      - name: Install pacman packaging dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libarchive-tools
+
       - name: Validate Release Notes
         run: npm run generate-release-info
 
@@ -146,6 +152,7 @@ jobs:
             dist/*.rpm
             dist/*.tar.gz
             dist/*.AppImage
+            dist/*.pacman
 
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
@@ -161,6 +168,7 @@ jobs:
             dist/*.rpm
             dist/*.tar.gz
             dist/*.AppImage
+            dist/*.pacman
           retention-days: 30
           compression-level: 6
 
@@ -184,6 +192,12 @@ jobs:
       - name: Build
         run: npm ci
 
+      # The pacman target shells out to bsdtar to build the package metadata.
+      # It is not present on the runner by default, and fpm fails with a bare
+      # exit 127 without it.
+      - name: Install pacman packaging dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libarchive-tools
+
       - name: Validate Release Notes
         run: npm run generate-release-info
 
@@ -203,6 +217,7 @@ jobs:
             dist/*.rpm
             dist/*.tar.gz
             dist/*.AppImage
+            dist/*.pacman
 
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
@@ -218,6 +233,7 @@ jobs:
             dist/*.rpm
             dist/*.tar.gz
             dist/*.AppImage
+            dist/*.pacman
           retention-days: 30
           compression-level: 6
 
@@ -241,6 +257,12 @@ jobs:
       - name: Build
         run: npm ci
 
+      # The pacman target shells out to bsdtar to build the package metadata.
+      # It is not present on the runner by default, and fpm fails with a bare
+      # exit 127 without it.
+      - name: Install pacman packaging dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libarchive-tools
+
       - name: Validate Release Notes
         run: npm run generate-release-info
 
@@ -260,6 +282,7 @@ jobs:
             dist/*.rpm
             dist/*.tar.gz
             dist/*.AppImage
+            dist/*.pacman
 
       - name: Build for PR
         if: github.ref != 'refs/heads/main'
@@ -275,6 +298,7 @@ jobs:
             dist/*.rpm
             dist/*.tar.gz
             dist/*.AppImage
+            dist/*.pacman
           retention-days: 30
           compression-level: 6
 

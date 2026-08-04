@@ -49,9 +49,9 @@
     "dist:mac:x64": "electron-builder --mac --x64",
     "dist:mac:arm64": "electron-builder --mac --arm64",
     "dist:windows": "electron-builder --windows --x64",
-    "dist:linux:x64": "electron-builder --x64 -l tar.gz deb rpm AppImage",
-    "dist:linux:arm64": "electron-builder --arm64 -l tar.gz deb rpm AppImage",
-    "dist:linux:arm": "electron-builder --armv7l -l tar.gz deb rpm AppImage",
+    "dist:linux:x64": "electron-builder --x64 -l tar.gz deb rpm AppImage pacman",
+    "dist:linux:arm64": "electron-builder --arm64 -l tar.gz deb rpm AppImage pacman",
+    "dist:linux:arm": "electron-builder --armv7l -l tar.gz deb rpm AppImage pacman",
     "release": "electron-builder"
   },
   "dependencies": {
@@ -110,7 +110,8 @@
         "rpm",
         "deb",
         "tar.gz",
-        "AppImage"
+        "AppImage",
+        "pacman"
       ],
       "publish": {
         "provider": "github",
@@ -119,6 +120,17 @@
       "releaseInfo": {
         "releaseNotesFile": "release-info.json"
       }
+    },
+    "pacman": {
+      "depends": [
+        "gtk3",
+        "nss",
+        "alsa-lib",
+        "libxss",
+        "libnotify",
+        "xdg-utils",
+        "at-spi2-core"
+      ]
     },
     "rpm": {
       "depends": [
