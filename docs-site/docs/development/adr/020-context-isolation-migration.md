@@ -6,7 +6,7 @@ id: 020-context-isolation-migration
 
 ## Status
 
-Accepted --- staged migration in progress (stages 1 and 2 shipped)
+Accepted --- staged migration in progress (stages 1 and 2 shipped, stage 3 partial)
 
 ## Context
 
@@ -146,10 +146,24 @@ stays `false` until stage 5.
 2. **Build the bridge.** Agent loader, correlated messaging, validation, unit
    tests for the validation logic. No behaviour change; nothing uses it yet.
    Done --- see below.
-3. **Migrate the page-global patchers.** `disableAutogain`, `cameraResolution`,
-   `cameraAspectRatio`, `speakingIndicator`, the Notification override. These
-   are self-contained and their failure modes are visible in ordinary use
-   (camera, microphone, notifications), so they are the honest first test.
+3. **Migrate the page-global patchers.** `disableAutogain`, `cameraResolution`
+   and `cameraAspectRatio` --- config-only, no `ipcRenderer`, no imports. Their
+   failure mode is visible in ordinary use (camera, microphone), so they are the
+   honest first test. Done --- see below.
+
+   Two entries originally listed here do not belong:
+
+   - **`speakingIndicator` is stage 4, not stage 3.** It looks self-contained,
+     but `require('./activityHub')` at module level pulls in `reactHandler` and
+     with it the whole React-internals problem. Its actual use of activityHub is
+     narrow --- two event subscriptions, `call-connected` and
+     `call-disconnected` --- so it can move once activityHub does, but not
+     before.
+   - **The Notification override needs the bridge.** It calls back into the
+     preload for sound and toast delivery, so it cannot be a plain injection
+     like the other three. It is the highest-risk item in this stage:
+     notification delivery has regressed before, and the failure is silent
+     after the first notification. Left for its own change.
 4. **Migrate the React-internals tools.** `reactHandler` and its dependants,
    then `tokenCache`. This is the risky stage: Teams' internals are
    undocumented and change without notice. Needs authenticated testing against a
@@ -280,6 +294,25 @@ actually hold are the channel allowlist, the per-channel payload validators, and
 refusing responses that do not answer an outstanding request on the same
 channel. `app/browser/bridge/README.md` states this plainly so the id is not
 mistaken for authentication later.
+
+Stage 3 partially shipped. `app/browser/bridge/mainWorldTools.js` reads the
+tool sources at runtime and wraps them in a CommonJS shim, so
+`module.exports = { init }` keeps working and the tool files stay the single
+source of truth rather than being duplicated into a bundle. That only works
+because those three tools contain no `require` calls, which
+`assertNoRequires` enforces at build time --- a future import fails loudly
+instead of becoming `require is not defined` in the page.
+
+Only the config branches those tools read are copied across
+(`pickToolConfig`). The full config must not cross: once injected it is
+readable by any script in the page, and it carries proxy settings, SSO account
+hints and custom service URLs.
+
+Verified by launching the app against a local page and checking the page
+world: `getUserMedia` is wrapped when a camera tool is enabled and untouched
+when it is not, the Notification override is unaffected, the exposed
+`electronAPI` surface is unchanged, and the CommonJS shim does not leak
+`module` or `exports` into the page globals.
 
 Related hardening shipped alongside: `webviewTag` is now `false` (no `<webview>`
 exists in the application), and a `will-attach-webview` guard forces isolation
