@@ -93,8 +93,8 @@ function describeMethod(method, testsFn) {
 
     test.beforeEach(async () => {
       const { electronApp, userDataDir } = await launchApp(method);
-      Object.assign(ctx, { electronApp, userDataDir });
-      ctx.mainWindow = await getMainWindow(electronApp);
+      const mainWindow = await getMainWindow(electronApp);
+      Object.assign(ctx, { electronApp, userDataDir, mainWindow });
       expect(ctx.mainWindow).toBeTruthy();
       await ctx.mainWindow.waitForLoadState('load', { timeout: 30000 });
     });

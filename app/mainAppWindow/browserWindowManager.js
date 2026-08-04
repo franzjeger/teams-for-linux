@@ -89,7 +89,7 @@ class BrowserWindowManager {
       backgroundColor: nativeTheme.shouldUseDarkColors ? "#302a75" : "#fff",
 
       show: false,
-      autoHideMenuBar: this.config.menubar == "auto",
+      autoHideMenuBar: this.config.menubar === "auto",
       icon: this.iconChooser ? this.getIconImage(this.iconChooser.getFile()) : undefined,
       frame: this.config.frame,
 
@@ -219,7 +219,7 @@ class BrowserWindowManager {
   }
 
   assignOnIncomingCallEndedHandler() {
-    return async (e) => {
+    return async (_e) => {
       this.handleOnIncomingCallEnded();
     };
   }
@@ -235,7 +235,7 @@ class BrowserWindowManager {
   }
 
   assignOnCallConnectedHandler() {
-    return async (e) => {
+    return async (_e) => {
       this.isOnCall = true;
       const result = this.screenLockInhibitionMethod === "Electron"
         ? this.disableScreenLockElectron()
@@ -247,7 +247,7 @@ class BrowserWindowManager {
   }
 
   assignOnCallDisconnectedHandler() {
-    return async (e) => {
+    return async (_e) => {
       this.isOnCall = false;
       const result = this.screenLockInhibitionMethod === "Electron"
         ? this.enableScreenLockElectron()

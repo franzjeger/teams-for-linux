@@ -9,7 +9,7 @@ class NavigationButtons {
   #backButton = null;
   #forwardButton = null;
 
-  init(config) {
+  init(_config) {
     if (this.#initialized) {
       return;
     }
