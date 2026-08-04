@@ -1,0 +1,1 @@
+chore(deps): clear the dependency queue and pin the last floating actions - by @franzjeger (#24)
