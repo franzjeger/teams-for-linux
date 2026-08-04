@@ -123,6 +123,16 @@ class Menus {
   }
 
   debug() {
+    if (this.configGroup.startupConfig.disableDevTools) {
+      console.warn("[POLICY] DevTools blocked by configuration");
+      dialog.showMessageBox(this.window, {
+        type: "info",
+        title: "Developer Tools Disabled",
+        message:
+          "Developer tools have been disabled by your organization's configuration.",
+      });
+      return;
+    }
     this.window.openDevTools();
   }
 
@@ -133,7 +143,7 @@ class Menus {
   initialize() {
     const menu = appMenu(this);
 
-    if (this.configGroup.startupConfig.menubar == "hidden") {
+    if (this.configGroup.startupConfig.menubar === "hidden") {
       this.window.removeMenu();
     } else {
       this.window.setMenu(Menu.buildFromTemplate([menu]));
@@ -520,7 +530,7 @@ function chooseLanguage(item, menus) {
 }
 
 function removeFromList(list, item) {
-  const itemIndex = list.findIndex((l) => l == item);
+  const itemIndex = list.findIndex((l) => l === item);
   if (itemIndex >= 0) {
     list.splice(itemIndex, 1);
   }
@@ -529,7 +539,7 @@ function removeFromList(list, item) {
 }
 
 function addToList(list, item) {
-  const itemIndex = list.findIndex((l) => l == item);
+  const itemIndex = list.findIndex((l) => l === item);
   if (itemIndex < 0) {
     list.push(item);
   }

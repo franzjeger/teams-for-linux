@@ -426,7 +426,7 @@ function initializeCacheManagement() {
 function initializeAutoUpdater() {
   const mainWindow = mainAppWindow.getWindow();
   if (mainWindow) {
-    AutoUpdater.initialize(mainWindow);
+    AutoUpdater.initialize(mainWindow, config);
   }
 }
 

@@ -538,7 +538,14 @@ function applyAppConfiguration(config, window) {
     window.hide();
   }
 
-  if (config.webDebug) {
+  if (config.disableDevTools) {
+    // Enforce the policy at the webContents level so menu entries, keyboard
+    // shortcuts and the webDebug option are all covered by a single check.
+    window.webContents.on("devtools-opened", () => {
+      console.warn("[POLICY] DevTools blocked by configuration");
+      window.webContents.closeDevTools();
+    });
+  } else if (config.webDebug) {
     window.openDevTools();
   }
 }
