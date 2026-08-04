@@ -250,6 +250,40 @@ Since v2.7.13, report-only CSP headers are automatically stripped for all non-Te
 
 ---
 
+#### Issue: Passkey sign-in does nothing
+
+**Description:** Signing in reaches "Face, fingerprint, PIN or security key" and
+then "Your device will open a security window", and nothing opens. No error is
+shown.
+
+**Cause:** Linux has no platform authenticator. Chromium's WebAuthn handler has
+nothing to offer, so the ceremony never completes.
+
+**Solutions/Workarounds:**
+
+1.  **Use a different sign-in method.** Password plus an authenticator app works
+    unchanged.
+2.  **Run a supported passkey provider.** If Arca is running and its vault is
+    unlocked, the app will ask it to answer the challenge. Arca prompts for the
+    master password on each assertion.
+
+Check that the app found the provider:
+
+```bash
+grep PASSKEY ~/.config/teams-for-linux/logs/main.log
+```
+
+Nothing at all means no ceremony reached the bridge. `[PASSKEY] Falling back to
+the browser handler` with `not-running` means the provider was not up when the
+ceremony fired; with `locked` it means the vault was locked. `[PASSKEY] Bridge
+disabled by configuration` means `passkey.enabled` is `false`, possibly through
+[managed policy](configuration.md#managed-policy-locking-settings).
+
+The integration can be turned off entirely — see
+[Passkeys](configuration.md#passkeys).
+
+---
+
 ### Notifications
 
 #### Issue: No Desktop Notifications

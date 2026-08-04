@@ -53,6 +53,7 @@ OS-level integrations and platform-specific functionality.
 | **Idle Monitor** | `app/idle/` | System idle state monitoring & status correlation | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/idle/README.md) |
 | **Login** | `app/login/` | Authentication and login flow management | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/login/README.md) |
 | **Menus** | `app/menus/` | Application menu bar and context menus | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/menus/README.md) |
+| **Passkey** | `app/passkey/` | WebAuthn ceremonies answered by a local passkey provider | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/passkey/README.md) |
 | **Spell Check Provider** | `app/spellCheckProvider/` | Text spelling correction integration | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/spellCheckProvider/README.md) |
 
 ## Utility & Infrastructure Modules

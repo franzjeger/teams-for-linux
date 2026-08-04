@@ -465,6 +465,14 @@ function extractYargConfig(configObject, appVersion) {
         describe: "BrowserWindow webpreferences partition",
         type: "string",
       },
+      passkey: {
+        default: {
+          enabled: true,
+        },
+        describe:
+          "External passkey provider bridge. enabled: let a local passkey provider answer WebAuthn ceremonies. Linux has no platform authenticator, so without a provider the sign-in page's passkey option does nothing. Ceremonies fall back to the browser's own handler whenever no provider is running, so this is safe to leave on; set it to false to forbid the integration outright.",
+        type: "object",
+      },
       proxyServer: {
         default: null,
         describe: "Proxy Server with format address:port",

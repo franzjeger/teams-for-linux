@@ -52,6 +52,28 @@ globalThis.electronAPI = {
   sendScreenSharingStopped: () => ipcRenderer.send("screen-sharing-stopped"),
 };
 
+/**
+ * Passkey shim.
+ *
+ * Installed at the preload's top level, which under `contextIsolation: false` is
+ * the page's own world and runs before any page script - verified against a
+ * cross-origin navigation, which is what the sign-in flow does. Anywhere later
+ * (DOMContentLoaded, the main-world agent) is after Entra has already captured
+ * navigator.credentials.
+ *
+ * The bridge is handed in rather than published on `globalThis`, so no new
+ * privileged surface appears on the page global. The config gate lives in the
+ * main process: a switch the page can reach is not a switch.
+ */
+try {
+  require("../passkey/webauthnShim").shimMain(null, {
+    get: (payload) => ipcRenderer.invoke("passkey-get", payload),
+    create: (payload) => ipcRenderer.invoke("passkey-create", payload),
+  });
+} catch (err) {
+  console.error("Preload: passkey shim failed to install:", err.message);
+}
+
 // Fetch config and override Notification immediately (matching v2.2.1 pattern)
 // Config is fetched asynchronously but notification function references it via closure
 let notificationConfig = null;
