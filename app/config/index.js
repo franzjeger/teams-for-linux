@@ -483,6 +483,15 @@ function extractYargConfig(configObject, appVersion) {
     	  "Disabled by default (opt-in).",
 	type: "object",
       },
+      security: {
+        default: {
+          restrictNavigation: false,
+          additionalTrustedOrigins: [],
+        },
+        describe:
+          "Security guards for the main window. restrictNavigation: block navigation to origins outside the trusted list (off by default because enterprise SSO redirects through identity providers on customer-controlled domains). additionalTrustedOrigins: extra hostnames to trust, e.g. your identity provider.",
+        type: "object",
+      },
       screenLockInhibitionMethod: {
         default: "Electron",
         deprecated: "Use screenSharing.lockInhibitionMethod instead. This option will be removed in a future version.",

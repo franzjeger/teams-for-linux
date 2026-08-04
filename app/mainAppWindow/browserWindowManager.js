@@ -98,7 +98,9 @@ class BrowserWindowManager {
         preload: path.join(__dirname, "..", "browser", "preload.js"),
         plugins: true,
         spellcheck: true,
-        webviewTag: true,
+        // No <webview> is used anywhere in this application. Leaving the tag
+        // enabled only gives remote content a way to spawn a child WebContents.
+        webviewTag: false,
         // SECURITY: Disabled for Teams DOM access, compensated by IPC validation
         contextIsolation: false,  // Required for ReactHandler DOM access
         nodeIntegration: false,   // Secure: preload scripts don't need this

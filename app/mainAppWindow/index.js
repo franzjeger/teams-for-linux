@@ -18,6 +18,7 @@ const TrayIconChooser = require("../browser/tools/trayIconChooser");
 require("../appConfiguration");
 const ConnectionManager = require("../connectionManager");
 const BrowserWindowManager = require("../mainAppWindow/browserWindowManager");
+const { applyWebContentsGuards } = require("../security/webContentsGuards");
 const os = require("node:os");
 const path = require("node:path");
 
@@ -403,6 +404,10 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
     console.info(`[WebRTC] IP handling policy applied`);
     window.webContents.setWebRTCIPHandlingPolicy(config.network.webRTCIPHandlingPolicy);
   }
+
+  // Permission, device and navigation guards. Applied before any content
+  // loads so the very first request is already covered.
+  applyWebContentsGuards(window.webContents.session, window.webContents, config);
 
   window.webContents.session.setDisplayMediaRequestHandler(
     (_request, callback) => {
