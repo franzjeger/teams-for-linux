@@ -475,6 +475,7 @@ Wayland display server settings are organized under the `wayland` configuration 
 | `disableAutoUpdate` | `boolean` | `false` | Disable the built-in auto-updater. For fleets that receive updates through the distribution's package manager. |
 | `disableDevTools` | `boolean` | `false` | Disable Chromium DevTools entirely, including the menu entry, the keyboard shortcut and the `webDebug` option. |
 | `security` | `object` | `{ restrictNavigation: false, additionalTrustedOrigins: [] }` | Navigation guard for the main window. See [Navigation Restriction](#navigation-restriction). |
+| `passkey` | `object` | `{ enabled: true }` | Allow a local passkey provider to answer WebAuthn sign-in challenges. See [Passkeys](#passkeys). |
 
 The `managedPolicy` section, which lets an administrator lock any of these
 settings against user override, is documented under
@@ -504,6 +505,37 @@ else is blocked and handed to the external browser instead.
 Permission handling is always enforced and needs no configuration: only the
 permissions Teams uses are granted, camera/microphone/screen capture require a
 trusted origin, and WebHID, WebSerial and WebUSB are always denied.
+
+#### Passkeys
+
+Linux has no platform authenticator, so Chromium has nothing to offer when the
+sign-in page asks for a passkey: the "Face, fingerprint, PIN or security key"
+option opens a security window that never appears. If a supported passkey
+provider is running locally, the app will ask it to answer the challenge
+instead.
+
+```json
+{
+  "passkey": {
+    "enabled": false
+  }
+}
+```
+
+Leaving this at its default is safe. When no provider is running, the challenge
+is handed straight back to Chromium's own handler, exactly as it is today. Set
+`enabled` to `false` to forbid the integration outright, and lock it through
+[Managed Policy](#managed-policy-locking-settings) if it must stay off.
+
+The sign-in page never gets to say which relying party it is asking about. The
+origin is read from the requesting frame in the main process and the requested
+`rpId` must be that frame's host or a registrable parent of it, so a
+compromised page cannot have a credential signed for a domain it does not
+control. Only the challenge and the credential filters come from the page.
+
+The only provider implemented so far is Arca, which is discovered through
+`~/.local/share/no.sybr.vault/native-bridge.json`. Rejected requests are logged
+under `[PASSKEY]` without recording the origin or the credential involved.
 
 ### Diagnostics & Crash Reporting
 

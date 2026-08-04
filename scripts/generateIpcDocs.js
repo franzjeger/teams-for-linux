@@ -29,6 +29,7 @@ const CATEGORIES = {
   'app/customBackground/': 'Custom Background',
   'app/mainAppWindow/': 'Main Window',
   'app/login/': 'Authentication',
+  'app/passkey/': 'Authentication',
   'app/connectionManager/': 'Connection Management',
   'app/incomingCallToast/': 'Incoming Calls',
   'app/graphApi/': 'Microsoft Graph API',

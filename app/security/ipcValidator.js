@@ -57,6 +57,10 @@ const allowedChannels = new Set([
   
   // Authentication and forms
   'submitForm',
+
+  // WebAuthn passkey bridge
+  'passkey-get',
+  'passkey-create',
   
   // Settings management
   'get-teams-settings',

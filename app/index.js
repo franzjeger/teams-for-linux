@@ -245,6 +245,9 @@ if (gotTheLock) {
     }
   });
 
+  // Answer WebAuthn ceremonies from a local passkey provider when one is running
+  require("./passkey").registerPasskeyHandlers(ipcMain, config);
+
   // Get current navigation state (can go back/forward)
   ipcMain.handle("get-navigation-state", (event) => {
     const webContents = event.sender;
