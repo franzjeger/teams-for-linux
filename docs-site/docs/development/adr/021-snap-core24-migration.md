@@ -6,7 +6,7 @@ id: 021-snap-core24-migration
 
 ## Status
 
-Implemented --- armv7l outcome not yet established, see Consequences
+Implemented --- all three architectures build
 
 ## Context
 
@@ -126,6 +126,29 @@ Only `null` replaces. Hence the literal `"executableArgs": null` in the config
 argument that breaks the build. The top-level `linux.executableArgs` is left
 alone so the other Linux package formats keep the flag.
 
+### armv7l needs a build environment like every other architecture
+
+The `snap-armv7l` CI job ran without LXD, with a comment stating that
+"electron-builder handles armv7l cross-compilation directly". That was accurate
+for core22, which built through the app-builder Go binary and never invoked
+snapcraft. core24 runs `snapcraft pack`, which needs a build environment, so the
+job failed with:
+
+```
+Failed to install LXD: user must be manually added to 'lxd' group before using LXD.
+```
+
+snapcraft tried to install LXD itself and could not, because the runner user is
+not in the `lxd` group. Adding `canonical/setup-lxd` and
+`SNAPCRAFT_BUILD_ENVIRONMENT: lxd`, matching the other two jobs, resolved it.
+
+armhf cross-compilation was expected to be the hard part --- core24 emits a
+`platforms: { armhf: { build-on: amd64, build-for: armhf } }` block, and the
+assumption was that this would additionally need qemu binfmt or a Launchpad
+remote build. It did not. Once the build environment existed, snapcraft handled
+the cross-build unaided, and the armv7l snap builds on a plain `ubuntu-latest`
+runner. No qemu, no remote build, and no need to drop the architecture.
+
 ### What core24 changes for free
 
 The generated descriptor now sets `extensions: [gnome]`, which supplies the
@@ -145,22 +168,8 @@ core22 defaults.
 
 ### Negative / unresolved
 
-- **armv7l outcome is not yet known.** It was predicted to fail on
-  cross-compilation, but the first CI run never got that far: all three
-  architectures died on the shared `command` schema error above, so armhf
-  cross-building has still not actually been exercised. The concern remains
-  real --- the `snap-armv7l` job deliberately runs without LXD, on the premise
-  that "electron-builder handles armv7l cross-compilation directly", which was
-  true of the old Go-binary path but not of core24, which must run
-  `snapcraft pack`. core24 emits a `platforms: { armhf: { build-on: amd64 } }`
-  block, but cross-building armhf on an amd64 runner needs either an armhf
-  container with qemu binfmt or a Launchpad remote build, and neither is
-  configured. If it does fail, the options are to configure `remoteBuild`, add
-  qemu, or drop the armv7l snap target --- the last being a user-facing
-  decision. x64 and arm64 build on native runners (`ubuntu-latest`,
-  `ubuntu-24.04-arm`) and are not affected by this.
-- The base moves from Ubuntu 22.04 to 24.04, so bundled system libraries change.
-  This needs runtime verification, not just a successful build.
+- The base moves from Ubuntu 22.04 to 24.04, so bundled system libraries
+  change. A green build is not proof the snap works; see Verification status.
 - `--no-sandbox` regression risk is now a standing trap for anyone editing the
   plug list; hence this ADR.
 
@@ -176,9 +185,23 @@ all three architectures identically. Local generation checks what
 electron-builder emits; only a real `snapcraft` run checks whether snapcraft
 accepts it. Treat a green local descriptor as necessary, not sufficient.
 
-Per-architecture packaging and runtime behaviour --- screen sharing, camera and
-microphone, tray icon, Wayland and X11 --- still need checking against CI
-artifacts and a real install, since the base moved from Ubuntu 22.04 to 24.04.
+All three architectures now build and upload a `.snap` artifact
+(x64 ~116 MB, arm64 ~110 MB, armv7l ~107 MB), confirmed against both the job
+conclusions and the uploaded artifacts rather than a single signal.
+
+Runtime behaviour is still unverified. The base moved from Ubuntu 22.04 to
+24.04, so the system libraries under the app changed. Before promoting to
+stable, install the artifact and check: launch, screen sharing on X11 and
+Wayland, camera and microphone in a call, tray icon, and that the `plugs` list
+still grants what it did under core22.
+
+Worth checking explicitly that the sandbox survived packaging:
+
+```bash
+snap run --shell teams-for-linux -c 'grep -A2 "command:" $SNAP/meta/snap.yaml'
+```
+
+`--no-sandbox` must not appear.
 
 ## References
 
