@@ -43,6 +43,7 @@ Architecture Decision Records capture important architectural decisions along wi
 | [018](018-issue-triage-bot-github-app-migration.md) | Issue Triage Bot GitHub App Migration | ✅ Implemented | 2026-03-06 | N/A |
 | [019](019-repo-activity-dashboard.md) | Repository Activity Dashboard | ✅ Accepted | 2026-03-11 | N/A |
 | [020](020-context-isolation-migration.md) | Context Isolation Migration | 🚧 Proposed | 2026-08-04 | N/A |
+| [021](021-snap-core24-migration.md) | Snap core24 Migration | ✅ Implemented | 2026-08-04 | N/A |
 
 **Legend:**
 - ✅ **Implemented** - Decision accepted and code in production
@@ -114,6 +115,7 @@ Architecture Decision Records capture important architectural decisions along wi
 |-----|-------|---------|
 | [013](013-pii-log-sanitization.md) | PII Log Sanitization | Regex-based sanitizer applied through an electron-log hook |
 | [020](020-context-isolation-migration.md) | Context Isolation Migration | Staged main-world agent plus isolated-world bridge to reach `contextIsolation: true` |
+| [021](021-snap-core24-migration.md) | Snap core24 Migration | Move snap config to `snapcraft.core24`; the explicit `browser-support` plug is what keeps Chromium's sandbox on |
 
 **Key Outcomes:**
 - Page-exposed `electronAPI` surface reduced from 22 entries to 2

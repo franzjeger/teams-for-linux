@@ -78,11 +78,19 @@ jobs:
 
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-      # Note: No LXD - electron-builder handles armv7l cross-compilation directly
+      # LXD is required since the core24 migration: the old core22 path built
+      # through the app-builder Go binary and could cross-compile armv7l
+      # directly, but core24 runs `snapcraft pack`, which needs a build
+      # environment. Without this, snapcraft tries to install LXD itself and
+      # fails because the runner user is not in the 'lxd' group.
+      SNAPCRAFT_BUILD_ENVIRONMENT: lxd
 
     steps:
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641 # v2.1.1
+
+      - name: Install and initialize LXD
+        uses: canonical/setup-lxd@d492474f6c8ceed1b716bb34c8f575a428871c70 # main
 
       - name: Check out Git repository
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0

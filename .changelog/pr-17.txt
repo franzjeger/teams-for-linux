@@ -1,0 +1,1 @@
+build(snap): migrate snap configuration from core22 to core24 - by @franzjeger (#17)
