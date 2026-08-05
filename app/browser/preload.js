@@ -251,6 +251,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       useMutationTitleLogic: config?.useMutationTitleLogic
     });
     
+    // Install the page-world tools before anything else. They patch
+    // getUserMedia, so they need to be in place before Teams asks for a
+    // camera or microphone. Injected rather than required: a patch applied
+    // from the preload's world would be invisible to the page.
+    try {
+      const { buildToolsSource, pickToolConfig } = require("./bridge/mainWorldTools");
+      const { injectAgent } = require("./bridge/isolatedBridge");
+      injectAgent(document, buildToolsSource(pickToolConfig(config)));
+      console.debug("Preload: page-world tools injected");
+    } catch (error) {
+      console.error("Preload: failed to inject page-world tools:", error.message);
+    }
+
     // Initialize title monitoring using existing module
     if (config.useMutationTitleLogic) {
       const mutationTitle = require("./tools/mutationTitle");
@@ -275,10 +288,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       { name: "timestampCopyOverride", path: "./tools/timestampCopyOverride" },
       { name: "trayIconRenderer", path: "./tools/trayIconRenderer" },
       { name: "mqttStatusMonitor", path: "./tools/mqttStatusMonitor" },
-      { name: "disableAutogain", path: "./tools/disableAutogain" },
+      // disableAutogain, cameraResolution and cameraAspectRatio are NOT here:
+      // they patch page globals and now run in the page world instead. See
+      // app/browser/bridge/mainWorldTools.js and ADR 020 stage 3.
       { name: "speakingIndicator", path: "./tools/speakingIndicator" },
-      { name: "cameraResolution", path: "./tools/cameraResolution" },
-      { name: "cameraAspectRatio", path: "./tools/cameraAspectRatio" },
       { name: "navigationButtons", path: "./tools/navigationButtons" },
       { name: "framelessTweaks", path: "./tools/frameless" }
     ];
