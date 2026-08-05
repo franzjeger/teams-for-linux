@@ -314,6 +314,15 @@ when it is not, the Notification override is unaffected, the exposed
 `electronAPI` surface is unchanged, and the CommonJS shim does not leak
 `module` or `exports` into the page globals.
 
+Re-verified after the passkey shim landed, since both now write to the same
+world from the same preload. They do not collide --- they patch different APIs
+with different timing requirements, and each still wins the race it has to win.
+In one run: the page's first inline script already sees a wrapped
+`navigator.credentials`, `getUserMedia` is wrapped by the time the tools have
+been injected, the wrapper delegates to the real implementation rather than
+swallowing the call, and a ceremony still returns a genuine
+`PublicKeyCredential` bound to the frame's origin.
+
 Related hardening shipped alongside: `webviewTag` is now `false` (no `<webview>`
 exists in the application), and a `will-attach-webview` guard forces isolation
 on should one ever be attached --- see `app/security/webContentsGuards.js`.
