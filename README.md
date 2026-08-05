@@ -55,20 +55,31 @@ sudo dnf -y install teams-for-linux
 <a href='https://flathub.org/apps/details/com.github.IsmaelMartinez.teams_for_linux'><img width='170' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 **Arch Linux:** besides the AUR package above, releases include a native
-`.pacman` package built from this repository:
+`.pacman` package. Download it from [Releases](https://github.com/IsmaelMartinez/teams-for-linux/releases),
+then install it from wherever you saved it:
 
 ```bash
-sudo pacman -U teams-for-linux-*.pacman
+sudo pacman -U ./teams-for-linux-2.8.0.pacman
 ```
 
-For managed rollouts, `scripts/install-arch.sh` wraps that: it verifies the
-package and its dependencies before touching anything, and can deploy a
-system-wide policy file in the same step.
+To build one yourself instead, run this from a clone of the repository — it
+writes the package into `dist/`:
 
 ```bash
-./scripts/install-arch.sh --check-only teams-for-linux-*.pacman   # no root needed
-sudo ./scripts/install-arch.sh teams-for-linux-*.pacman
-sudo ./scripts/install-arch.sh --policy corp-policy.json teams-for-linux-*.pacman
+npm ci
+npm run dist:linux:x64      # or dist:linux:arm64 / dist:linux:arm
+ls dist/*.pacman
+```
+
+For managed rollouts, `scripts/install-arch.sh` wraps `pacman -U`: it verifies
+the package and its dependencies before touching anything, and can deploy a
+system-wide policy file in the same step. Run it from the repository root and
+give it the path to the package. These are alternatives, not a sequence:
+
+```bash
+./scripts/install-arch.sh --check-only dist/*.pacman             # dry run, no root
+sudo ./scripts/install-arch.sh dist/*.pacman
+sudo ./scripts/install-arch.sh --policy corp-policy.json dist/*.pacman
 ```
 
 See the [installation guide](https://ismaelmartinez.github.io/teams-for-linux/installation) for details.
