@@ -57,25 +57,37 @@ makepkg -si
 #### Arch Linux (pacman package)
 
 Builds also publish a native pacman package alongside the deb and rpm, for
-deployments that install from a build artifact rather than the AUR:
+deployments that install from a build artifact rather than the AUR. Download it
+from [Releases](https://github.com/IsmaelMartinez/teams-for-linux/releases) and
+install it from wherever you saved it:
 
 ```bash
-sudo pacman -U teams-for-linux-*.pacman
+sudo pacman -U ./teams-for-linux-2.8.0.pacman
 ```
 
-`scripts/install-arch.sh` wraps this for managed rollouts. It verifies the
-package, reports any dependency that cannot be satisfied, and can deploy a
-managed policy in the same step:
+To build one instead, run this from a clone of the repository. The package is
+written to `dist/`:
+
+```bash
+npm ci
+npm run dist:linux:x64      # or dist:linux:arm64 / dist:linux:arm
+ls dist/*.pacman
+```
+
+`scripts/install-arch.sh` wraps `pacman -U` for managed rollouts. It verifies
+the package, reports any dependency that cannot be satisfied, and can deploy a
+managed policy in the same step. Run it from the repository root and pass the
+path to the package — the three forms below are alternatives, not a sequence:
 
 ```bash
 # Verify without installing, and without root
-./scripts/install-arch.sh --check-only teams-for-linux-2.8.0.pacman
+./scripts/install-arch.sh --check-only dist/teams-for-linux-2.8.0.pacman
 
 # Install
-sudo ./scripts/install-arch.sh teams-for-linux-2.8.0.pacman
+sudo ./scripts/install-arch.sh dist/teams-for-linux-2.8.0.pacman
 
 # Install and deploy a locked configuration
-sudo ./scripts/install-arch.sh --policy corp-policy.json teams-for-linux-2.8.0.pacman
+sudo ./scripts/install-arch.sh --policy corp-policy.json dist/teams-for-linux-2.8.0.pacman
 ```
 
 The policy file is installed to `/etc/teams-for-linux/config.json` as
