@@ -73,8 +73,15 @@ jobs:
 
     # Specify runner + deployment step
     runs-on: ubuntu-latest
-    # Only deploy on main branch pushes
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Only deploy on main branch pushes, and only from the upstream repository.
+    # A fork has no Pages site configured, so the deploy step fails in about a
+    # second and takes the whole run red even though the site built fine.
+    # The repository is spelled out rather than read from env, because job-level
+    # `if` has no access to the env context.
+    if: >-
+      github.ref == 'refs/heads/main'
+      && github.event_name == 'push'
+      && github.repository == 'IsmaelMartinez/teams-for-linux'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

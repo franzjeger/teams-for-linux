@@ -10,6 +10,13 @@ on:
 # Restrict default permissions — each job declares only what it needs
 permissions: {}
 
+# Publishing happens only from the upstream repository. A fork builds the same
+# snap but must not try to upload it: it has no store credentials, and
+# electron-builder fails the whole job on the upload step rather than after a
+# successful build, which makes a fork's main permanently red.
+env:
+  PUBLISH_FROM: IsmaelMartinez/teams-for-linux
+
 defaults:
   run:
     shell: bash
@@ -55,15 +62,15 @@ jobs:
           echo "Snap edge version: $(node -p "require('./package.json').version")"
 
       - name: Build for Release
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.repository == env.PUBLISH_FROM
         run: npm run dist:linux:snap -- --publish always
 
-      - name: Build for PR
-        if: github.ref != 'refs/heads/main'
+      - name: Build without publishing
+        if: github.ref != 'refs/heads/main' || github.repository != env.PUBLISH_FROM
         run: npm run dist:linux:snap -- --publish never
 
-      - name: Upload PR artifacts
-        if: github.ref != 'refs/heads/main'
+      - name: Upload build artifacts
+        if: github.ref != 'refs/heads/main' || github.repository != env.PUBLISH_FROM
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: teams-for-linux-snap-x64
@@ -116,15 +123,15 @@ jobs:
           echo "Snap edge version: $(node -p "require('./package.json').version")"
 
       - name: Build for Release
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.repository == env.PUBLISH_FROM
         run: npm run dist:linux:snap:armv7l -- --publish always
 
-      - name: Build for PR
-        if: github.ref != 'refs/heads/main'
+      - name: Build without publishing
+        if: github.ref != 'refs/heads/main' || github.repository != env.PUBLISH_FROM
         run: npm run dist:linux:snap:armv7l -- --publish never
 
-      - name: Upload PR artifacts
-        if: github.ref != 'refs/heads/main'
+      - name: Upload build artifacts
+        if: github.ref != 'refs/heads/main' || github.repository != env.PUBLISH_FROM
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: teams-for-linux-snap-armv7l
@@ -172,15 +179,15 @@ jobs:
           echo "Snap edge version: $(node -p "require('./package.json').version")"
 
       - name: Build for Release
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.repository == env.PUBLISH_FROM
         run: npm run dist:linux:snap:arm64 -- --publish always
 
-      - name: Build for PR
-        if: github.ref != 'refs/heads/main'
+      - name: Build without publishing
+        if: github.ref != 'refs/heads/main' || github.repository != env.PUBLISH_FROM
         run: npm run dist:linux:snap:arm64 -- --publish never
 
-      - name: Upload PR artifacts
-        if: github.ref != 'refs/heads/main'
+      - name: Upload build artifacts
+        if: github.ref != 'refs/heads/main' || github.repository != env.PUBLISH_FROM
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: teams-for-linux-snap-arm64
