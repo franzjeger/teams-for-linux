@@ -203,7 +203,7 @@ When creating or updating any markdown documentation in this project (including 
 
 #### Content Structure
 
-- **Table of Contents**: Use GitHub's `<!-- toc -->` element or Docusaurus auto-TOC for automatic table of contents generation instead of manual lists
+- **Table of Contents**: Use an MDX comment marker `{/* toc */}` or Docusaurus auto-TOC instead of manual lists. HTML comments (`<!-- toc -->`) are not valid MDX and fail the docs build under Docusaurus 3.10's stricter parser
 - **Collapsible Sections**: Use GitHub's `<details>` and `<summary>` elements for optional or lengthy information
 
 #### Callouts and Alerts

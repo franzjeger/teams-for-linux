@@ -40,7 +40,7 @@ When working with authentication-related features:
 
 Follow the project's Copilot Instructions (`.github/copilot-instructions.md`) for documentation standards, including:
 - Use GitHub's alert syntax for callouts (`> [!NOTE]`, `> [!WARNING]`)  
-- Include table of contents with `<!-- toc -->`
+- Include table of contents with `{/* toc */}`
 - Use proper markdown standards and syntax highlighting
 
 ## Related Documentation
