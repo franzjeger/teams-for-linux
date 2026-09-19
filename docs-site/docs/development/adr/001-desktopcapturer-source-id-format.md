@@ -35,11 +35,13 @@ On X11, the system is more permissive and accepts various formats, which masked 
 ### Technical Background
 
 **Wayland Portal Requirements:**
+
 - [xdg-desktop-portal ScreenCast API](https://flatpak.github.io/xdg-desktop-portal/#gdbus-org.freedesktop.portal.ScreenCast) specifies string source identifiers
 - [Electron Issue #33613](https://github.com/electron/electron/issues/33613) documents: "Wayland expects string ID, not UUID"
 - [Chromium Bug #1343766](https://bugs.chromium.org/p/chromium/issues/detail?id=1343766) confirms Wayland requires specific format
 
 **Electron API:**
+
 - [DesktopCapturer API](https://www.electronjs.org/docs/latest/api/desktop-capturer) returns source objects with `id` property in format `screen:display_id:window_id`
 - This `id` is the canonical identifier for desktop capture sources
 
@@ -84,16 +86,19 @@ On X11, the system is more permissive and accepts various formats, which masked 
 ### Alternatives Considered
 
 **Alternative 1: Pass desktopCapturer source to renderer**
+
 - ❌ Would require exposing more of Electron's APIs to renderer
 - ❌ Security concerns with broader API access
 - ❌ Violates separation of concerns
 
 **Alternative 2: Platform detection (use UUID on X11, source ID on Wayland)**
+
 - ❌ Adds complexity
 - ❌ Inconsistent behavior across platforms
 - ❌ X11 lenience is not guaranteed to continue
 
 **Alternative 3: Store source ID in a different global variable**
+
 - ❌ Adds state management complexity
 - ❌ Risk of desynchronization
 - ✅ Selected approach uses existing `global.selectedScreenShareSource`

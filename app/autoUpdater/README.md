@@ -22,7 +22,7 @@ On startup, checks for updates silently. If an update is available, shows a dial
 ## Usage
 
 ```javascript
-const AutoUpdater = require('./autoUpdater');
+const AutoUpdater = require("./autoUpdater");
 AutoUpdater.initialize(mainWindow);
 ```
 

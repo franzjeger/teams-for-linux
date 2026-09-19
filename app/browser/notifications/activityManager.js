@@ -57,24 +57,26 @@ function setEventHandlers(self) {
   self.ipcRenderer.on("enable-wakelock", () => wakeLock.enable());
   self.ipcRenderer.on("disable-wakelock", () => wakeLock.disable());
 
-  self.ipcRenderer.on('incoming-call-action', (event, action) => {
+  self.ipcRenderer.on("incoming-call-action", (event, action) => {
     console.debug("ActionHTML", document.body.innerHTML);
-    const actionWrapper = document.querySelector('[data-testid="calling-actions"],[data-testid="msn-actions"]');
+    const actionWrapper = document.querySelector(
+      '[data-testid="calling-actions"],[data-testid="msn-actions"]',
+    );
     if (actionWrapper) {
       const buttons = actionWrapper.querySelectorAll("button");
       if (buttons.length > 0) {
         switch (action) {
-          case 'ACCEPT_AUDIO':
+          case "ACCEPT_AUDIO":
             if (buttons.length === 3) {
               buttons[1].click();
             }
             break;
 
-          case 'ACCEPT_VIDEO':
+          case "ACCEPT_VIDEO":
             buttons[0].click();
             break;
 
-          case 'DECLINE':
+          case "DECLINE":
             buttons[buttons.length - 1].click();
             break;
 

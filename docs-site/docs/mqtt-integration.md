@@ -5,6 +5,7 @@ This feature is **disabled by default**. You must explicitly enable it in your c
 :::
 
 Teams for Linux includes built-in **bidirectional** MQTT support, allowing you to:
+
 - **Publish** your Microsoft Teams status to an MQTT broker for monitoring and automation
 - **Receive** action commands from MQTT to control Teams (toggle mute, video, etc.)
 
@@ -13,6 +14,7 @@ Teams for Linux includes built-in **bidirectional** MQTT support, allowing you t
 The MQTT integration provides two-way communication with your MQTT broker:
 
 ### Status Publishing (Outbound)
+
 Automatically detects your Teams presence status (Available, Busy, Do Not Disturb, Away, etc.) and publishes it to a configurable MQTT broker. This enables powerful automation scenarios such as:
 
 - **Smart Home Integration**: Control lights, desk availability indicators, or "on air" signs based on your Teams status
@@ -21,6 +23,7 @@ Automatically detects your Teams presence status (Available, Busy, Do Not Distur
 - **Custom Workflows**: Build Node-RED flows that respond to your Teams presence
 
 ### Command Reception (Inbound)
+
 Receive action commands from your MQTT broker to control Teams, enabling scenarios such as:
 
 - **System Keyboard Shortcuts**: Bind global hotkeys (e.g., Super+M) to toggle mute via MQTT
@@ -31,18 +34,21 @@ Receive action commands from your MQTT broker to control Teams, enabling scenari
 ## Features
 
 ### Status Publishing Features
+
 - **Real-time Status Updates**: Detects Teams status changes instantly using dual-layer monitoring
 - **Robust Detection**: Combines MutationObserver (300ms debounce) with configurable polling fallback
 - **Retained Messages**: Last status persists on the broker for new subscribers
 - **Deduplication**: Only publishes on actual status changes to prevent MQTT spam
 
 ### Command Reception Features
+
 - **Bidirectional Control**: Receive commands from MQTT to control Teams actions
 - **Security Validated**: Action whitelist and JSON validation
 - **Multiple Actions**: Toggle mute, video, raise hand
 - **Reliable Execution**: Maps commands to Teams keyboard shortcuts
 
 ### General Features
+
 - **Automatic Reconnection**: Handles network interruptions gracefully
 - **Secure Authentication**: Supports username/password authentication
 - **Configurable Topics**: Customize topic structure to match your MQTT namespace
@@ -87,24 +93,26 @@ You should see JSON messages when your Teams status changes.
 
 Add these options under the `mqtt` key in your `config.json`:
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `enabled` | `boolean` | `false` | Enable/disable MQTT integration (both publishing and commands) |
-| `brokerUrl` | `string` | `""` | MQTT broker URL (e.g., `mqtt://broker:1883` or `mqtts://broker:8883` for TLS) |
-| `username` | `string` | `""` | MQTT username (optional) |
-| `password` | `string` | `""` | MQTT password (optional) |
-| `clientId` | `string` | `"teams-for-linux"` | Unique client identifier |
-| `topicPrefix` | `string` | `"teams"` | Topic prefix for all messages |
-| `statusTopic` | `string` | `"status"` | Topic name for status messages (outbound) |
-| `commandTopic` | `string` | `""` | Topic name for receiving commands (inbound). Leave empty or omit to disable command reception (status publishing only). Set to `"command"` to enable. |
-| `statusCheckInterval` | `number` | `10000` | Polling fallback interval in milliseconds |
+| Option                | Type      | Default             | Description                                                                                                                                           |
+| --------------------- | --------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`             | `boolean` | `false`             | Enable/disable MQTT integration (both publishing and commands)                                                                                        |
+| `brokerUrl`           | `string`  | `""`                | MQTT broker URL (e.g., `mqtt://broker:1883` or `mqtts://broker:8883` for TLS)                                                                         |
+| `username`            | `string`  | `""`                | MQTT username (optional)                                                                                                                              |
+| `password`            | `string`  | `""`                | MQTT password (optional)                                                                                                                              |
+| `clientId`            | `string`  | `"teams-for-linux"` | Unique client identifier                                                                                                                              |
+| `topicPrefix`         | `string`  | `"teams"`           | Topic prefix for all messages                                                                                                                         |
+| `statusTopic`         | `string`  | `"status"`          | Topic name for status messages (outbound)                                                                                                             |
+| `commandTopic`        | `string`  | `""`                | Topic name for receiving commands (inbound). Leave empty or omit to disable command reception (status publishing only). Set to `"command"` to enable. |
+| `statusCheckInterval` | `number`  | `10000`             | Polling fallback interval in milliseconds                                                                                                             |
 
 ### Topic Structure
 
 **Status Publishing (Outbound)**: `{topicPrefix}/{statusTopic}`
+
 - Example: `teams/status`
 
 **Command Reception (Inbound)**: `{topicPrefix}/{commandTopic}`
+
 - Example: `teams/command`
 
 ### Broker URL Formats
@@ -138,14 +146,14 @@ Status updates are published as JSON with the following structure:
 
 ### Status Values
 
-| Status | Code | Description |
-|--------|------|-------------|
-| `unknown` | `-1` | Status cannot be determined |
-| `available` | `1` | Available / Online |
-| `busy` | `2` | Busy / In a call |
-| `do_not_disturb` | `3` | Do Not Disturb / Presenting |
-| `away` | `4` | Away / Idle |
-| `be_right_back` | `5` | Be Right Back |
+| Status           | Code | Description                 |
+| ---------------- | ---- | --------------------------- |
+| `unknown`        | `-1` | Status cannot be determined |
+| `available`      | `1`  | Available / Online          |
+| `busy`           | `2`  | Busy / In a call            |
+| `do_not_disturb` | `3`  | Do Not Disturb / Presenting |
+| `away`           | `4`  | Away / Idle                 |
+| `be_right_back`  | `5`  | Be Right Back               |
 
 ## MQTT Commands
 
@@ -165,11 +173,11 @@ Send commands as JSON messages to the command topic (`teams/command` by default)
 
 ### Supported Actions
 
-| Action | Teams Shortcut | Description |
-|--------|---------------|-------------|
-| `toggle-mute` | Ctrl+Shift+M | Toggle microphone mute/unmute |
-| `toggle-video` | Ctrl+Shift+O | Toggle video on/off |
-| `toggle-hand-raise` | Ctrl+Shift+K | Toggle hand raise in meeting |
+| Action              | Teams Shortcut | Description                   |
+| ------------------- | -------------- | ----------------------------- |
+| `toggle-mute`       | Ctrl+Shift+M   | Toggle microphone mute/unmute |
+| `toggle-video`      | Ctrl+Shift+O   | Toggle video on/off           |
+| `toggle-hand-raise` | Ctrl+Shift+K   | Toggle hand raise in meeting  |
 
 ### Sending Commands
 
@@ -377,6 +385,7 @@ If you've successfully integrated Teams for Linux with your home automation syst
 ### Integration Ideas
 
 Common automation scenarios include:
+
 - **Status Lights**: Change LED colors based on availability (red=busy, green=available)
 - **Do Not Disturb Signs**: Physical "On Air" signs for home offices
 - **Smart Home Scenes**: Adjust lighting, mute speakers during calls
@@ -419,6 +428,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 ```
 
 **3. Expected behavior**:
+
 - Teams should execute the corresponding keyboard shortcut
 - Application logs should show: `[MQTT] Received valid command: <action>`
 - Application logs should show: `[MQTT] Executed command '<action>' -> <shortcut>`
@@ -430,6 +440,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 **Symptoms**: MQTT subscriber receives no messages when Teams status changes
 
 **Solutions**:
+
 - Verify `mqtt.enabled` is set to `true` in `config.json`
 - Check broker URL, username, and password are correct
 - Ensure the broker is reachable from your network
@@ -441,6 +452,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 **Symptoms**: "Connection refused" or "ECONNREFUSED" errors in logs
 
 **Solutions**:
+
 - Verify the MQTT broker is running: `netstat -an | grep 1883`
 - Check firewall rules allow connections to the broker port
 - Test connectivity: `telnet <broker_address> 1883`
@@ -451,6 +463,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 **Symptoms**: "Not authorized" or authentication errors
 
 **Solutions**:
+
 - Verify username and password are correct
 - Check broker ACL (Access Control List) allows publishing to your topic
 - Test credentials with `mosquitto_pub`:
@@ -463,6 +476,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 **Symptoms**: Messages are published but status is always "unknown"
 
 **Solutions**:
+
 - This may occur if Teams UI structure has changed
 - Decrease `statusCheckInterval` for more frequent polling: `"statusCheckInterval": 5000`
 - Check browser console (DevTools) for JavaScript errors
@@ -473,6 +487,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 **Symptoms**: MQTT commands sent but Teams doesn't respond
 
 **Solutions**:
+
 - Verify MQTT is enabled in config (`"enabled": true`)
 - Ensure the command topic is correct (`teams/command` by default)
 - Check application logs for validation errors
@@ -485,6 +500,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-video"}' -q 
 **Symptoms**: Logs show "window not available" when sending commands
 
 **Solutions**:
+
 - Ensure Teams for Linux window is open
 - The application must be running for commands to work
 - Check that the window is not destroyed or minimized to tray
@@ -500,6 +516,7 @@ ELECTRON_ENABLE_LOGGING=true teams-for-linux
 For more logging options, see the **[Troubleshooting Guide](troubleshooting.md)**.
 
 Check logs for MQTT-related messages:
+
 - Connection attempts and results
 - Status change detections
 - Publish confirmations
@@ -553,9 +570,11 @@ graph TB
 ```
 
 **Status Publishing Flow** (Outbound):
+
 1. Teams Web UI status changes → MutationObserver/Polling Monitor detects → Status Detector → IPC to Main Process → MQTT Client publishes to broker
 
 **Command Reception Flow** (Inbound):
+
 1. External system (mosquitto_pub, automation systems, etc.) → MQTT Broker → MQTT Client subscribes → Command validation → Command Handler → Keyboard Events sent to Teams Web UI
 
 ### Status Detection Strategy
@@ -589,6 +608,7 @@ The status detector tries multiple CSS selector patterns to locate status inform
 ### IPC Communication
 
 #### Status Publishing
+
 Status changes flow from browser to main process:
 
 1. **Browser-side**: `mqttStatusMonitor.js` detects status change
@@ -601,16 +621,19 @@ Status changes flow from browser to main process:
 Commands are validated with multiple security layers:
 
 #### 1. MQTT Subscription
+
 - **Location**: `app/mqtt/index.js`
 - Subscribes to `{topicPrefix}/{commandTopic}` on broker connection
 - Receives messages from external systems
 
 #### 2. Message Validation
+
 - **JSON Parsing**: Validates message is valid JSON
 - **Structure Check**: Ensures `action` field exists and is a string
 - **Action Whitelist**: Only allows actions listed in [Supported Actions](#supported-actions)
 
 #### 3. Command Execution
+
 - **Location**: `app/index.js` command handler
 - Maps action to Teams keyboard shortcut:
   - `toggle-mute` → Ctrl+Shift+M
@@ -622,6 +645,7 @@ Commands are validated with multiple security layers:
 ### Message Lifecycle
 
 #### Status Publishing
+
 1. Status change detected in browser process
 2. Deduplicated (only publish if different from last status)
 3. Sent via IPC to main process
@@ -630,6 +654,7 @@ Commands are validated with multiple security layers:
 6. Message persists for new subscribers (retain flag)
 
 #### Command Reception
+
 1. External system publishes command to MQTT broker
 2. MQTT Client receives message on command topic
 3. Command validation (JSON, whitelist)
@@ -637,7 +662,6 @@ Commands are validated with multiple security layers:
 5. Command handler maps action to keyboard shortcut
 6. Keyboard event sent to Teams window
 7. Teams executes the action
-
 
 ## Related Documentation
 

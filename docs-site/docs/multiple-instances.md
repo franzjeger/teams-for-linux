@@ -5,6 +5,7 @@ Run separate isolated instances of Teams for Linux — perfect for work and pers
 ## Quick Start Examples
 
 ### Work Profile
+
 ```bash
 ./teams-for-linux \
   --appIcon=/path/to/work-icon.png \
@@ -13,6 +14,7 @@ Run separate isolated instances of Teams for Linux — perfect for work and pers
 ```
 
 ### Personal Profile
+
 ```bash
 ./teams-for-linux \
   --appIcon=/path/to/personal-icon.png \
@@ -45,6 +47,7 @@ Set the internal application name used by Electron:
 ```
 
 This affects:
+
 - Window manager identification
 - Task switcher appearance
 - Application grouping in dock/taskbar
@@ -59,6 +62,7 @@ Specify a custom directory for storing profile data:
 ```
 
 Each profile stores separately:
+
 - Login sessions and authentication tokens
 - Configuration settings
 - Cache data
@@ -75,6 +79,7 @@ Each profile can have its own `config.json` file in its respective user data dir
 ```
 
 ### Example Work Profile Config
+
 ```json
 {
   "appTitle": "Teams - Work",
@@ -86,6 +91,7 @@ Each profile can have its own `config.json` file in its respective user data dir
 ```
 
 ### Example Personal Profile Config
+
 ```json
 {
   "appTitle": "Teams - Personal",
@@ -101,6 +107,7 @@ Each profile can have its own `config.json` file in its respective user data dir
 ### Creating Desktop Shortcuts
 
 #### Work Profile Desktop Entry
+
 ```ini
 [Desktop Entry]
 Name=Teams for Linux (Work)
@@ -114,6 +121,7 @@ StartupWMClass=teams-work
 ```
 
 #### Personal Profile Desktop Entry
+
 ```ini
 [Desktop Entry]
 Name=Teams for Linux (Personal)
@@ -129,6 +137,7 @@ StartupWMClass=teams-personal
 ### Shell Scripts for Easy Launch
 
 #### `teams-work.sh`
+
 ```bash
 #!/bin/bash
 /path/to/teams-for-linux \
@@ -139,6 +148,7 @@ StartupWMClass=teams-personal
 ```
 
 #### `teams-personal.sh`
+
 ```bash
 #!/bin/bash
 /path/to/teams-for-linux \
@@ -161,7 +171,7 @@ For users managing multiple organizations:
   --user-data-dir="$HOME/.config/teams-org-a" \
   --appTitle="Teams - Org A"
 
-# Organization B  
+# Organization B
 ./teams-for-linux \
   --class=teams-org-b \
   --user-data-dir="$HOME/.config/teams-org-b" \
@@ -189,6 +199,7 @@ For developers working with different Teams environments:
 ## Best Practices
 
 ### Directory Organization
+
 ```
 $HOME/.config/
 ├── teams-profile-work/
@@ -205,12 +216,14 @@ $HOME/.config/
 ```
 
 ### Icon Management
+
 - Use distinct icons for each profile (different colors, badges, etc.)
 - Store icons in `$HOME/.local/share/icons/` for persistence
 - Use SVG format when possible for better scaling
 - Consider using the same base icon with different overlays
 
 ### Naming Conventions
+
 - Use descriptive class names: `teams-work`, `teams-personal`, `teams-client-name`
 - Include purpose in directory names: `teams-profile-work`, `teams-profile-personal`
 - Use consistent naming across desktop files, scripts, and directories
@@ -218,16 +231,19 @@ $HOME/.config/
 ## Troubleshooting
 
 ### Profiles Not Isolated
+
 - **Check user-data-dir**: Ensure each profile uses a different directory
 - **Verify class names**: Different `--class` values help window managers distinguish instances
 - **Clear conflicting cache**: Remove cache if profiles seem to share data
 
 ### Icons Not Showing
+
 - **Check file paths**: Ensure icon files exist and are readable
 - **Restart window manager**: Some changes require restarting the desktop environment
 - **Icon cache**: Clear icon cache with `gtk-update-icon-cache` if needed
 
 ### Configuration Not Applied
+
 - **Verify config location**: Ensure `config.json` is in the correct profile directory
 - **JSON syntax**: Validate JSON syntax using `jq` or online validators
 - **File permissions**: Ensure config files are readable by the application

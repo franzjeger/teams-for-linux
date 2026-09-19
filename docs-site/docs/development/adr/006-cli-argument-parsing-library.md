@@ -11,11 +11,13 @@ id: 006-cli-argument-parsing-library
 ## Context
 
 Teams for Linux uses `yargs` for CLI argument parsing. We evaluated whether to:
+
 1. Add CLI-based action commands (`teams-for-linux action toggle-mute`)
 2. Migrate to `commander.js` for better subcommand support
 3. Keep current `yargs` implementation
 
 ### Requirements
+
 - Support 30+ configuration options
 - Parse config files and environment variables
 - Handle meeting URLs as positional arguments (`teams-for-linux https://teams.cloud.microsoft/...`)
@@ -24,12 +26,14 @@ Teams for Linux uses `yargs` for CLI argument parsing. We evaluated whether to:
 ### Considered Options
 
 **Option A: Add CLI Action Commands with yargs**
+
 - Requires fragile pre-parsing before yargs initialization
 - High risk of breaking meeting link flow (critical feature)
 - Conflicts with existing URL positional argument handling
 - Effort: 14-23 hours
 
 **Option B: Migrate to commander.js**
+
 - Better subcommand support
 - Requires reimplementing config file and environment variable parsing
 - 30+ options need migration
@@ -37,6 +41,7 @@ Teams for Linux uses `yargs` for CLI argument parsing. We evaluated whether to:
 - Risk: Medium (regression testing needed)
 
 **Option C: Keep yargs, Use Alternative Command Mechanism**
+
 - MQTT for actions (see MQTT Commands Research)
 - HTTP server for actions
 - No CLI parsing changes needed
@@ -75,16 +80,19 @@ Teams for Linux uses `yargs` for CLI argument parsing. We evaluated whether to:
 ## Consequences
 
 ### Positive
+
 - ✅ No risk to existing functionality (meeting links, config options)
 - ✅ No migration effort
 - ✅ Built-in config/env parsing continues working
 - ✅ Users get action commands via MQTT (better UX anyway)
 
 ### Negative
+
 - ⚠️ No native CLI subcommands (not needed currently)
 - ⚠️ Future subcommand needs require migration or workarounds
 
 ### Neutral
+
 - Option to migrate to commander.js remains open for future major versions
 - Decision can be revisited if requirements change significantly
 

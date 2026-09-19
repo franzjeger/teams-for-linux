@@ -10,13 +10,20 @@
   // Used as fallback when CSS attribute selectors don't match (non-English locales).
   // Issue #2209: English-only selectors caused thumbnail to never auto-close in French.
   const STOP_SHARING_TRANSLATIONS = [
-    "stop sharing", "stop presenting",
-    "arrêter le partage", "arrêter la présentation",
-    "freigabe beenden", "präsentation beenden",
-    "dejar de compartir", "dejar de presentar",
-    "parar de compartilhar", "parar de partilhar",
-    "interrompi condivisione", "interrompi presentazione",
-    "delen stoppen", "stoppen met delen",
+    "stop sharing",
+    "stop presenting",
+    "arrêter le partage",
+    "arrêter la présentation",
+    "freigabe beenden",
+    "präsentation beenden",
+    "dejar de compartir",
+    "dejar de presentar",
+    "parar de compartilhar",
+    "parar de partilhar",
+    "interrompi condivisione",
+    "interrompi presentazione",
+    "delen stoppen",
+    "stoppen met delen",
     "zatrzymaj udostępnianie",
     "paylaşmayı durdur",
     "sluta dela",
@@ -26,10 +33,12 @@
     "zastavit sdílení",
     "megosztás leállítása",
     "opriți partajarea",
-    "停止共享", "停止共用",
+    "停止共享",
+    "停止共用",
     "共有を停止",
     "공유 중지",
-    "остановить демонстрацию", "прекратить показ",
+    "остановить демонстрацию",
+    "прекратить показ",
     "إيقاف المشاركة",
     "зупинити демонстрацію",
     "หยุดแชร์",
@@ -53,36 +62,44 @@
   function monitorScreenSharing() {
     // Guard against missing mediaDevices API (e.g. on Chrome error pages)
     if (!navigator.mediaDevices?.getDisplayMedia) {
-      console.debug("[SCREEN_SHARE_DIAG] navigator.mediaDevices.getDisplayMedia not available, skipping");
+      console.debug(
+        "[SCREEN_SHARE_DIAG] navigator.mediaDevices.getDisplayMedia not available, skipping",
+      );
       return;
     }
 
     // Hook into getDisplayMedia for screen sharing
     const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia.bind(
-      navigator.mediaDevices
+      navigator.mediaDevices,
     );
 
     navigator.mediaDevices.getDisplayMedia = function (constraints) {
-      console.debug("[SCREEN_SHARE_DIAG] getDisplayMedia intercepted, disabling audio");
-      
+      console.debug(
+        "[SCREEN_SHARE_DIAG] getDisplayMedia intercepted, disabling audio",
+      );
+
       // Force disable all audio in screen sharing to prevent echo issues
       disableAudioInConstraints(constraints, "getDisplayMedia");
-      
+
       return originalGetDisplayMedia(constraints)
         .then((stream) => {
-          console.debug(`[SCREEN_SHARE_DIAG] Screen sharing started via getDisplayMedia (${stream.getAudioTracks().length}a/${stream.getVideoTracks().length}v)`);
+          console.debug(
+            `[SCREEN_SHARE_DIAG] Screen sharing started via getDisplayMedia (${stream.getAudioTracks().length}a/${stream.getVideoTracks().length}v)`,
+          );
           handleScreenShareStream(stream, "getDisplayMedia");
           return stream;
         })
         .catch((error) => {
-          console.error(`[SCREEN_SHARE_DIAG] getDisplayMedia failed: ${error.name} - ${error.message}`);
+          console.error(
+            `[SCREEN_SHARE_DIAG] getDisplayMedia failed: ${error.name} - ${error.message}`,
+          );
           throw error;
         });
     };
 
     // Also hook into getUserMedia for fallback detection
     const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(
-      navigator.mediaDevices
+      navigator.mediaDevices,
     );
 
     navigator.mediaDevices.getUserMedia = function (constraints) {
@@ -103,7 +120,9 @@
       // audio to be disabled incorrectly (issues #1871, #1896)
 
       if (isScreenShare) {
-        console.debug("[SCREEN_SHARE_DIAG] Screen sharing getUserMedia detected, disabling audio");
+        console.debug(
+          "[SCREEN_SHARE_DIAG] Screen sharing getUserMedia detected, disabling audio",
+        );
 
         // Force disable audio for screen sharing streams to prevent echo
         disableAudioInConstraints(constraints, "getUserMedia screen sharing");
@@ -112,7 +131,9 @@
       return originalGetUserMedia(constraints)
         .then((stream) => {
           if (isScreenShare) {
-            console.debug(`[SCREEN_SHARE_DIAG] Screen sharing started via getUserMedia (${stream.getAudioTracks().length}a/${stream.getVideoTracks().length}v)`);
+            console.debug(
+              `[SCREEN_SHARE_DIAG] Screen sharing started via getUserMedia (${stream.getAudioTracks().length}a/${stream.getVideoTracks().length}v)`,
+            );
             handleScreenShareStream(stream, "getUserMedia");
           }
 
@@ -120,7 +141,9 @@
         })
         .catch((error) => {
           if (isScreenShare) {
-            console.error(`[SCREEN_SHARE_DIAG] getUserMedia screen sharing failed: ${error.name} - ${error.message}`);
+            console.error(
+              `[SCREEN_SHARE_DIAG] getUserMedia screen sharing failed: ${error.name} - ${error.message}`,
+            );
           }
           throw error;
         });
@@ -129,29 +152,41 @@
 
   // Centralized handler for screen sharing streams
   function handleScreenShareStream(stream, source) {
-    console.debug(`[SCREEN_SHARE_DIAG] Processing stream from ${source} (${activeStreams.length} active)`);
+    console.debug(
+      `[SCREEN_SHARE_DIAG] Processing stream from ${source} (${activeStreams.length} active)`,
+    );
 
     const electronAPI = globalThis.electronAPI;
 
     if (!electronAPI) {
-      console.error("[SCREEN_SHARE_DIAG] electronAPI not available - cannot notify main process");
+      console.error(
+        "[SCREEN_SHARE_DIAG] electronAPI not available - cannot notify main process",
+      );
       return;
     }
 
     // Check if we're creating a duplicate session - this could cause issues
     if (isScreenSharing) {
-      console.warn(`[SCREEN_SHARE_DIAG] Multiple screen sharing sessions detected - total: ${activeStreams.length + 1}`);
+      console.warn(
+        `[SCREEN_SHARE_DIAG] Multiple screen sharing sessions detected - total: ${activeStreams.length + 1}`,
+      );
     }
 
     isScreenSharing = true;
     activeStreams.push(stream);
-    
-    console.debug(`[SCREEN_SHARE_DIAG] Stream registered (${activeStreams.length} total active)`);
+
+    console.debug(
+      `[SCREEN_SHARE_DIAG] Stream registered (${activeStreams.length} total active)`,
+    );
 
     // Send screen sharing started event
     if (electronAPI.sendScreenSharingStarted) {
-      console.debug(`[SCREEN_SHARE_DIAG] Sending screen-sharing-started event (preview window will open)`);
-      console.debug(`[SCREEN_SHARE_DIAG] Not sending stream.id to preserve desktopCapturer source ID`);
+      console.debug(
+        `[SCREEN_SHARE_DIAG] Sending screen-sharing-started event (preview window will open)`,
+      );
+      console.debug(
+        `[SCREEN_SHARE_DIAG] Not sending stream.id to preserve desktopCapturer source ID`,
+      );
 
       electronAPI.sendScreenSharingStarted(null);
     }
@@ -180,9 +215,13 @@
       track.addEventListener("ended", () => {
         console.debug(`[SCREEN_SHARE_DIAG] Video track ${index} ended`);
         // Check if all tracks have ended to trigger cleanup
-        const allTracksEnded = activeMediaTracks.every(t => t.readyState === "ended");
+        const allTracksEnded = activeMediaTracks.every(
+          (t) => t.readyState === "ended",
+        );
         if (allTracksEnded && isScreenSharing) {
-          console.debug("[SCREEN_SHARE_DIAG] All video tracks ended, stopping screen sharing");
+          console.debug(
+            "[SCREEN_SHARE_DIAG] All video tracks ended, stopping screen sharing",
+          );
           handleStreamEnd("video_track_ended");
         }
       });
@@ -191,7 +230,9 @@
 
   // Function to handle stream ending - used by UI button detection
   function handleStreamEnd(reason) {
-    console.debug(`[SCREEN_SHARE_DIAG] Stream ending: ${reason} (${activeStreams.length} streams, ${activeMediaTracks.length} tracks)`);
+    console.debug(
+      `[SCREEN_SHARE_DIAG] Stream ending: ${reason} (${activeStreams.length} streams, ${activeMediaTracks.length} tracks)`,
+    );
 
     if (isScreenSharing) {
       isScreenSharing = false;
@@ -203,7 +244,9 @@
 
       const electronAPI = globalThis.electronAPI;
       if (electronAPI?.sendScreenSharingStopped) {
-        console.debug(`[SCREEN_SHARE_DIAG] Sending screen-sharing-stopped event (${reason})`);
+        console.debug(
+          `[SCREEN_SHARE_DIAG] Sending screen-sharing-stopped event (${reason})`,
+        );
         electronAPI.sendScreenSharingStopped();
       }
 
@@ -216,14 +259,18 @@
       // Clear active streams and tracks
       activeStreams = [];
       activeMediaTracks = [];
-      
-      console.debug("[SCREEN_SHARE_DIAG] Cleared all active streams and tracks");
+
+      console.debug(
+        "[SCREEN_SHARE_DIAG] Cleared all active streams and tracks",
+      );
     }
   }
 
   // Handle stop sharing button click
   function handleStopButtonClick(button) {
-    console.debug(`[SCREEN_SHARE_DIAG] Stop sharing button clicked: "${button.textContent?.trim()}"`);    
+    console.debug(
+      `[SCREEN_SHARE_DIAG] Stop sharing button clicked: "${button.textContent?.trim()}"`,
+    );
     setTimeout(() => {
       handleStreamEnd("stop_button_clicked");
     }, 100);
@@ -233,8 +280,10 @@
   function setupStopButtonMonitoring(button) {
     if (!button.dataset.teamsMonitored) {
       button.dataset.teamsMonitored = "true";
-      console.debug(`[SCREEN_SHARE_DIAG] Monitoring stop button: "${button.textContent?.trim()}"`);
-      
+      console.debug(
+        `[SCREEN_SHARE_DIAG] Monitoring stop button: "${button.textContent?.trim()}"`,
+      );
+
       button.addEventListener("click", () => handleStopButtonClick(button));
     }
   }
@@ -252,7 +301,7 @@
       (pattern) =>
         text.includes(pattern) ||
         title.includes(pattern) ||
-        ariaLabel.includes(pattern)
+        ariaLabel.includes(pattern),
     );
   }
 
@@ -268,7 +317,7 @@
         'button[title*="Stop sharing"], ' +
         'button[aria-label*="Stop sharing"], ' +
         'button[title*="Stop presenting"], ' +
-        'button[aria-label*="Stop presenting"]'
+        'button[aria-label*="Stop presenting"]',
     )) {
       stopButtons.add(el);
     }
@@ -289,7 +338,7 @@
     // the meeting likely ended - trigger cleanup
     if (hadStopButton && !stopButtonExists && isScreenSharing) {
       console.debug(
-        "[SCREEN_SHARE_DIAG] Stop sharing button disappeared - meeting likely ended"
+        "[SCREEN_SHARE_DIAG] Stop sharing button disappeared - meeting likely ended",
       );
       handleStreamEnd("meeting_ended_button_removed");
       return;
@@ -304,7 +353,9 @@
   function startUIMonitoring() {
     if (uiObserver) return;
 
-    console.debug("[SCREEN_SHARE_DIAG] Starting UI monitoring for stop buttons");
+    console.debug(
+      "[SCREEN_SHARE_DIAG] Starting UI monitoring for stop buttons",
+    );
 
     let debounceTimer = null;
     uiObserver = new MutationObserver(() => {
@@ -350,9 +401,7 @@
         activeMediaTracks.length > 0 &&
         activeMediaTracks.every((t) => t.readyState === "ended")
       ) {
-        console.debug(
-          "[SCREEN_SHARE_DIAG] Periodic check: all tracks ended"
-        );
+        console.debug("[SCREEN_SHARE_DIAG] Periodic check: all tracks ended");
         handleStreamEnd("periodic_check_tracks_ended");
         return;
       }

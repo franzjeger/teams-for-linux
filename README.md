@@ -14,7 +14,7 @@
 ✅ **System tray integration** (badge support varies by desktop environment)  
 ✅ **Custom backgrounds & themes**  
 ✅ **Screen sharing support**  
-✅ **Multiple account profiles**  
+✅ **Multiple account profiles**
 
 > [!NOTE]
 > This is an independent project, not affiliated with Microsoft. Some features are limited by the Teams web app.
@@ -22,6 +22,7 @@
 ## Sponsor
 
 ### Recall.ai — API for Meeting Recording and Transcription
+
 > If you're looking for a meeting recording API, consider checking out [Recall.ai](https://www.recall.ai/product/microsoft-teams-recording-api?utm_source=github&utm_medium=sponsorship&utm_campaign=ismaelmartinez-teams-for-linux), an API that records and transcribes Zoom, Google Meet, Microsoft Teams, in-person meetings, and more.
 
 _This sponsorship helps support the ongoing development of teams-for-linux._
@@ -33,6 +34,7 @@ _This sponsorship helps support the ongoing development of teams-for-linux._
 We have a dedicated deb and rpm repo at https://teamsforlinux.de hosted with :heart: by [Nils Büchner](https://github.com/nbuechner). Please follow the installation instructions below.
 
 **Debian/Ubuntu:**
+
 ```bash
 sudo mkdir -p /etc/apt/keyrings
 sudo wget -qO /etc/apt/keyrings/teams-for-linux.asc https://repo.teamsforlinux.de/teams-for-linux.asc
@@ -41,6 +43,7 @@ sudo apt update && sudo apt install teams-for-linux
 ```
 
 **RHEL/Fedora:**
+
 ```bash
 curl -1sLf -o /tmp/teams-for-linux.asc https://repo.teamsforlinux.de/teams-for-linux.asc; sudo rpm --import /tmp/teams-for-linux.asc
 sudo curl -1sLf -o /etc/yum.repos.d/teams-for-linux.repo https://repo.teamsforlinux.de/rpm/teams-for-linux.repo
@@ -83,21 +86,21 @@ Download from [GitHub Releases](https://github.com/IsmaelMartinez/teams-for-linu
 ## Quick Start
 
 1. **Install** using your preferred method above
-2. **Launch** with `teams-for-linux` 
+2. **Launch** with `teams-for-linux`
 3. **Configure** by creating `~/.config/teams-for-linux/config.json` if needed
 
 ## Documentation
 
 📖 **[Complete Documentation](https://ismaelmartinez.github.io/teams-for-linux/)** — Enhanced documentation with search, mobile optimization, and comprehensive guides
 
-| Topic | Description |
-|-------|-------------|
-| **[Installation Guide](https://ismaelmartinez.github.io/teams-for-linux/installation)** | Package repositories and installation methods |
-| **[Configuration Guide](https://ismaelmartinez.github.io/teams-for-linux/configuration)** | Complete setup and configuration options |
-| **[Troubleshooting](https://ismaelmartinez.github.io/teams-for-linux/troubleshooting)** | Common issues and solutions |
-| **[Multiple Profiles](https://ismaelmartinez.github.io/teams-for-linux/multiple-instances)** | Running work & personal accounts |
-| **[Custom Backgrounds](https://ismaelmartinez.github.io/teams-for-linux/custom-backgrounds)** | Video call backgrounds setup |
-| **[Contributing](https://ismaelmartinez.github.io/teams-for-linux/contributing)** | Development setup and contribution guidelines |
+| Topic                                                                                         | Description                                   |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| **[Installation Guide](https://ismaelmartinez.github.io/teams-for-linux/installation)**       | Package repositories and installation methods |
+| **[Configuration Guide](https://ismaelmartinez.github.io/teams-for-linux/configuration)**     | Complete setup and configuration options      |
+| **[Troubleshooting](https://ismaelmartinez.github.io/teams-for-linux/troubleshooting)**       | Common issues and solutions                   |
+| **[Multiple Profiles](https://ismaelmartinez.github.io/teams-for-linux/multiple-instances)**  | Running work & personal accounts              |
+| **[Custom Backgrounds](https://ismaelmartinez.github.io/teams-for-linux/custom-backgrounds)** | Video call backgrounds setup                  |
+| **[Contributing](https://ismaelmartinez.github.io/teams-for-linux/contributing)**             | Development setup and contribution guidelines |
 
 ## Project Activity
 
@@ -114,6 +117,7 @@ Download from [GitHub Releases](https://github.com/IsmaelMartinez/teams-for-linu
 Electron's contextIsolation and sandbox features are disabled to enable Teams DOM access functionality. For enhanced security, use system-level sandboxing:
 
 **Available options**:
+
 - **Flatpak**: Built-in isolation via Flathub
 - **Snap packages**: Application confinement with auto-updates
 - **Firejail**: Use this [script](https://codeberg.org/lars_uffmann/teams-for-linux-jailed) for manual sandboxing

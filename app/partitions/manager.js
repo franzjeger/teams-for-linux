@@ -38,7 +38,9 @@ class PartitionsManager {
 
   #savePartition(partition) {
     const partitions = this.#getPartitions();
-    const partitionIndex = partitions.findIndex((p) => p.name === partition.name);
+    const partitionIndex = partitions.findIndex(
+      (p) => p.name === partition.name,
+    );
 
     if (partitionIndex >= 0) {
       partitions[partitionIndex] = partition;

@@ -56,10 +56,11 @@ npm run dist
 ### Essential Commands
 
 :::tip Quick Reference
+
 - `npm run generate-release-info` - Generate release information manually
 - `npm run pack` - Development build with automatic release info generation
 - `npm run dist` - Production build with publishing support
-:::
+  :::
 
 ## File Structure
 
@@ -120,22 +121,23 @@ The generated `release-info.json` follows electron-builder's ReleaseInfo interfa
 
 ### Properties
 
-| Property | Source | Description |
-|----------|--------|-------------|
-| `releaseName` | `package.json` | Current version number |
-| `releaseNotes` | `appdata.xml` | Release notes from `<description>` section |
-| `releaseDate` | `appdata.xml` | Release date from `date` attribute |
+| Property       | Source         | Description                                |
+| -------------- | -------------- | ------------------------------------------ |
+| `releaseName`  | `package.json` | Current version number                     |
+| `releaseNotes` | `appdata.xml`  | Release notes from `<description>` section |
+| `releaseDate`  | `appdata.xml`  | Release date from `date` attribute         |
 
 ## Error Handling
 
 The system performs validation and provides helpful error messages:
 
 :::danger Common Errors
+
 - **Version Mismatch**: If `package.json` and `package-lock.json` versions don't match
 - **Missing Release Entry**: If no release entry exists for the current version in `appdata.xml`
 - **Empty Release Notes**: If the release entry has no description
 - **Missing Files**: If any required file is not found
-:::
+  :::
 
 ### Troubleshooting Steps
 

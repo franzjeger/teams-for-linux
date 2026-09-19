@@ -42,30 +42,30 @@ This document tracks the research and implementation of Microsoft Graph API inte
 
 ### Files Created
 
-| File | Purpose |
-|------|---------|
-| `app/graphApi/index.js` | GraphApiClient class - token acquisition, API requests |
-| `app/graphApi/ipcHandlers.js` | IPC handler registration for renderer access |
+| File                          | Purpose                                                |
+| ----------------------------- | ------------------------------------------------------ |
+| `app/graphApi/index.js`       | GraphApiClient class - token acquisition, API requests |
+| `app/graphApi/ipcHandlers.js` | IPC handler registration for renderer access           |
 
 ### Files Modified
 
-| File | Changes |
-|------|---------|
-| `app/index.js` | Import and initialization of Graph API client |
-| `app/config/index.js` | Added `graphApi` configuration option |
-| `app/security/ipcValidator.js` | Added 5 Graph API channels to allowlist |
-| `app/browser/tools/reactHandler.js` | Added `acquireToken()` method |
-| `scripts/generateIpcDocs.js` | Added Microsoft Graph API category |
+| File                                | Changes                                       |
+| ----------------------------------- | --------------------------------------------- |
+| `app/index.js`                      | Import and initialization of Graph API client |
+| `app/config/index.js`               | Added `graphApi` configuration option         |
+| `app/security/ipcValidator.js`      | Added 5 Graph API channels to allowlist       |
+| `app/browser/tools/reactHandler.js` | Added `acquireToken()` method                 |
+| `scripts/generateIpcDocs.js`        | Added Microsoft Graph API category            |
 
 ### IPC Channels
 
-| Channel | Purpose |
-|---------|---------|
-| `graph-api-get-user-profile` | Get current user profile |
-| `graph-api-get-calendar-events` | Get calendar events with OData options |
-| `graph-api-get-calendar-view` | Get events within date range |
-| `graph-api-create-calendar-event` | Create new calendar event |
-| `graph-api-get-mail-messages` | Get mail messages with OData options |
+| Channel                           | Purpose                                |
+| --------------------------------- | -------------------------------------- |
+| `graph-api-get-user-profile`      | Get current user profile               |
+| `graph-api-get-calendar-events`   | Get calendar events with OData options |
+| `graph-api-get-calendar-view`     | Get events within date range           |
+| `graph-api-create-calendar-event` | Create new calendar event              |
+| `graph-api-get-mail-messages`     | Get mail messages with OData options   |
 
 ## Technical Details
 
@@ -81,7 +81,10 @@ The implementation leverages Teams' existing authentication infrastructure:
 ```javascript
 // Token acquisition flow
 const authProvider = teams.authProvider;
-const result = await authProvider.acquireToken('https://graph.microsoft.com', options);
+const result = await authProvider.acquireToken(
+  "https://graph.microsoft.com",
+  options,
+);
 ```
 
 ### Request Flow
@@ -96,7 +99,7 @@ const result = await authProvider.acquireToken('https://graph.microsoft.com', op
 
 ```yaml
 graphApi:
-  enabled: true  # Default: false
+  enabled: true # Default: false
 ```
 
 ## API Support
@@ -114,6 +117,7 @@ graphApi:
 ### OData Support
 
 All GET endpoints support OData query parameters:
+
 - `$top` - Limit results
 - `$select` - Select specific fields
 - `$filter` - Filter results
@@ -125,10 +129,10 @@ All GET endpoints support OData query parameters:
 
 ```javascript
 // From renderer process
-const result = await ipcRenderer.invoke('graph-api-get-calendar-events', {
+const result = await ipcRenderer.invoke("graph-api-get-calendar-events", {
   top: 10,
-  select: 'subject,start,end',
-  orderby: 'start/dateTime'
+  select: "subject,start,end",
+  orderby: "start/dateTime",
 });
 
 if (result.success) {
@@ -145,6 +149,7 @@ if (result.success) {
 ## Testing
 
 Manual testing required:
+
 1. Enable Graph API in config
 2. Launch app and sign in to Teams
 3. Use DevTools console to invoke IPC handlers
@@ -163,12 +168,12 @@ Automated E2E tests not feasible due to authentication requirement.
 
 The Teams web app token has limited scopes. Some endpoints return **403 Forbidden**:
 
-| Endpoint | Status | Required Scope |
-|----------|--------|----------------|
-| `/me` | ✅ Works | `User.Read` |
-| `/me/calendar/events` | ✅ Works | `Calendars.Read` |
-| `/me/messages` | ✅ Works | `Mail.Read` |
-| `/me/presence` | ❌ Forbidden | `Presence.Read` |
+| Endpoint              | Status       | Required Scope   |
+| --------------------- | ------------ | ---------------- |
+| `/me`                 | ✅ Works     | `User.Read`      |
+| `/me/calendar/events` | ✅ Works     | `Calendars.Read` |
+| `/me/messages`        | ✅ Works     | `Mail.Read`      |
+| `/me/presence`        | ❌ Forbidden | `Presence.Read`  |
 
 The presence endpoint requires explicit consent that the Teams web app doesn't have.
 

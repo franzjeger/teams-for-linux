@@ -2,14 +2,14 @@
 // Simplified secure storage implementation using Electron safeStorage API
 // Addresses issue #1357 - Authentication refresh fails due to missing _tokenCache interface
 
-const { safeStorage } = require('electron');
+const { safeStorage } = require("electron");
 
 /**
  * TeamsTokenCache - Simplified localStorage-compatible token cache with secure storage
- * 
+ *
  * This class implements the Storage interface expected by Teams authentication provider
  * with optional secure storage using Electron's safeStorage API.
- * 
+ *
  * Key Features:
  * - Direct localStorage compatibility (getItem, setItem, removeItem, clear)
  * - Optional OS-level encryption using Electron safeStorage
@@ -24,16 +24,16 @@ class TeamsTokenCache {
     this._isAvailable = this._checkLocalStorageAvailability();
     this._memoryFallback = new Map();
     this._useMemoryFallback = false;
-    
+
     // Secure storage setup
     this._useSecureStorage = false;
-    this._securePrefix = 'secure_teams_';
-    
+    this._securePrefix = "secure_teams_";
+
     this._initializeSecureStorage();
-    
-    console.debug('[TOKEN_CACHE] TokenCache initialized', {
+
+    console.debug("[TOKEN_CACHE] TokenCache initialized", {
       localStorage: this._isAvailable,
-      secureStorage: this._useSecureStorage
+      secureStorage: this._useSecureStorage,
     });
   }
 
@@ -48,8 +48,8 @@ class TeamsTokenCache {
    */
   async getItem(key) {
     try {
-      if (typeof key !== 'string') {
-        console.warn('[TOKEN_CACHE] Invalid key type:', typeof key);
+      if (typeof key !== "string") {
+        console.warn("[TOKEN_CACHE] Invalid key type:", typeof key);
         return null;
       }
 
@@ -60,7 +60,7 @@ class TeamsTokenCache {
           return secureValue;
         }
       }
-      
+
       // Fallback to localStorage or memory
       if (this._useMemoryFallback) {
         return this._memoryFallback.get(key) || null;
@@ -68,7 +68,10 @@ class TeamsTokenCache {
         return localStorage.getItem(key);
       }
     } catch (error) {
-      console.warn(`[TOKEN_CACHE] getItem failed for key: ${this._sanitizeKey(key)}`, error.message);
+      console.warn(
+        `[TOKEN_CACHE] getItem failed for key: ${this._sanitizeKey(key)}`,
+        error.message,
+      );
       return null;
     }
   }
@@ -80,8 +83,8 @@ class TeamsTokenCache {
    */
   async setItem(key, value) {
     try {
-      if (typeof key !== 'string' || typeof value !== 'string') {
-        throw new TypeError('Key and value must be strings');
+      if (typeof key !== "string" || typeof value !== "string") {
+        throw new TypeError("Key and value must be strings");
       }
 
       // Try secure storage first if available
@@ -91,7 +94,7 @@ class TeamsTokenCache {
           return;
         }
       }
-      
+
       // Fallback to localStorage or memory
       if (this._useMemoryFallback) {
         this._memoryFallback.set(key, value);
@@ -99,8 +102,10 @@ class TeamsTokenCache {
         localStorage.setItem(key, value);
       }
     } catch (error) {
-      if (error.name === 'QuotaExceededError') {
-        console.warn('[TOKEN_CACHE] Storage quota exceeded, switching to memory fallback');
+      if (error.name === "QuotaExceededError") {
+        console.warn(
+          "[TOKEN_CACHE] Storage quota exceeded, switching to memory fallback",
+        );
         this._useMemoryFallback = true;
         this._memoryFallback.set(key, value);
       } else {
@@ -116,7 +121,7 @@ class TeamsTokenCache {
    */
   async removeItem(key) {
     try {
-      if (typeof key !== 'string') {
+      if (typeof key !== "string") {
         return;
       }
 
@@ -124,7 +129,7 @@ class TeamsTokenCache {
       if (this._useSecureStorage) {
         await this._removeSecureItem(key);
       }
-      
+
       // Also remove from localStorage/memory (cleanup)
       if (this._useMemoryFallback) {
         this._memoryFallback.delete(key);
@@ -142,14 +147,14 @@ class TeamsTokenCache {
   async clear() {
     try {
       const authKeys = this._getAuthRelatedKeys();
-      
+
       for (const key of authKeys) {
         await this.removeItem(key);
       }
-      
+
       console.debug(`[TOKEN_CACHE] Cleared ${authKeys.length} auth keys`);
     } catch (error) {
-      console.error('[TOKEN_CACHE] clear failed:', error.message);
+      console.error("[TOKEN_CACHE] clear failed:", error.message);
     }
   }
 
@@ -163,16 +168,18 @@ class TeamsTokenCache {
   getCacheStats() {
     try {
       const authKeys = this._getAuthRelatedKeys();
-      const refreshTokens = authKeys.filter(key => key.includes('refresh_token'));
-      const msalKeys = authKeys.filter(key => key.includes('msal.token'));
-      
+      const refreshTokens = authKeys.filter((key) =>
+        key.includes("refresh_token"),
+      );
+      const msalKeys = authKeys.filter((key) => key.includes("msal.token"));
+
       let storageType;
       if (this._useSecureStorage) {
-        storageType = 'secure';
+        storageType = "secure";
       } else if (this._useMemoryFallback) {
-        storageType = 'memory';
+        storageType = "memory";
       } else {
-        storageType = 'localStorage';
+        storageType = "localStorage";
       }
 
       return {
@@ -186,18 +193,20 @@ class TeamsTokenCache {
           memoryFallback: this._useMemoryFallback,
           secureStorage: this._useSecureStorage,
           platform: process.platform,
-          secureBackend: this._useSecureStorage ? 'electron-safeStorage' : 'none'
-        }
+          secureBackend: this._useSecureStorage
+            ? "electron-safeStorage"
+            : "none",
+        },
       };
     } catch (error) {
-      console.warn('[TOKEN_CACHE] Failed to get cache stats:', error.message);
+      console.warn("[TOKEN_CACHE] Failed to get cache stats:", error.message);
       return {
         totalKeys: 0,
         authKeysCount: 0,
         refreshTokenCount: 0,
         msalTokenCount: 0,
-        storageType: 'unknown',
-        error: error.message
+        storageType: "unknown",
+        error: error.message,
       };
     }
   }
@@ -213,14 +222,18 @@ class TeamsTokenCache {
   _initializeSecureStorage() {
     try {
       this._useSecureStorage = safeStorage?.isEncryptionAvailable() ?? false;
-      console.debug('[TOKEN_CACHE] Secure storage', this._useSecureStorage ? 'available' : 'not available');
-      
+      console.debug(
+        "[TOKEN_CACHE] Secure storage",
+        this._useSecureStorage ? "available" : "not available",
+      );
     } catch (error) {
-      console.warn('[TOKEN_CACHE] Secure storage initialization failed:', error.message);
+      console.warn(
+        "[TOKEN_CACHE] Secure storage initialization failed:",
+        error.message,
+      );
       this._useSecureStorage = false;
     }
   }
-
 
   /**
    * Get item from secure storage
@@ -232,8 +245,8 @@ class TeamsTokenCache {
       if (!encryptedData) {
         return null;
       }
-      
-      const encryptedBuffer = Buffer.from(encryptedData, 'base64');
+
+      const encryptedBuffer = Buffer.from(encryptedData, "base64");
       return safeStorage.decryptString(encryptedBuffer);
     } catch (error) {
       console.warn(`[TOKEN_CACHE] Secure getItem failed: ${error.message}`);
@@ -248,7 +261,10 @@ class TeamsTokenCache {
   async _setSecureItem(key, value) {
     try {
       const encrypted = safeStorage.encryptString(value);
-      localStorage.setItem(this._securePrefix + key, encrypted.toString('base64'));
+      localStorage.setItem(
+        this._securePrefix + key,
+        encrypted.toString("base64"),
+      );
       return true;
     } catch (error) {
       console.warn(`[TOKEN_CACHE] Secure setItem failed: ${error.message}`);
@@ -274,16 +290,15 @@ class TeamsTokenCache {
    */
   _checkLocalStorageAvailability() {
     try {
-      const testKey = '__token_cache_test__';
-      localStorage.setItem(testKey, 'test');
+      const testKey = "__token_cache_test__";
+      localStorage.setItem(testKey, "test");
       localStorage.removeItem(testKey);
       return true;
     } catch (error) {
-      console.warn('[TOKEN_CACHE] localStorage unavailable:', error.message);
+      console.warn("[TOKEN_CACHE] localStorage unavailable:", error.message);
       return false;
     }
   }
-
 
   /**
    * Get authentication-related keys from storage
@@ -291,7 +306,7 @@ class TeamsTokenCache {
    */
   _getAuthRelatedKeys() {
     const authKeys = [];
-    
+
     try {
       if (this._useMemoryFallback) {
         // Memory fallback: iterate through memory cache
@@ -310,9 +325,9 @@ class TeamsTokenCache {
         }
       }
     } catch (error) {
-      console.warn('[TOKEN_CACHE] Failed to get auth keys:', error.message);
+      console.warn("[TOKEN_CACHE] Failed to get auth keys:", error.message);
     }
-    
+
     return authKeys;
   }
 
@@ -321,24 +336,24 @@ class TeamsTokenCache {
    * @private
    */
   _isAuthRelatedKey(key) {
-    if (typeof key !== 'string') return false;
-    
+    if (typeof key !== "string") return false;
+
     // Teams authentication patterns from research
     const authPatterns = [
-      'tmp.auth.v1.',
-      'refresh_token',
-      'msal.token',
-      'EncryptionKey',
-      'authSessionId',
-      'LogoutState',
-      'accessToken',
-      'idtoken',
-      'Account',
-      'Authority',
-      'ClientInfo'
+      "tmp.auth.v1.",
+      "refresh_token",
+      "msal.token",
+      "EncryptionKey",
+      "authSessionId",
+      "LogoutState",
+      "accessToken",
+      "idtoken",
+      "Account",
+      "Authority",
+      "ClientInfo",
     ];
-    
-    return authPatterns.some(pattern => key.includes(pattern));
+
+    return authPatterns.some((pattern) => key.includes(pattern));
   }
 
   /**
@@ -346,11 +361,13 @@ class TeamsTokenCache {
    * @private
    */
   _sanitizeKey(key) {
-    if (typeof key !== 'string') return '[INVALID_KEY]';
-    
+    if (typeof key !== "string") return "[INVALID_KEY]";
+
     // Hide UUIDs
-    return key.replaceAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, 
-      (match) => `${match.substr(0, 8)}...`);
+    return key.replaceAll(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+      (match) => `${match.substr(0, 8)}...`,
+    );
   }
 }
 

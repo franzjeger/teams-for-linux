@@ -92,6 +92,7 @@ This chunk confirms the problem exists on Linux and that our approach works befo
 ### Task 1: Cross-platform API behaviour validation
 
 **Files:**
+
 - Existing: `testing/spikes/spike-4-webauthn-support.js`
 - Existing: `testing/spikes/spike-4-webauthn-test.html`
 - Existing: `testing/spikes/spike-4-webauthn-preload.js`
@@ -105,6 +106,7 @@ npx electron testing/spikes/spike-4-webauthn-support.js
 ```
 
 Expected Phase 1 results:
+
 - `PublicKeyCredential`: true
 - `isUserVerifyingPlatformAuthenticatorAvailable()`: false (no Touch ID in Electron)
 - `navigator.credentials.create/get`: Available
@@ -136,6 +138,7 @@ fido2-token -L   # Lists connected devices (empty if no key plugged in)
 ```
 
 If a hardware key is available, test manual credential creation:
+
 ```bash
 echo "deadbeef" | fido2-cred -M -h /dev/hidrawN
 ```
@@ -167,20 +170,22 @@ This affects `createCredential()` in `fido2Backend.js`:
 
 ```javascript
 // WRONG (plan's current code):
-const input = [
+const input =
+  [
     clientDataHash.toString("hex"),
     sanitizeForFido2(options.rpId),
     sanitizeForFido2(options.userName),
     userIdHex,
-].join("\n") + "\n";
+  ].join("\n") + "\n";
 
 // CORRECT (validated — fido2-tools expects standard base64, not base64url):
-const input = [
+const input =
+  [
     clientDataHash.toString("base64"),
     sanitizeForFido2(options.rpId),
     sanitizeForFido2(options.userName),
     base64urlDecode(options.userId).toString("base64"),
-].join("\n") + "\n";
+  ].join("\n") + "\n";
 ```
 
 The same bug affects `getAssertion()`, where `clientDataHash` and credential IDs are sent as hex.
@@ -214,14 +219,15 @@ const lines = stdout.trim().split("\n");
 // Skip echoed input lines (clientDataHash + rpId)
 const dataLines = lines.slice(2);
 if (dataLines.length < 4) {
-    throw new Error("NotAllowedError: Unexpected fido2-cred output format");
+  throw new Error("NotAllowedError: Unexpected fido2-cred output format");
 }
-const fmt = dataLines[0].trim();           // "packed" or "none"
-const authData = Buffer.from(dataLines[1], "base64");  // authData
-const credId = Buffer.from(dataLines[2], "base64");    // credId
+const fmt = dataLines[0].trim(); // "packed" or "none"
+const authData = Buffer.from(dataLines[1], "base64"); // authData
+const credId = Buffer.from(dataLines[2], "base64"); // credId
 const signature = Buffer.from(dataLines[3], "base64"); // signature
-const x5c = dataLines.length >= 5
-    ? Buffer.from(dataLines[4], "base64")              // x509 cert
+const x5c =
+  dataLines.length >= 5
+    ? Buffer.from(dataLines[4], "base64") // x509 cert
     : null;
 ```
 
@@ -237,14 +243,14 @@ The plan expected stderr to contain "Enter PIN for" when a PIN is required. The 
 
 ### Validated environment
 
-| Field | Value |
-|-------|-------|
-| Distro | Arch Linux |
-| Kernel | 6.19.6-arch1-1 |
-| fido2-tools version | 1.16.0 |
-| Device | YubiKey OTP+FIDO+CCID (0x1050:0x0407) |
-| Device path | /dev/hidraw11 |
-| PIN required | No (for credential creation) |
+| Field               | Value                                 |
+| ------------------- | ------------------------------------- |
+| Distro              | Arch Linux                            |
+| Kernel              | 6.19.6-arch1-1                        |
+| fido2-tools version | 1.16.0                                |
+| Device              | YubiKey OTP+FIDO+CCID (0x1050:0x0407) |
+| Device path         | /dev/hidraw11                         |
+| PIN required        | No (for credential creation)          |
 
 ### Impact on implementation
 
@@ -268,6 +274,7 @@ This chunk creates the shared utilities and wires up the configuration, with no 
 ### Task 2: Create helpers module
 
 **Files:**
+
 - Create: `app/webauthn/helpers.js`
 
 - [ ] **Step 1: Write helpers**
@@ -341,7 +348,12 @@ function sanitizeForFido2(value, maxLength = 500) {
   return value.replace(/[\x00-\x1f\x7f]/g, "").substring(0, maxLength);
 }
 
-module.exports = { base64urlEncode, base64urlDecode, generateClientDataJSON, sanitizeForFido2 };
+module.exports = {
+  base64urlEncode,
+  base64urlDecode,
+  generateClientDataJSON,
+  sanitizeForFido2,
+};
 ```
 
 - [ ] **Step 2: Commit**
@@ -354,6 +366,7 @@ git commit -m "feat(webauthn): add base64url, clientDataJSON, and input sanitiza
 ### Task 3: Add configuration option
 
 **Files:**
+
 - Modify: `app/config/index.js`
 
 - [ ] **Step 3: Add auth.webauthn config option**
@@ -406,6 +419,7 @@ git commit -m "feat(webauthn): add auth.webauthn configuration option (#802)"
 ### Task 4: Add IPC channels to allowlist
 
 **Files:**
+
 - Modify: `app/security/ipcValidator.js`
 
 - [ ] **Step 6: Add webauthn channels**
@@ -436,6 +450,7 @@ This chunk implements the main-process module that communicates with hardware se
 ### Task 5: Create fido2 backend
 
 **Files:**
+
 - Create: `app/webauthn/fido2Backend.js`
 
 - [ ] **Step 1: Write the fido2 backend**
@@ -455,7 +470,12 @@ const { execFile, spawn } = require("node:child_process");
 const { createHash } = require("node:crypto");
 const { promisify } = require("node:util");
 const { encode: cborEncode } = require("cbor-x");
-const { base64urlEncode, base64urlDecode, generateClientDataJSON, sanitizeForFido2 } = require("./helpers");
+const {
+  base64urlEncode,
+  base64urlDecode,
+  generateClientDataJSON,
+  sanitizeForFido2,
+} = require("./helpers");
 
 const execFileAsync = promisify(execFile);
 
@@ -481,7 +501,9 @@ function spawnFido2(cmd, args, input, timeoutMs, pinCallback) {
     let pinHandled = false;
     let rejected = false;
 
-    proc.stdout.on("data", (data) => { stdout += data.toString(); });
+    proc.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
 
     proc.stderr.on("data", (data) => {
       const chunk = data.toString();
@@ -586,21 +608,30 @@ async function discoverDevices() {
 async function createCredential(options) {
   const devices = await discoverDevices();
   if (devices.length === 0) {
-    throw new Error("NotAllowedError: No FIDO2 hardware device found. Plug in your security key and try again.");
+    throw new Error(
+      "NotAllowedError: No FIDO2 hardware device found. Plug in your security key and try again.",
+    );
   }
 
   const device = devices[0];
   const challengeBytes = base64urlDecode(options.challenge);
-  const clientDataJSON = generateClientDataJSON("webauthn.create", challengeBytes, options.origin);
+  const clientDataJSON = generateClientDataJSON(
+    "webauthn.create",
+    challengeBytes,
+    options.origin,
+  );
   const clientDataHash = createHash("sha256").update(clientDataJSON).digest();
 
-  const userIdHex = Buffer.from(base64urlDecode(options.userId)).toString("hex");
-  const input = [
-    clientDataHash.toString("hex"),
-    sanitizeForFido2(options.rpId),
-    sanitizeForFido2(options.userName),
-    userIdHex,
-  ].join("\n") + "\n";
+  const userIdHex = Buffer.from(base64urlDecode(options.userId)).toString(
+    "hex",
+  );
+  const input =
+    [
+      clientDataHash.toString("hex"),
+      sanitizeForFido2(options.rpId),
+      sanitizeForFido2(options.userName),
+      userIdHex,
+    ].join("\n") + "\n";
 
   const args = ["-M", "-h"];
 
@@ -620,7 +651,10 @@ async function createCredential(options) {
   const timeoutMs = (options.timeout || 60) * 1000;
   const needsPin = args.includes("-v");
   const { stdout } = await spawnFido2(
-    "fido2-cred", args, input, timeoutMs,
+    "fido2-cred",
+    args,
+    input,
+    timeoutMs,
     needsPin ? options.pinCallback : null,
   );
 
@@ -630,20 +664,22 @@ async function createCredential(options) {
   }
 
   const authData = Buffer.from(lines[1], "base64");
-  const credId = lines.length >= 5
-    ? Buffer.from(lines[4], "base64")
-    : authData.subarray(55, 55 + authData[53] * 256 + authData[54]);
+  const credId =
+    lines.length >= 5
+      ? Buffer.from(lines[4], "base64")
+      : authData.subarray(55, 55 + authData[53] * 256 + authData[54]);
 
   // Build a proper CBOR-encoded attestation object.
   // fido2-cred outputs: format, authData, x509 cert, signature (each base64 on separate lines).
   // The attestation object is a CBOR map: { fmt, attStmt, authData }.
   const fmt = lines[0].trim();
-  const attStmt = fmt === "none"
-    ? {}
-    : {
-        x5c: [Buffer.from(lines[2], "base64")],
-        sig: Buffer.from(lines[3], "base64"),
-      };
+  const attStmt =
+    fmt === "none"
+      ? {}
+      : {
+          x5c: [Buffer.from(lines[2], "base64")],
+          sig: Buffer.from(lines[3], "base64"),
+        };
   const attestationObject = cborEncode({ fmt, attStmt, authData });
 
   return {
@@ -674,15 +710,24 @@ async function createCredential(options) {
 async function getAssertion(options) {
   const devices = await discoverDevices();
   if (devices.length === 0) {
-    throw new Error("NotAllowedError: No FIDO2 hardware device found. Plug in your security key and try again.");
+    throw new Error(
+      "NotAllowedError: No FIDO2 hardware device found. Plug in your security key and try again.",
+    );
   }
 
   const device = devices[0];
   const challengeBytes = base64urlDecode(options.challenge);
-  const clientDataJSON = generateClientDataJSON("webauthn.get", challengeBytes, options.origin);
+  const clientDataJSON = generateClientDataJSON(
+    "webauthn.get",
+    challengeBytes,
+    options.origin,
+  );
   const clientDataHash = createHash("sha256").update(clientDataJSON).digest();
 
-  const inputLines = [clientDataHash.toString("hex"), sanitizeForFido2(options.rpId)];
+  const inputLines = [
+    clientDataHash.toString("hex"),
+    sanitizeForFido2(options.rpId),
+  ];
 
   if (options.allowCredentials && options.allowCredentials.length > 0) {
     for (const cred of options.allowCredentials) {
@@ -706,7 +751,10 @@ async function getAssertion(options) {
   const timeoutMs = (options.timeout || 60) * 1000;
   const needsPin = args.includes("-v");
   const { stdout } = await spawnFido2(
-    "fido2-assert", args, input, timeoutMs,
+    "fido2-assert",
+    args,
+    input,
+    timeoutMs,
     needsPin ? options.pinCallback : null,
   );
 
@@ -720,14 +768,18 @@ async function getAssertion(options) {
   let credentialId;
   if (lines.length >= 3) {
     credentialId = base64urlEncode(Buffer.from(lines[2], "base64"));
-  } else if (options.allowCredentials && options.allowCredentials.length === 1) {
+  } else if (
+    options.allowCredentials &&
+    options.allowCredentials.length === 1
+  ) {
     credentialId = options.allowCredentials[0].id;
   } else {
-    throw new Error("NotAllowedError: fido2-assert did not return a credential ID and multiple credentials were allowed");
+    throw new Error(
+      "NotAllowedError: fido2-assert did not return a credential ID and multiple credentials were allowed",
+    );
   }
-  const userHandle = lines.length >= 4
-    ? base64urlEncode(Buffer.from(lines[3], "base64"))
-    : null;
+  const userHandle =
+    lines.length >= 4 ? base64urlEncode(Buffer.from(lines[3], "base64")) : null;
 
   return {
     credentialId,
@@ -740,7 +792,12 @@ async function getAssertion(options) {
   };
 }
 
-module.exports = { isAvailable, discoverDevices, createCredential, getAssertion };
+module.exports = {
+  isAvailable,
+  discoverDevices,
+  createCredential,
+  getAssertion,
+};
 ```
 
 - [ ] **Step 2: Install cbor-x dependency**
@@ -761,6 +818,7 @@ git commit -m "feat(webauthn): add fido2-tools hardware key backend (#802)"
 ### Task 6: Create PIN dialog
 
 **Files:**
+
 - Create: `app/webauthn/pinDialog.js`
 - Create: `app/webauthn/pinDialog.html`
 - Create: `app/webauthn/pinDialogPreload.js`
@@ -791,32 +849,77 @@ contextBridge.exposeInMainWorld("api", {
     <meta charset="UTF-8" />
     <title>Security Key PIN</title>
     <style>
-      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 16px; background: #f5f5f5; }
-      h3 { margin: 0 0 12px; font-size: 14px; color: #333; }
-      p { font-size: 12px; color: #666; margin: 0 0 12px; }
-      input[type="password"] { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-      .buttons { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; }
-      button { padding: 6px 16px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
-      button.primary { background: #1757bd; color: #fff; border-color: #1757bd; }
-      button.secondary { background: #fff; color: #333; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 16px;
+        background: #f5f5f5;
+      }
+      h3 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        color: #333;
+      }
+      p {
+        font-size: 12px;
+        color: #666;
+        margin: 0 0 12px;
+      }
+      input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .buttons {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      button {
+        padding: 6px 16px;
+        font-size: 13px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button.primary {
+        background: #1757bd;
+        color: #fff;
+        border-color: #1757bd;
+      }
+      button.secondary {
+        background: #fff;
+        color: #333;
+      }
     </style>
   </head>
   <body>
     <h3>Security Key PIN</h3>
     <p>Enter the PIN for your FIDO2 security key to continue signing in.</p>
     <form id="pin-form">
-      <input type="password" id="pin" placeholder="PIN" autofocus autocomplete="off" />
+      <input
+        type="password"
+        id="pin"
+        placeholder="PIN"
+        autofocus
+        autocomplete="off"
+      />
       <div class="buttons">
         <button type="button" class="secondary" id="cancel-btn">Cancel</button>
         <button type="submit" class="primary">OK</button>
       </div>
     </form>
     <script>
-      document.getElementById("pin-form").addEventListener("submit", (event) => {
-        event.preventDefault();
-        const pin = document.getElementById("pin").value;
-        if (pin) globalThis.api.submitPin(pin);
-      });
+      document
+        .getElementById("pin-form")
+        .addEventListener("submit", (event) => {
+          event.preventDefault();
+          const pin = document.getElementById("pin").value;
+          if (pin) globalThis.api.submitPin(pin);
+        });
       document.getElementById("cancel-btn").addEventListener("click", () => {
         globalThis.api.cancelPin();
       });
@@ -921,6 +1024,7 @@ git commit -m "feat(webauthn): add PIN entry dialog for FIDO2 security keys (#80
 ### Task 7: Create main-process webauthn module
 
 **Files:**
+
 - Create: `app/webauthn/index.js`
 
 - [ ] **Step 3: Write the module entry point with IPC handlers**
@@ -981,7 +1085,9 @@ async function initialize() {
 
   const available = await fido2Backend.isAvailable();
   if (!available) {
-    console.warn("[WEBAUTHN] fido2-tools not found. Install with: sudo apt install fido2-tools");
+    console.warn(
+      "[WEBAUTHN] fido2-tools not found. Install with: sudo apt install fido2-tools",
+    );
     console.warn("[WEBAUTHN] Hardware key support will not be available");
     return;
   }
@@ -990,7 +1096,8 @@ async function initialize() {
 
   // Handle credential creation requests from renderer
   ipcMain.handle("webauthn:create", async (event, options) => {
-    const origin = event.senderFrame?.origin || new URL(event.sender.getURL()).origin;
+    const origin =
+      event.senderFrame?.origin || new URL(event.sender.getURL()).origin;
 
     if (!isAllowedOrigin(origin)) {
       console.warn("[WEBAUTHN] Blocked create request from unexpected origin");
@@ -1001,7 +1108,11 @@ async function initialize() {
 
     try {
       const pinCallback = createPinCallback(event.sender);
-      const result = await fido2Backend.createCredential({ ...options, origin, pinCallback });
+      const result = await fido2Backend.createCredential({
+        ...options,
+        origin,
+        pinCallback,
+      });
       return { success: true, data: result };
     } catch (err) {
       console.error("[WEBAUTHN] Create credential failed");
@@ -1011,7 +1122,8 @@ async function initialize() {
 
   // Handle assertion requests from renderer
   ipcMain.handle("webauthn:get", async (event, options) => {
-    const origin = event.senderFrame?.origin || new URL(event.sender.getURL()).origin;
+    const origin =
+      event.senderFrame?.origin || new URL(event.sender.getURL()).origin;
 
     if (!isAllowedOrigin(origin)) {
       console.warn("[WEBAUTHN] Blocked get request from unexpected origin");
@@ -1022,7 +1134,11 @@ async function initialize() {
 
     try {
       const pinCallback = createPinCallback(event.sender);
-      const result = await fido2Backend.getAssertion({ ...options, origin, pinCallback });
+      const result = await fido2Backend.getAssertion({
+        ...options,
+        origin,
+        pinCallback,
+      });
       return { success: true, data: result };
     } catch (err) {
       console.error("[WEBAUTHN] Get assertion failed");
@@ -1053,6 +1169,7 @@ This chunk creates the renderer-side monkey-patch and wires everything together.
 ### Task 7: Create browser tool for navigator.credentials override
 
 **Files:**
+
 - Create: `app/browser/tools/webauthnOverride.js`
 
 This module follows the same pattern as `emulatePlatform.js` and `disableAutogain.js`: a module with an `init(config, ipcRenderer)` function that monkey-patches browser APIs.
@@ -1086,7 +1203,9 @@ function init(config, ipcRenderer) {
     return;
   }
 
-  const originalCreate = navigator.credentials.create.bind(navigator.credentials);
+  const originalCreate = navigator.credentials.create.bind(
+    navigator.credentials,
+  );
   const originalGet = navigator.credentials.get.bind(navigator.credentials);
 
   navigator.credentials.create = async (options) => {
@@ -1133,7 +1252,9 @@ function init(config, ipcRenderer) {
     }
   };
 
-  console.info("[WEBAUTHN] navigator.credentials patched for hardware security key support");
+  console.info(
+    "[WEBAUTHN] navigator.credentials patched for hardware security key support",
+  );
 }
 
 /**
@@ -1285,6 +1406,7 @@ git commit -m "feat(webauthn): add browser tool to patch navigator.credentials (
 ### Task 8: Wire up preload and main process
 
 **Files:**
+
 - Modify: `app/browser/preload.js`
 - Modify: `app/index.js`
 
@@ -1300,7 +1422,13 @@ In `app/browser/preload.js`, add the module to the `modules` array (after the `e
 Also add `"webauthnOverride"` to the `modulesRequiringIpc` set since it needs `ipcRenderer`:
 
 ```javascript
-    const modulesRequiringIpc = new Set(["settings", "theme", "trayIconRenderer", "mqttStatusMonitor", "webauthnOverride"]);
+const modulesRequiringIpc = new Set([
+  "settings",
+  "theme",
+  "trayIconRenderer",
+  "mqttStatusMonitor",
+  "webauthnOverride",
+]);
 ```
 
 - [ ] **Step 4: Initialize webauthn module in main process**
@@ -1314,10 +1442,10 @@ const WebAuthn = require("./webauthn");
 Then in the `handleAppReady` function, after other module initializations, add:
 
 ```javascript
-  // Initialize WebAuthn/FIDO2 hardware security key support (Linux only)
-  if (process.platform === "linux" && config.auth?.webauthn?.enabled) {
-    await WebAuthn.initialize();
-  }
+// Initialize WebAuthn/FIDO2 hardware security key support (Linux only)
+if (process.platform === "linux" && config.auth?.webauthn?.enabled) {
+  await WebAuthn.initialize();
+}
 ```
 
 Note: `handleAppReady` is already `async`, so this costs nothing and prevents a race where the renderer sends a WebAuthn IPC call before the handlers are registered.
@@ -1340,6 +1468,7 @@ git commit -m "feat(webauthn): wire up preload and main process integration (#80
 ### Task 9: Update IPC documentation
 
 **Files:**
+
 - Run: `npm run generate-ipc-docs`
 
 - [ ] **Step 7: Generate updated IPC docs**
@@ -1364,6 +1493,7 @@ git commit -m "docs: update IPC API docs with webauthn channels (#802)"
 ### Task 10: E2E test with CDP virtual authenticator
 
 **Files:**
+
 - Create: `tests/e2e/webauthn.spec.js`
 
 This test validates the full flow using Electron's CDP virtual authenticator, requiring no real hardware.
@@ -1408,13 +1538,19 @@ test.describe("WebAuthn FIDO2 Support", () => {
     page = await app.firstWindow();
     await page.waitForLoadState("domcontentloaded");
 
-    const hasPKC = await page.evaluate(() => typeof window.PublicKeyCredential !== "undefined");
+    const hasPKC = await page.evaluate(
+      () => typeof window.PublicKeyCredential !== "undefined",
+    );
     expect(hasPKC).toBe(true);
 
-    const hasCreate = await page.evaluate(() => typeof navigator.credentials?.create === "function");
+    const hasCreate = await page.evaluate(
+      () => typeof navigator.credentials?.create === "function",
+    );
     expect(hasCreate).toBe(true);
 
-    const hasGet = await page.evaluate(() => typeof navigator.credentials?.get === "function");
+    const hasGet = await page.evaluate(
+      () => typeof navigator.credentials?.get === "function",
+    );
     expect(hasGet).toBe(true);
   });
 });
@@ -1438,6 +1574,7 @@ git commit -m "test: add WebAuthn API availability E2E test (#802)"
 ### Task 11: Update configuration documentation
 
 **Files:**
+
 - Modify: `docs-site/docs/configuration.md`
 
 - [ ] **Step 4: Add webauthn config documentation**
@@ -1447,8 +1584,8 @@ Add an entry for `auth.webauthn` in the configuration reference, following the e
 ```markdown
 ### auth.webauthn
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
+| Property  | Type    | Default | Description                                                                                                                                                                       |
+| --------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled` | boolean | `false` | Enable FIDO2 hardware security key support for WebAuthn authentication on Linux. Requires `fido2-tools` system package. On macOS and Windows, Electron handles WebAuthn natively. |
 ```
 
@@ -1490,6 +1627,7 @@ git commit -m "docs: add WebAuthn/FIDO2 configuration reference (#802)"
 9. Verify authentication completes
 
 If no hardware key is available, verify via console logs:
+
 - `[WEBAUTHN] fido2-tools detected, registering IPC handlers` appears on startup
 - `[WEBAUTHN] navigator.credentials patched for hardware security key support` appears in renderer console
 - Attempting security key login shows `[WEBAUTHN] Processing create credential request` in main process console
@@ -1506,23 +1644,23 @@ If no hardware key is available, verify via console logs:
 
 ## Summary of all changes
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `app/webauthn/helpers.js` | Create | base64url encoding, clientDataJSON generation, input sanitization |
-| `app/webauthn/fido2Backend.js` | Create | fido2-tools CLI wrapper with PIN callback support |
-| `app/webauthn/index.js` | Create | Module entry point, IPC handlers, origin validation, PIN callback wiring |
-| `app/webauthn/pinDialog.js` | Create | PIN entry dialog module (modal BrowserWindow) |
-| `app/webauthn/pinDialog.html` | Create | PIN entry form UI |
-| `app/webauthn/pinDialogPreload.js` | Create | contextBridge preload for PIN dialog |
-| `app/webauthn/README.md` | Create | Module documentation |
-| `app/browser/tools/webauthnOverride.js` | Create | Preload monkey-patch for navigator.credentials |
-| `app/config/index.js` | Modify | Add `auth.webauthn` config option |
-| `app/security/ipcValidator.js` | Modify | Add `webauthn:create`, `webauthn:get`, `webauthn:pin-submit`, `webauthn:pin-cancel` to allowlist |
-| `app/browser/preload.js` | Modify | Add webauthnOverride to module list and IPC set |
-| `app/index.js` | Modify | Initialize webauthn module on Linux |
-| `package.json` | Modify | Add `cbor-x` dependency for attestation object encoding |
-| `tests/e2e/webauthn.spec.js` | Create | API availability E2E test |
-| `docs-site/docs/configuration.md` | Modify | Configuration reference for auth.webauthn |
+| File                                    | Action | Purpose                                                                                          |
+| --------------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| `app/webauthn/helpers.js`               | Create | base64url encoding, clientDataJSON generation, input sanitization                                |
+| `app/webauthn/fido2Backend.js`          | Create | fido2-tools CLI wrapper with PIN callback support                                                |
+| `app/webauthn/index.js`                 | Create | Module entry point, IPC handlers, origin validation, PIN callback wiring                         |
+| `app/webauthn/pinDialog.js`             | Create | PIN entry dialog module (modal BrowserWindow)                                                    |
+| `app/webauthn/pinDialog.html`           | Create | PIN entry form UI                                                                                |
+| `app/webauthn/pinDialogPreload.js`      | Create | contextBridge preload for PIN dialog                                                             |
+| `app/webauthn/README.md`                | Create | Module documentation                                                                             |
+| `app/browser/tools/webauthnOverride.js` | Create | Preload monkey-patch for navigator.credentials                                                   |
+| `app/config/index.js`                   | Modify | Add `auth.webauthn` config option                                                                |
+| `app/security/ipcValidator.js`          | Modify | Add `webauthn:create`, `webauthn:get`, `webauthn:pin-submit`, `webauthn:pin-cancel` to allowlist |
+| `app/browser/preload.js`                | Modify | Add webauthnOverride to module list and IPC set                                                  |
+| `app/index.js`                          | Modify | Initialize webauthn module on Linux                                                              |
+| `package.json`                          | Modify | Add `cbor-x` dependency for attestation object encoding                                          |
+| `tests/e2e/webauthn.spec.js`            | Create | API availability E2E test                                                                        |
+| `docs-site/docs/configuration.md`       | Modify | Configuration reference for auth.webauthn                                                        |
 
 Total new code: approximately 600 lines across 8 new files, plus minor modifications to 5 existing files.
 

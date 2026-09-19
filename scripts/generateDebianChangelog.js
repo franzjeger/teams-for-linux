@@ -15,11 +15,11 @@ async function generateDebianChangelog(projectRoot = null) {
   // Load appdata.xml for release information
   const appdataPath = path.join(
     root,
-    "com.github.IsmaelMartinez.teams_for_linux.appdata.xml"
+    "com.github.IsmaelMartinez.teams_for_linux.appdata.xml",
   );
   if (!fs.existsSync(appdataPath)) {
     throw new Error(
-      "com.github.IsmaelMartinez.teams_for_linux.appdata.xml not found."
+      "com.github.IsmaelMartinez.teams_for_linux.appdata.xml not found.",
     );
   }
 

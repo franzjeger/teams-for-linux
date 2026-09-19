@@ -30,7 +30,7 @@ class Menus {
     this.gpuInfoWindow = new GpuInfoWindow();
     this.joinMeetingDialog = new JoinMeetingDialog(
       this.window,
-      this.configGroup.startupConfig.meetupJoinRegEx
+      this.configGroup.startupConfig.meetupJoinRegEx,
     );
     this.initialize();
   }
@@ -63,18 +63,18 @@ class Menus {
 
     if (clearStorage) {
       const defSession = session.fromPartition(
-        this.configGroup.startupConfig.partition
+        this.configGroup.startupConfig.partition,
       );
       if (this.configGroup.clearStorageData) {
         console.debug(
           "Clearing storage data on quit",
-          this.config.clearStorageData
+          this.config.clearStorageData,
         );
         await defSession.clearStorageData(this.configGroup.clearStorageData);
       } else {
         console.debug(
           "Clearing storage on quit",
-          this.configGroup.clearStorageData
+          this.configGroup.clearStorageData,
         );
         await defSession.clearStorageData();
       }
@@ -146,7 +146,7 @@ class Menus {
       const savedPath = await diagnostics.saveDiagnosticsBundle(
         this.window,
         this.configGroup.startupConfig,
-        new Date().toISOString()
+        new Date().toISOString(),
       );
       if (!savedPath) return;
 
@@ -188,7 +188,7 @@ class Menus {
         this.window,
         menu.submenu,
         this.iconPath,
-        this.configGroup.startupConfig
+        this.configGroup.startupConfig,
       );
       this.tray.initialize();
     }
@@ -228,12 +228,12 @@ class Menus {
     ipcMain.once("set-teams-settings", restoreSettingsInternal);
     const settingsPath = path.join(
       app.getPath("userData"),
-      "teams_settings.json"
+      "teams_settings.json",
     );
     if (fs.existsSync(settingsPath)) {
       this.window.webContents.send(
         "set-teams-settings",
-        JSON.parse(fs.readFileSync(settingsPath))
+        JSON.parse(fs.readFileSync(settingsPath)),
       );
     } else {
       dialog.showMessageBoxSync(this.window, {
@@ -253,11 +253,15 @@ class Menus {
     // This allows menu toggles to take effect immediately without restart
     this.window.webContents.send("config-changed", {
       disableNotifications: this.configGroup.startupConfig.disableNotifications,
-      disableNotificationSound: this.configGroup.startupConfig.disableNotificationSound,
-      disableNotificationSoundIfNotAvailable: this.configGroup.startupConfig.disableNotificationSoundIfNotAvailable,
-      disableNotificationWindowFlash: this.configGroup.startupConfig.disableNotificationWindowFlash,
+      disableNotificationSound:
+        this.configGroup.startupConfig.disableNotificationSound,
+      disableNotificationSoundIfNotAvailable:
+        this.configGroup.startupConfig.disableNotificationSoundIfNotAvailable,
+      disableNotificationWindowFlash:
+        this.configGroup.startupConfig.disableNotificationWindowFlash,
       disableBadgeCount: this.configGroup.startupConfig.disableBadgeCount,
-      defaultNotificationUrgency: this.configGroup.startupConfig.defaultNotificationUrgency,
+      defaultNotificationUrgency:
+        this.configGroup.startupConfig.defaultNotificationUrgency,
     });
   }
 
@@ -266,7 +270,7 @@ class Menus {
       !this.configGroup.startupConfig.disableNotifications;
     this.configGroup.legacyConfigStore.set(
       "disableNotifications",
-      this.configGroup.startupConfig.disableNotifications
+      this.configGroup.startupConfig.disableNotifications,
     );
     this.updateMenu();
   }
@@ -276,7 +280,7 @@ class Menus {
       !this.configGroup.startupConfig.disableNotificationSound;
     this.configGroup.legacyConfigStore.set(
       "disableNotificationSound",
-      this.configGroup.startupConfig.disableNotificationSound
+      this.configGroup.startupConfig.disableNotificationSound,
     );
     this.updateMenu();
   }
@@ -286,7 +290,7 @@ class Menus {
       !this.configGroup.startupConfig.disableNotificationSoundIfNotAvailable;
     this.configGroup.legacyConfigStore.set(
       "disableNotificationSoundIfNotAvailable",
-      this.configGroup.startupConfig.disableNotificationSoundIfNotAvailable
+      this.configGroup.startupConfig.disableNotificationSoundIfNotAvailable,
     );
     this.updateMenu();
   }
@@ -296,7 +300,7 @@ class Menus {
       !this.configGroup.startupConfig.disableNotificationWindowFlash;
     this.configGroup.legacyConfigStore.set(
       "disableNotificationWindowFlash",
-      this.configGroup.startupConfig.disableNotificationWindowFlash
+      this.configGroup.startupConfig.disableNotificationWindowFlash,
     );
     this.updateMenu();
   }
@@ -306,7 +310,7 @@ class Menus {
       !this.configGroup.startupConfig.disableBadgeCount;
     this.configGroup.legacyConfigStore.set(
       "disableBadgeCount",
-      this.configGroup.startupConfig.disableBadgeCount
+      this.configGroup.startupConfig.disableBadgeCount,
     );
     this.updateMenu();
   }
@@ -328,11 +332,11 @@ class Menus {
   }
 
   joinMeeting() {
-    let clipboardText = '';
+    let clipboardText = "";
     try {
       clipboardText = clipboard.readText();
     } catch (error) {
-      console.error('Error reading clipboard:', error);
+      console.error("Error reading clipboard:", error);
     }
 
     this.joinMeetingDialog.show(clipboardText, (meetingUrl) => {
@@ -346,8 +350,11 @@ class Menus {
       this.window.show();
       this.window.focus();
     } catch (error) {
-      console.error('Error loading meeting URL:', error);
-      dialog.showErrorBox('Error', 'Failed to join meeting. Please check the URL.');
+      console.error("Error loading meeting URL:", error);
+      dialog.showErrorBox(
+        "Error",
+        "Failed to join meeting. Please check the URL.",
+      );
     }
   }
 
@@ -377,7 +384,7 @@ class Menus {
 function saveSettingsInternal(_event, arg) {
   fs.writeFileSync(
     path.join(app.getPath("userData"), "teams_settings.json"),
-    JSON.stringify(arg)
+    JSON.stringify(arg),
   );
   dialog.showMessageBoxSync(this.window, {
     message: "Settings have been saved successfully!",
@@ -418,7 +425,7 @@ function assignReplaceWordHandler(params, menu, menus) {
       new MenuItem({
         label: suggestion,
         click: () => menus.window.webContents.replaceMisspelling(suggestion),
-      })
+      }),
     );
   }
 }
@@ -430,15 +437,15 @@ function assignAddToDictionaryHandler(params, menu, menus) {
         label: "Add to dictionary",
         click: () =>
           menus.window.webContents.session.addWordToSpellCheckerDictionary(
-            params.misspelledWord
+            params.misspelledWord,
           ),
-      })
+      }),
     );
 
     menu.append(
       new MenuItem({
         type: "separator",
-      })
+      }),
     );
   }
 
@@ -453,7 +460,7 @@ function addTextEditMenuItems(params, menu, menus) {
       new MenuItem({
         label: "Copy",
         click: () => clipboard.writeText(params.linkURL),
-      })
+      }),
     );
   }
 }
@@ -462,19 +469,19 @@ function buildEditContextMenu(menu, menus) {
   menu.append(
     new MenuItem({
       role: "cut",
-    })
+    }),
   );
 
   menu.append(
     new MenuItem({
       role: "copy",
-    })
+    }),
   );
 
   menu.append(
     new MenuItem({
       role: "paste",
-    })
+    }),
   );
 
   addSpellCheckMenuItems(menu, menus);
@@ -484,14 +491,14 @@ function addSpellCheckMenuItems(menu, menus) {
   menu.append(
     new MenuItem({
       type: "separator",
-    })
+    }),
   );
 
   menu.append(
     new MenuItem({
       label: "Writing Languages",
       submenu: createSpellCheckLanguagesMenu(menus),
-    })
+    }),
   );
 }
 
@@ -505,7 +512,7 @@ function createSpellCheckLanguagesMenu(menus) {
       new MenuItem({
         label: group.key,
         submenu: subMenu,
-      })
+      }),
     );
     for (const language of group.list) {
       subMenu.append(createLanguageMenuItem(language, activeLanguages, menus));
@@ -521,13 +528,13 @@ function createSpellCheckLanguagesNoneMenuEntry(menu, menus) {
   menu.append(
     new MenuItem({
       type: "separator",
-    })
+    }),
   );
   menu.append(
     new MenuItem({
       label: "None",
       click: () => chooseLanguage(null, menus),
-    })
+    }),
   );
 }
 
@@ -553,7 +560,7 @@ function chooseLanguage(item, menus) {
   }
 
   const changes = menus.spellCheckProvider.setLanguages(
-    item ? activeLanguages : []
+    item ? activeLanguages : [],
   );
 
   if (menus.onSpellCheckerLanguageChanged) {

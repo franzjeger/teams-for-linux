@@ -15,9 +15,11 @@ Provides native screen/window selection and preview window management for Teams 
 Manages screen sharing IPC handlers and state.
 
 **Dependencies:**
+
 - `mainWindow` - Main application window module
 
 **IPC Channels:**
+
 - `desktop-capturer-get-sources` - Get available screens/windows
 - `choose-desktop-media` - Show picker dialog
 - `cancel-desktop-media` - Cancel selection
@@ -30,6 +32,7 @@ Manages screen sharing IPC handlers and state.
 - `stop-screen-sharing-from-thumbnail` - Stop from preview
 
 **Usage:**
+
 ```javascript
 const screenSharingService = new ScreenSharingService(mainWindow);
 screenSharingService.initialize();
@@ -43,7 +46,7 @@ Shows native UI for screen/window selection.
 const streamSelector = new StreamSelector(parentWindow);
 streamSelector.show((selectedSource) => {
   if (selectedSource) {
-    console.log('Selected:', selectedSource.name);
+    console.log("Selected:", selectedSource.name);
   }
 });
 ```

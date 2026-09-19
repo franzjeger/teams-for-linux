@@ -5,11 +5,10 @@ const supportedEvents = new Set([
   "incoming-call-created",
   "incoming-call-ended",
   "call-connected",
-  "call-disconnected"
+  "call-disconnected",
 ]);
 
 class ActivityHub {
-
   on(event, handler) {
     return addEventHandler(event, handler);
   }
@@ -25,7 +24,8 @@ class ActivityHub {
     const setup = setInterval(() => {
       attemptCount++;
 
-      const commandChangeReportingService = ReactHandler.getCommandChangeReportingService();
+      const commandChangeReportingService =
+        ReactHandler.getCommandChangeReportingService();
       if (commandChangeReportingService) {
         assignEventHandlers(commandChangeReportingService);
         console.debug("ActivityHub: Events connected successfully");
@@ -34,7 +34,9 @@ class ActivityHub {
         // Start periodic authentication state logging for #1357
         this._startAuthenticationMonitoring();
       } else if (attemptCount >= maxAttempts) {
-        console.warn('ActivityHub: Maximum connection attempts reached. Teams internal events may not be available.');
+        console.warn(
+          "ActivityHub: Maximum connection attempts reached. Teams internal events may not be available.",
+        );
         clearInterval(setup);
 
         // Still start authentication monitoring even if React connection failed
@@ -57,14 +59,17 @@ class ActivityHub {
     }, 15000); // 15 seconds after initial monitoring starts
 
     // Periodically check token cache status every 5 minutes
-    this._authMonitorInterval = setInterval(() => {
-      ReactHandler.logAndAttemptTokenInjection();
+    this._authMonitorInterval = setInterval(
+      () => {
+        ReactHandler.logAndAttemptTokenInjection();
 
-      const status = ReactHandler.getTokenCacheStatus();
-      if (!status.injected && status.canRetry) {
-        ReactHandler.injectTokenCache();
-      }
-    }, 5 * 60 * 1000);
+        const status = ReactHandler.getTokenCacheStatus();
+        if (!status.injected && status.canRetry) {
+          ReactHandler.injectTokenCache();
+        }
+      },
+      5 * 60 * 1000,
+    );
   }
 
   stop() {
@@ -128,11 +133,11 @@ function isSupportedEvent(event) {
 }
 
 function isFunction(func) {
-  return typeof (func) === 'function';
+  return typeof func === "function";
 }
 
 function getHandleIndex(event, handle) {
-  return eventHandlers.findIndex(h => {
+  return eventHandlers.findIndex((h) => {
     return h.event === event && h.handle === handle;
   });
 }
@@ -144,7 +149,7 @@ function addEventHandler(event, handler) {
     eventHandlers.push({
       event: event,
       handle: handle,
-      handler: handler
+      handler: handler,
     });
   }
   return handle;
@@ -162,7 +167,7 @@ function removeEventHandler(event, handle) {
 }
 
 function getEventHandlers(event) {
-  return eventHandlers.filter(e => {
+  return eventHandlers.filter((e) => {
     return e.event === event;
   });
 }
@@ -171,8 +176,12 @@ function assignEventHandlers(commandChangeReportingService) {
   commandChangeReportingService.observeChanges().subscribe((e) => {
     // Only Handle events that are from type ["CommandStart", "ScenarioMarked"]
     // and have a context target of ["internal-command-handler", "use-command-reporting-callbacks"]
-    if (!["CommandStart", "ScenarioMarked"].includes(e.type) ||
-      !["internal-command-handler", "use-command-reporting-callbacks"].includes(e.context.target)) {
+    if (
+      !["CommandStart", "ScenarioMarked"].includes(e.type) ||
+      !["internal-command-handler", "use-command-reporting-callbacks"].includes(
+        e.context.target,
+      )
+    ) {
       return;
     }
     if (e.context.entityCommand) {
@@ -185,12 +194,14 @@ function assignEventHandlers(commandChangeReportingService) {
 
 function handleCallEventEntityCommand(entityCommand) {
   if (entityCommand.entityOptions?.isIncomingCall) {
-    if ("incoming_call" === entityCommand.entityOptions?.crossClientScenarioName) {
+    if (
+      "incoming_call" === entityCommand.entityOptions?.crossClientScenarioName
+    ) {
       // Gets triggered by incoming call.
       onIncomingCallCreated({
         caller: entityCommand.entityOptions.title,
         image: entityCommand.entityOptions.mainImage?.src,
-        text: entityCommand.entityOptions.text
+        text: entityCommand.entityOptions.text,
       });
     } else {
       // Gets triggered when incoming call toast gets dismissed regardless of accepting or declining the call
@@ -215,28 +226,28 @@ function handleCallEventStep(step) {
 }
 
 async function onIncomingCallCreated(data) {
-  const handlers = getEventHandlers('incoming-call-created');
+  const handlers = getEventHandlers("incoming-call-created");
   for (const handler of handlers) {
     handler.handler(data);
   }
 }
 
 async function onIncomingCallEnded() {
-  const handlers = getEventHandlers('incoming-call-ended');
+  const handlers = getEventHandlers("incoming-call-ended");
   for (const handler of handlers) {
     handler.handler({});
   }
 }
 
 async function onCallConnected() {
-  const handlers = getEventHandlers('call-connected');
+  const handlers = getEventHandlers("call-connected");
   for (const handler of handlers) {
     handler.handler({});
   }
 }
 
 async function onCallDisconnected() {
-  const handlers = getEventHandlers('call-disconnected');
+  const handlers = getEventHandlers("call-disconnected");
   for (const handler of handlers) {
     handler.handler({});
   }

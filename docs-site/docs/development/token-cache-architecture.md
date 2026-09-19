@@ -26,7 +26,7 @@ graph TB
     A[Teams Authentication Provider] --> B[Token Cache Bridge]
     B --> C[localStorage]
     B --> D[Memory Fallback]
-    
+
     subgraph "Token Cache Interface"
         B --> E[getItem/setItem/removeItem]
         B --> F[Token Validation]
@@ -41,18 +41,18 @@ Enhanced implementation adds OS-level encryption using Electron's `safeStorage` 
 ```mermaid
 graph TB
     A[Teams Authentication Provider] --> B[Enhanced Token Cache]
-    
+
     subgraph "Storage Backends"
         B --> C[Secure Storage Primary]
         B --> D[localStorage Fallback]
         B --> E[Memory Emergency Fallback]
     end
-    
+
     subgraph "Secure Storage Layer"
         C --> F[Electron safeStorage]
         F --> G[OS-Specific Secure Storage]
     end
-    
+
 ```
 
 ## Implementation Details
@@ -75,8 +75,8 @@ The token cache is injected into Teams' authentication provider via `reactHandle
 ```javascript
 // Inject token cache into Teams authentication provider
 if (authProvider && !authProvider._tokenCache) {
-    authProvider._tokenCache = tokenCache;
-    console.log('[AUTH] Token cache injected successfully');
+  authProvider._tokenCache = tokenCache;
+  console.log("[AUTH] Token cache injected successfully");
 }
 ```
 
@@ -121,7 +121,7 @@ The system recognizes and handles multiple token formats:
 
 - **Teams Auth v1**: `tmp.auth.v1.*` patterns
 - **Refresh Tokens**: UUID-based refresh token patterns
-- **ID Tokens**: UUID-based ID token patterns  
+- **ID Tokens**: UUID-based ID token patterns
 - **MSAL Tokens**: `msal.*` patterns
 - **Custom Tokens**: Any tokens matching authentication patterns
 
@@ -175,9 +175,9 @@ Diagnostic information available via `getStorageInfo()`:
 ### Benchmarks
 
 | Operation | Secure Storage | localStorage | Memory |
-|-----------|----------------|--------------|--------|
-| getItem | ~2ms | ~1ms | ~0.1ms |
-| setItem | ~3ms | ~1ms | ~0.1ms |
+| --------- | -------------- | ------------ | ------ |
+| getItem   | ~2ms           | ~1ms         | ~0.1ms |
+| setItem   | ~3ms           | ~1ms         | ~0.1ms |
 
 ## Troubleshooting
 
@@ -236,21 +236,27 @@ ELECTRON_DEBUG_LOGGING=true npm start
 ### Public Methods
 
 #### `getItem(key: string): Promise<string | null>`
+
 Retrieve token from cache with secure storage priority.
 
 #### `setItem(key: string, value: string): Promise<void>`
+
 Store token in cache with encryption when available.
 
 #### `removeItem(key: string): Promise<void>`
+
 Remove token from all storage backends.
 
 #### `clear(): Promise<void>`
+
 Clear all authentication-related tokens.
 
 #### `isTokenValid(key: string): Promise<boolean>`
+
 Check if token exists and is not expired.
 
 #### `getStorageInfo(): object`
+
 Get diagnostic information about storage backends.
 
 ### Storage Interface Compatibility
@@ -267,7 +273,7 @@ The class implements the full Web Storage API for Teams compatibility:
 Users upgrading from versions without secure storage will experience seamless transition:
 
 1. **Immediate Compatibility**: Existing tokens continue working via localStorage fallback
-2. **Automatic Security**: New tokens use secure storage when available  
+2. **Automatic Security**: New tokens use secure storage when available
 3. **Natural Transition**: Security improves as tokens refresh (typically within hours)
 4. **Zero Downtime**: No authentication interruption during upgrade
 
@@ -294,4 +300,3 @@ The implementation eliminates migration complexity by using a dual-storage appro
 
 > [!NOTE]
 > This implementation provides enterprise-grade security while maintaining simplicity and reliability. The natural transition approach eliminates migration complexity while ensuring authentication works regardless of platform capabilities.
-

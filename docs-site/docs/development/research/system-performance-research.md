@@ -51,10 +51,10 @@ page fires its ready event. If polling is unavoidable, use exponential backoff c
 
 Two independent MutationObservers both watch `document.body` with `{ childList: true, subtree: true }`:
 
-| Observer | File | Lines | Extra |
-|----------|------|-------|-------|
-| MQTT status monitor | `app/browser/tools/mqttStatusMonitor.js` | 98–103 | Also polls every 10 s (line 114) |
-| Screen sharing UI | `app/screenSharing/injectedScreenSharing.js` | 311–316 | Also polls every 5 s (line 335) |
+| Observer            | File                                         | Lines   | Extra                            |
+| ------------------- | -------------------------------------------- | ------- | -------------------------------- |
+| MQTT status monitor | `app/browser/tools/mqttStatusMonitor.js`     | 98–103  | Also polls every 10 s (line 114) |
+| Screen sharing UI   | `app/screenSharing/injectedScreenSharing.js` | 311–316 | Also polls every 5 s (line 335)  |
 
 Both observers use `attributeFilter` arrays to limit which attribute changes trigger callbacks
 (MQTT filters on `class`, `aria-label`, `title`, `data-testid`; screen sharing on `class`,
@@ -65,6 +65,7 @@ updates) fires callbacks for both observers. The Teams web app is mutation-heavy
 remains a significant source of overhead.
 
 **Recommendation:**
+
 - Consolidate into a single shared `MutationObserver` dispatcher that fans out to subscribers.
 - Narrow observation scope — observe the smallest container that holds the relevant status
   elements instead of `document.body`.
@@ -92,6 +93,7 @@ all buttons.
 **File:** `app/browser/tools/trayIconRenderer.js:107–187`
 
 Each activity count change triggers:
+
 1. `document.createElement("canvas")` — line 110
 2. `new Image()` — line 113
 3. `this.baseIcon.toDataURL("image/png")` — line 115 (expensive serialization)
@@ -128,8 +130,8 @@ polling indefinitely.
 
 ```javascript
 for (const file of files) {
-    const filePath = path.join(dirPath, file);
-    totalSize += await this.getDirSize(filePath);  // sequential await
+  const filePath = path.join(dirPath, file);
+  totalSize += await this.getDirSize(filePath); // sequential await
 }
 ```
 
@@ -173,17 +175,18 @@ recreated without a full restart (e.g., after a crash recovery or future multi-w
 
 The `isOnline()` method tries four detection strategies sequentially:
 
-| Method | Max tries | Sleep between | Worst-case time |
-|--------|-----------|---------------|-----------------|
-| HTTPS HEAD | 10 | 500 ms | 5 s |
-| DNS resolve | 5 | 500 ms | 2.5 s |
-| `net.isOnline()` | 5 | 500 ms | 2.5 s |
-| None (fallback) | 1 | — | 0 s |
+| Method           | Max tries | Sleep between | Worst-case time |
+| ---------------- | --------- | ------------- | --------------- |
+| HTTPS HEAD       | 10        | 500 ms        | 5 s             |
+| DNS resolve      | 5         | 500 ms        | 2.5 s           |
+| `net.isOnline()` | 5         | 500 ms        | 2.5 s           |
+| None (fallback)  | 1         | —             | 0 s             |
 
 Worst-case: **10 seconds** of sequential blocking before declaring offline. This runs during
 `refresh()` which blocks the UI reload.
 
 **Recommendation:**
+
 - Run the three real methods in parallel via `Promise.any()` — return `true` as soon as any
   succeeds.
 - Reduce HTTPS retries from 10 to 3 (the DNS and native checks provide redundancy).
@@ -230,15 +233,23 @@ A lightweight performance metrics module would provide visibility without adding
 const appStartTime = performance.now();
 
 app.whenReady().then(() => {
-    console.info('[PERF] App ready:', (performance.now() - appStartTime).toFixed(0), 'ms');
+  console.info(
+    "[PERF] App ready:",
+    (performance.now() - appStartTime).toFixed(0),
+    "ms",
+  );
 });
 
 // In browserWindowManager.js, on 'ready-to-show'
-console.info('[PERF] Window ready-to-show:', (performance.now() - appStartTime).toFixed(0), 'ms');
+console.info(
+  "[PERF] Window ready-to-show:",
+  (performance.now() - appStartTime).toFixed(0),
+  "ms",
+);
 
 // In preload.js or page load handler
-window.addEventListener('load', () => {
-    console.info('[PERF] Teams page loaded:', performance.now().toFixed(0), 'ms');
+window.addEventListener("load", () => {
+  console.info("[PERF] Teams page loaded:", performance.now().toFixed(0), "ms");
 });
 ```
 
@@ -246,11 +257,11 @@ window.addEventListener('load', () => {
 
 ```javascript
 setInterval(() => {
-    const mem = process.memoryUsage();
-    console.info('[PERF] Memory:', {
-        heapUsedMB: (mem.heapUsed / 1048576).toFixed(1),
-        rssMB: (mem.rss / 1048576).toFixed(1),
-    });
+  const mem = process.memoryUsage();
+  console.info("[PERF] Memory:", {
+    heapUsedMB: (mem.heapUsed / 1048576).toFixed(1),
+    rssMB: (mem.rss / 1048576).toFixed(1),
+  });
 }, 300000); // every 5 minutes
 ```
 
@@ -258,10 +269,10 @@ setInterval(() => {
 
 ```javascript
 // Expose via IPC for on-demand diagnostics
-ipcMain.handle('get-perf-metrics', () => ({
-    memory: process.memoryUsage(),
-    uptime: process.uptime(),
-    cpuUsage: process.cpuUsage(),
+ipcMain.handle("get-perf-metrics", () => ({
+  memory: process.memoryUsage(),
+  uptime: process.uptime(),
+  cpuUsage: process.cpuUsage(),
 }));
 ```
 
@@ -274,29 +285,29 @@ log output to review startup timings and memory trends.
 
 ## Implementation Priority
 
-| Priority | Item | Effort | Impact |
-|----------|------|--------|--------|
-| 1 | Consolidate MutationObservers (items 2, 3) | Medium | High — reduces per-mutation overhead across all page activity |
-| 2 | Cache tray icon resources (item 4) | Low | Medium — eliminates redundant canvas/toDataURL work |
-| 3 | Replace timestamp polling with observer (item 1) | Low | Medium — removes continuous 1 s timer |
-| 4 | Parallelize offline detection (item 8) | Low | Medium — reduces worst-case block from 10 s to ~2 s |
-| ~~5~~ | ~~Add retry limits to shortcuts.js (item 5)~~ | ~~Low~~ | ~~Low~~ — **Implemented** |
-| 6 | Parallelize cache size calculation (item 6) | Medium | Low — only runs hourly, but blocks event loop |
-| 7 | Add startup/memory instrumentation | Low | Diagnostic — enables measuring future improvements |
+| Priority | Item                                             | Effort  | Impact                                                        |
+| -------- | ------------------------------------------------ | ------- | ------------------------------------------------------------- |
+| 1        | Consolidate MutationObservers (items 2, 3)       | Medium  | High — reduces per-mutation overhead across all page activity |
+| 2        | Cache tray icon resources (item 4)               | Low     | Medium — eliminates redundant canvas/toDataURL work           |
+| 3        | Replace timestamp polling with observer (item 1) | Low     | Medium — removes continuous 1 s timer                         |
+| 4        | Parallelize offline detection (item 8)           | Low     | Medium — reduces worst-case block from 10 s to ~2 s           |
+| ~~5~~    | ~~Add retry limits to shortcuts.js (item 5)~~    | ~~Low~~ | ~~Low~~ — **Implemented**                                     |
+| 6        | Parallelize cache size calculation (item 6)      | Medium  | Low — only runs hourly, but blocks event loop                 |
+| 7        | Add startup/memory instrumentation               | Low     | Diagnostic — enables measuring future improvements            |
 
 ## Configuration Options Affecting Performance
 
 For reference, these existing config options influence performance:
 
-| Option | Default | Effect |
-|--------|---------|--------|
-| `disableGpu` | `false` | Disables GPU compositing, hardware acceleration |
-| `cacheManagement.maxCacheSizeMB` | `600` | Threshold for automatic cache cleanup |
-| `cacheManagement.cacheCheckIntervalMs` | `3600000` | How often cache size is checked (1 hour) |
-| `electronCLIFlags` | `[]` | Arbitrary Chromium flags (can tune memory, GPU, rendering) |
-| `appIdleTimeout` | `300` | Seconds before setting away status |
-| `appIdleTimeoutCheckInterval` | `10` | Seconds between idle state checks |
-| `wayland.xwaylandOptimizations` | `false` | GPU under XWayland |
+| Option                                 | Default   | Effect                                                     |
+| -------------------------------------- | --------- | ---------------------------------------------------------- |
+| `disableGpu`                           | `false`   | Disables GPU compositing, hardware acceleration            |
+| `cacheManagement.maxCacheSizeMB`       | `600`     | Threshold for automatic cache cleanup                      |
+| `cacheManagement.cacheCheckIntervalMs` | `3600000` | How often cache size is checked (1 hour)                   |
+| `electronCLIFlags`                     | `[]`      | Arbitrary Chromium flags (can tune memory, GPU, rendering) |
+| `appIdleTimeout`                       | `300`     | Seconds before setting away status                         |
+| `appIdleTimeoutCheckInterval`          | `10`      | Seconds between idle state checks                          |
+| `wayland.xwaylandOptimizations`        | `false`   | GPU under XWayland                                         |
 
 ## References
 

@@ -1,10 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 import {
   launchAuthenticatedApp,
   waitForTeamsWindow,
   waitForPreloadReady,
   closeApp,
-} from './helpers.js';
+} from "./helpers.js";
 
 /**
  * Permission handling against a real Teams origin.
@@ -18,7 +18,7 @@ import {
  * These run against the real origin, so `permissions.query` reflects the
  * origin-scoped decisions the guards make rather than a stub page's.
  */
-test.describe('Permissions', () => {
+test.describe("Permissions", () => {
   let electronApp;
 
   test.afterEach(async () => {
@@ -28,13 +28,13 @@ test.describe('Permissions', () => {
   async function launchReady(testInfo) {
     electronApp = await launchAuthenticatedApp(testInfo.project.use.sessionDir);
     const mainWindow = await waitForTeamsWindow(electronApp);
-    expect(mainWindow, 'Main Teams window should exist').toBeTruthy();
-    await mainWindow.waitForLoadState('domcontentloaded', { timeout: 60000 });
+    expect(mainWindow, "Main Teams window should exist").toBeTruthy();
+    await mainWindow.waitForLoadState("domcontentloaded", { timeout: 60000 });
     expect(await waitForPreloadReady(mainWindow)).toBe(true);
     return mainWindow;
   }
 
-  test('camera and microphone report granted to the page', async ({}, testInfo) => {
+  test("camera and microphone report granted to the page", async ({}, testInfo) => {
     const mainWindow = await launchReady(testInfo);
 
     // Teams checks these before offering to join with video or audio. Anything
@@ -48,30 +48,31 @@ test.describe('Permissions', () => {
         }
       };
       return {
-        camera: await query('camera'),
-        microphone: await query('microphone'),
+        camera: await query("camera"),
+        microphone: await query("microphone"),
       };
     });
 
-    expect(states.camera).toBe('granted');
-    expect(states.microphone).toBe('granted');
+    expect(states.camera).toBe("granted");
+    expect(states.microphone).toBe("granted");
   });
 
-  test('notifications report granted to the page', async ({}, testInfo) => {
+  test("notifications report granted to the page", async ({}, testInfo) => {
     const mainWindow = await launchReady(testInfo);
 
     const state = await mainWindow.evaluate(async () => {
       try {
-        return (await navigator.permissions.query({ name: 'notifications' })).state;
+        return (await navigator.permissions.query({ name: "notifications" }))
+          .state;
       } catch (error) {
         return `error:${error.name}`;
       }
     });
 
-    expect(state).toBe('granted');
+    expect(state).toBe("granted");
   });
 
-  test('geolocation is not granted', async ({}, testInfo) => {
+  test("geolocation is not granted", async ({}, testInfo) => {
     const mainWindow = await launchReady(testInfo);
 
     // Teams does not use geolocation, and the guards deny it outright. This is
@@ -79,43 +80,44 @@ test.describe('Permissions', () => {
     // it Electron's defaults apply and this stops being denied.
     const state = await mainWindow.evaluate(async () => {
       try {
-        return (await navigator.permissions.query({ name: 'geolocation' })).state;
+        return (await navigator.permissions.query({ name: "geolocation" }))
+          .state;
       } catch (error) {
         return `error:${error.name}`;
       }
     });
 
-    expect(state).not.toBe('granted');
+    expect(state).not.toBe("granted");
   });
 
-  test('a geolocation request is refused rather than prompting', async ({}, testInfo) => {
+  test("a geolocation request is refused rather than prompting", async ({}, testInfo) => {
     const mainWindow = await launchReady(testInfo);
 
     const outcome = await mainWindow.evaluate(
       () =>
         new Promise((resolve) => {
           if (!navigator.geolocation) {
-            resolve('unavailable');
+            resolve("unavailable");
             return;
           }
-          const timer = setTimeout(() => resolve('no-response'), 5000);
+          const timer = setTimeout(() => resolve("no-response"), 5000);
           navigator.geolocation.getCurrentPosition(
             () => {
               clearTimeout(timer);
-              resolve('granted');
+              resolve("granted");
             },
             () => {
               clearTimeout(timer);
-              resolve('denied');
-            }
+              resolve("denied");
+            },
           );
-        })
+        }),
     );
 
-    expect(outcome, 'geolocation must not succeed').not.toBe('granted');
+    expect(outcome, "geolocation must not succeed").not.toBe("granted");
   });
 
-  test('WebHID, WebSerial and WebUSB expose no devices', async ({}, testInfo) => {
+  test("WebHID, WebSerial and WebUSB expose no devices", async ({}, testInfo) => {
     const mainWindow = await launchReady(testInfo);
 
     // setDevicePermissionHandler denies all three unconditionally. If the
@@ -123,30 +125,35 @@ test.describe('Permissions', () => {
     const results = await mainWindow.evaluate(async () => {
       const probe = async (api, method) => {
         const target = navigator[api];
-        if (!target || typeof target[method] !== 'function') return 'unavailable';
+        if (!target || typeof target[method] !== "function")
+          return "unavailable";
         try {
           const devices = await target[method]();
-          return Array.isArray(devices) ? `count:${devices.length}` : 'non-array';
+          return Array.isArray(devices)
+            ? `count:${devices.length}`
+            : "non-array";
         } catch (error) {
           return `rejected:${error.name}`;
         }
       };
       return {
-        hid: await probe('hid', 'getDevices'),
-        serial: await probe('serial', 'getPorts'),
-        usb: await probe('usb', 'getDevices'),
+        hid: await probe("hid", "getDevices"),
+        serial: await probe("serial", "getPorts"),
+        usb: await probe("usb", "getDevices"),
       };
     });
 
     for (const [api, result] of Object.entries(results)) {
       expect(
-        result === 'unavailable' || result === 'count:0' || result.startsWith('rejected:'),
-        `${api} should expose no devices, got '${result}'`
+        result === "unavailable" ||
+          result === "count:0" ||
+          result.startsWith("rejected:"),
+        `${api} should expose no devices, got '${result}'`,
       ).toBe(true);
     }
   });
 
-  test('enumerateDevices returns media devices, so Teams can populate its pickers', async ({}, testInfo) => {
+  test("enumerateDevices returns media devices, so Teams can populate its pickers", async ({}, testInfo) => {
     const mainWindow = await launchReady(testInfo);
 
     const summary = await mainWindow.evaluate(async () => {
@@ -157,7 +164,7 @@ test.describe('Permissions', () => {
           kinds: [...new Set(devices.map((d) => d.kind))].sort(),
           // Labels are only populated once permission is granted, which is
           // itself a signal that the permission handlers did their job.
-          labelled: devices.some((d) => d.label !== ''),
+          labelled: devices.some((d) => d.label !== ""),
         };
       } catch (error) {
         return { ok: false, error: error.name };

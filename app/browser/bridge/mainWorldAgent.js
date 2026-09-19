@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Main-World Agent Runtime
@@ -34,7 +34,14 @@ function agentMain(config) {
   }
 
   function reply(id, channel, payload) {
-    post({ [marker]: sessionId, v: version, kind: "response", id, channel, payload });
+    post({
+      [marker]: sessionId,
+      v: version,
+      kind: "response",
+      id,
+      channel,
+      payload,
+    });
   }
 
   function emit(channel, payload) {
@@ -61,7 +68,9 @@ function agentMain(config) {
       reply(id, channel, result === undefined ? null : result);
     } catch (error) {
       // Only the message crosses back; a stack could carry page internals.
-      reply(id, channel, { error: String(error?.message ?? error).slice(0, 500) });
+      reply(id, channel, {
+        error: String(error?.message ?? error).slice(0, 500),
+      });
     }
   }
 
@@ -73,7 +82,8 @@ function agentMain(config) {
     if (message.v !== version) return;
     // The agent only ever acts on requests; it never consumes its own replies.
     if (message.kind !== "request") return;
-    if (typeof message.id !== "string" || typeof message.channel !== "string") return;
+    if (typeof message.id !== "string" || typeof message.channel !== "string")
+      return;
 
     handleRequest(message);
   });

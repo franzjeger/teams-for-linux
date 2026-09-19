@@ -401,4 +401,3 @@ jobs:
           path: dist/*.exe
           retention-days: 30
           compression-level: 6
-

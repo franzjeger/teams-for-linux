@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-const { dialog, app } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const { dialog, app } = require("electron");
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow = null;
 let isManualCheck = false;
@@ -10,102 +10,106 @@ let isChecking = false;
 let updatesDisabledByPolicy = false;
 
 function initialize(window, config) {
-	if (config?.disableAutoUpdate) {
-		updatesDisabledByPolicy = true;
-		console.info('[AutoUpdater] Disabled by configuration');
-		return;
-	}
+  if (config?.disableAutoUpdate) {
+    updatesDisabledByPolicy = true;
+    console.info("[AutoUpdater] Disabled by configuration");
+    return;
+  }
 
-	if (!process.env.APPIMAGE) {
-		console.info('[AutoUpdater] Not running as AppImage, auto-updater disabled');
-		return;
-	}
+  if (!process.env.APPIMAGE) {
+    console.info(
+      "[AutoUpdater] Not running as AppImage, auto-updater disabled",
+    );
+    return;
+  }
 
-	mainWindow = window;
+  mainWindow = window;
 
-	autoUpdater.autoDownload = false;
-	autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
 
-	autoUpdater.on('update-available', onUpdateAvailable);
-	autoUpdater.on('update-not-available', onUpdateNotAvailable);
-	autoUpdater.on('error', onError);
+  autoUpdater.on("update-available", onUpdateAvailable);
+  autoUpdater.on("update-not-available", onUpdateNotAvailable);
+  autoUpdater.on("error", onError);
 
-	console.info('[AutoUpdater] Checking for updates...');
-	isChecking = true;
-	autoUpdater.checkForUpdates().catch(err => {
-		console.error('[AutoUpdater] Startup check failed:', err.message);
-	});
+  console.info("[AutoUpdater] Checking for updates...");
+  isChecking = true;
+  autoUpdater.checkForUpdates().catch((err) => {
+    console.error("[AutoUpdater] Startup check failed:", err.message);
+  });
 }
 
 function checkForUpdates() {
-	if (updatesDisabledByPolicy) {
-		console.info('[AutoUpdater] Manual check ignored: updates disabled by configuration');
-		return;
-	}
-	if (!process.env.APPIMAGE) return;
-	if (isChecking) return;
+  if (updatesDisabledByPolicy) {
+    console.info(
+      "[AutoUpdater] Manual check ignored: updates disabled by configuration",
+    );
+    return;
+  }
+  if (!process.env.APPIMAGE) return;
+  if (isChecking) return;
 
-	isChecking = true;
-	isManualCheck = true;
-	autoUpdater.checkForUpdates().catch(err => {
-		console.error('[AutoUpdater] Manual check failed:', err.message);
-	});
+  isChecking = true;
+  isManualCheck = true;
+  autoUpdater.checkForUpdates().catch((err) => {
+    console.error("[AutoUpdater] Manual check failed:", err.message);
+  });
 }
 
 async function onUpdateAvailable(info) {
-	isChecking = false;
-	isManualCheck = false;
+  isChecking = false;
+  isManualCheck = false;
 
-	const currentVersion = app.getVersion();
-	const response = await dialog.showMessageBox(mainWindow, {
-		type: 'info',
-		title: 'Update Available',
-		message: `A new version (${info.version}) is available.\nYou are currently running version ${currentVersion}.`,
-		buttons: ['Download & Restart', 'Later'],
-		defaultId: 1,
-		cancelId: 1,
-	});
+  const currentVersion = app.getVersion();
+  const response = await dialog.showMessageBox(mainWindow, {
+    type: "info",
+    title: "Update Available",
+    message: `A new version (${info.version}) is available.\nYou are currently running version ${currentVersion}.`,
+    buttons: ["Download & Restart", "Later"],
+    defaultId: 1,
+    cancelId: 1,
+  });
 
-	if (response.response === 0) {
-		try {
-			await autoUpdater.downloadUpdate();
-			autoUpdater.quitAndInstall();
-		} catch (err) {
-			console.error('[AutoUpdater] Download failed:', err.message);
-			showErrorDialog();
-		}
-	}
+  if (response.response === 0) {
+    try {
+      await autoUpdater.downloadUpdate();
+      autoUpdater.quitAndInstall();
+    } catch (err) {
+      console.error("[AutoUpdater] Download failed:", err.message);
+      showErrorDialog();
+    }
+  }
 }
 
 function onUpdateNotAvailable() {
-	isChecking = false;
-	if (isManualCheck) {
-		dialog.showMessageBox(mainWindow, {
-			type: 'info',
-			title: 'No Updates Available',
-			message: `You're up to date! Current version: ${app.getVersion()}`,
-		});
-	}
-	isManualCheck = false;
+  isChecking = false;
+  if (isManualCheck) {
+    dialog.showMessageBox(mainWindow, {
+      type: "info",
+      title: "No Updates Available",
+      message: `You're up to date! Current version: ${app.getVersion()}`,
+    });
+  }
+  isManualCheck = false;
 }
 
 function onError(err) {
-	isChecking = false;
-	console.error('[AutoUpdater] Error:', err.message);
-	if (isManualCheck) {
-		showErrorDialog();
-	}
-	isManualCheck = false;
+  isChecking = false;
+  console.error("[AutoUpdater] Error:", err.message);
+  if (isManualCheck) {
+    showErrorDialog();
+  }
+  isManualCheck = false;
 }
 
 function showErrorDialog() {
-	if (mainWindow && !mainWindow.isDestroyed()) {
-		dialog.showMessageBox(mainWindow, {
-			type: 'error',
-			title: 'Update Error',
-			message: 'Failed to check for updates. Please try again later.',
-		});
-	}
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    dialog.showMessageBox(mainWindow, {
+      type: "error",
+      title: "Update Error",
+      message: "Failed to check for updates. Please try again later.",
+    });
+  }
 }
 
 module.exports = { initialize, checkForUpdates };

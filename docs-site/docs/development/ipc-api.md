@@ -38,25 +38,27 @@ For more information, see the [IPC Channel Validation documentation](./security-
 
 ```javascript
 // Send an event to main process
-ipcRenderer.send('channel-name', data);
+ipcRenderer.send("channel-name", data);
 ```
 
 **Example:**
+
 ```javascript
-ipcRenderer.send('navigate-back');
+ipcRenderer.send("navigate-back");
 ```
 
 ### Request/Response Pattern
 
 ```javascript
 // Send request and await response
-const result = await ipcRenderer.invoke('channel-name', data);
+const result = await ipcRenderer.invoke("channel-name", data);
 ```
 
 **Example:**
+
 ```javascript
-const config = await ipcRenderer.invoke('get-config');
-console.log('App version:', config.appVersion);
+const config = await ipcRenderer.invoke("get-config");
+console.log("App version:", config.appVersion);
 ```
 
 ## Adding New IPC Channels
@@ -69,13 +71,13 @@ In the main process, register the channel using either `ipcMain.handle()` or `ip
 
 ```javascript
 // Request/Response pattern
-ipcMain.handle('my-channel', async (event, ...args) => {
+ipcMain.handle("my-channel", async (event, ...args) => {
   // Handle request
   return result;
 });
 
 // Event pattern
-ipcMain.on('my-event', (event, ...args) => {
+ipcMain.on("my-event", (event, ...args) => {
   // Handle event
 });
 ```
@@ -87,7 +89,7 @@ Add the channel to the allowlist in `app/security/ipcValidator.js`:
 ```javascript
 const allowedChannels = new Set([
   // ... existing channels
-  'my-channel',
+  "my-channel",
 ]);
 ```
 
@@ -97,7 +99,7 @@ Add a descriptive comment above the channel registration:
 
 ```javascript
 // Describe what this channel does and why
-ipcMain.handle('my-channel', async (event, data) => {
+ipcMain.handle("my-channel", async (event, data) => {
   // Implementation
 });
 ```
@@ -140,12 +142,12 @@ For the complete channel list with descriptions, see the [Auto-Generated IPC API
 ### Error Handling
 
 ```javascript
-ipcMain.handle('my-channel', async (event, data) => {
+ipcMain.handle("my-channel", async (event, data) => {
   try {
     // Handle request
     return result;
   } catch (error) {
-    console.error('IPC handler error:', error);
+    console.error("IPC handler error:", error);
     throw error; // Will be caught by renderer
   }
 });

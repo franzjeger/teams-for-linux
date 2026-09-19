@@ -42,7 +42,7 @@ exports.handleLoginDialogTry = function handleLoginDialogTry(
     if (isFirstLoginTry) {
       isFirstLoginTry = false;
       if (ssoBasicAuthUser && ssoBasicAuthPasswordCommand) {
-        console.debug('[SSO] Retrieving password using configured command');
+        console.debug("[SSO] Retrieving password using configured command");
         try {
           // Command comes from user's own config file - shell features (pipes, expansion) are expected
           const ssoPassword = execSync(ssoBasicAuthPasswordCommand).toString();

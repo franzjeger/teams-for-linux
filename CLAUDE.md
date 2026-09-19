@@ -10,20 +10,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Essential Commands
 
 **Development:**
+
 - `npm start` - Run application in development mode with trace warnings
 - `npm run lint` - Run ESLint validation (mandatory before commits)
 - `npm run test:e2e` - Run end-to-end tests with Playwright
 
 **Building:**
+
 - `npm run pack` - Development build without packaging
 - `npm run dist:linux` - Build Linux packages (AppImage, deb, rpm, snap)
 - `npm run dist` - Build all platforms using electron-builder
 
 **Utility:**
+
 - `npm run generate-release-info` - Generate release information file
 - `npm run generate-ipc-docs` - Generate IPC API documentation from code comments
 
 **Release:**
+
 - `npm run release:prepare` - Prepare release (bundle changelogs, update versions)
 - `npm run release:prepare -- --dry-run` - Preview release without making changes
 - `npm run generate-release-notes` - Generate categorized release notes with doc links
@@ -33,6 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Teams for Linux is an Electron-based desktop application that wraps the Microsoft Teams web app. The architecture follows a modular pattern with the main process coordinating various specialized modules.
 
 **Key file locations:**
+
 - **Entry Point:** `app/index.js` - Main Electron process (being refactored incrementally)
 - **Startup:** `app/startup/` - Command line switches and initialization
 - **Configuration:** `app/appConfiguration/` - Centralized configuration management
@@ -40,28 +45,33 @@ Teams for Linux is an Electron-based desktop application that wraps the Microsof
 - **Browser Tools:** `app/browser/tools/` - Client-side scripts injected into Teams interface
 
 **For detailed architecture information**, see:
+
 - Architecture Overview: `docs-site/docs/development/contributing.md` (Architecture Overview section)
 - IPC API Documentation: `docs-site/docs/development/ipc-api.md`
 - Module-specific README.md files in `app/` subdirectories
 
 **Web references (for humans):**
+
 - https://ismaelmartinez.github.io/teams-for-linux/development/contributing#architecture-overview
 - https://ismaelmartinez.github.io/teams-for-linux/development/ipc-api
 
 ## Development Patterns
 
 ### Code Style Requirements
+
 - **NO `var`** - Use `const` by default, `let` for reassignment
 - **async/await** - Use instead of promise chains
 - **Private fields** - Use JavaScript `#property` syntax for class private members
 - **Arrow functions** - For concise callbacks
 
 ### Configuration Management
+
 - All configuration handled through `AppConfiguration` class
 - Treat config as immutable after startup
 - Changes via AppConfiguration methods only
 
 ### IPC Communication
+
 - Use `ipcMain.handle` for request-response patterns
 - Use `ipcMain.on` for fire-and-forget notifications
 - Add a descriptive comment above each IPC channel registration
@@ -69,6 +79,7 @@ Teams for Linux is an Electron-based desktop application that wraps the Microsof
 - All IPC channels must be added to the allowlist in `app/security/ipcValidator.js`
 
 ### Error Handling
+
 - Robust error handling with try-catch in async functions
 - Graceful degradation with clear user feedback
 - Use `electron-log` for structured logging
@@ -86,12 +97,13 @@ console.debug(`User email: ${email}`);
 console.error(`Auth failed for: ${username}`);
 
 // CORRECT - no PII
-console.info('[MQTT] Connecting to broker');
-console.debug('[AUTH] Processing user authentication');
-console.error('[AUTH] Authentication failed', { errorCode: err.code });
+console.info("[MQTT] Connecting to broker");
+console.debug("[AUTH] Processing user authentication");
+console.error("[AUTH] Authentication failed", { errorCode: err.code });
 ```
 
 **Sensitive data that must NEVER be logged:**
+
 - MQTT broker URLs, usernames, passwords, topics
 - Email addresses, usernames, account IDs
 - Authentication tokens, API keys, credentials
@@ -101,12 +113,14 @@ console.error('[AUTH] Authentication failed', { errorCode: err.code });
 - URL query parameters (may contain tokens)
 
 **Logging levels - use appropriately:**
+
 - `console.error` - Errors requiring attention
 - `console.warn` - Warnings about potential issues
 - `console.info` - Key state changes (startup, connection established)
 - `console.debug` - Development debugging only (use sparingly)
 
 **When adding new logs:**
+
 1. Ask: "Is this log necessary in production?"
 2. Ask: "Could this log expose sensitive information?"
 3. Prefer fewer, more meaningful logs over verbose debugging
@@ -115,6 +129,7 @@ console.error('[AUTH] Authentication failed', { errorCode: err.code });
 **Debugging with PII (branch PRs only):**
 
 If you need to log sensitive data for debugging during development:
+
 1. Only add such logs in feature branch PRs
 2. Mark them clearly: `// DEBUG-ONLY: Remove before merge`
 3. Remove ALL debug logs with PII before the PR is merged
@@ -129,12 +144,14 @@ If you need to log sensitive data for debugging during development:
 ### Automated Testing
 
 The project uses Playwright for end-to-end testing:
+
 - **Framework**: Playwright with Electron support
 - **Test Location**: `tests/e2e/`
 - **Run Tests**: `npm run test:e2e`
 - **Clean State**: Tests use temporary userData directories for isolation
 
 **E2E Testing Patterns:**
+
 - Each test creates a unique temp directory via `E2E_USER_DATA_DIR`
 - Tests start with completely clean state (no cookies, cache, storage)
 - Validates complete app launch flow and Microsoft login redirect
@@ -144,6 +161,7 @@ The project uses Playwright for end-to-end testing:
 ### Quality Checks
 
 When contributing:
+
 - Run `npm run lint` before commits (ESLint with custom config)
 - Run `npm run test:e2e` to verify E2E tests pass
 - Ensure cross-platform compatibility (Linux primary, Windows/macOS supported)
@@ -153,6 +171,7 @@ When contributing:
 ### Documentation Site
 
 The project documentation is built with Docusaurus and deployed to GitHub Pages:
+
 - **URL**: https://ismaelmartinez.github.io/teams-for-linux/
 - **Platform**: Docusaurus 3.9.2
 - **Local Development**: `cd docs-site && npm run start`
@@ -163,12 +182,14 @@ The project documentation is built with Docusaurus and deployed to GitHub Pages:
 ### Markdown Standards
 
 **All markdown files in this project** should follow the project's markdown standards:
+
 - See `docs-site/docs/development/contributing.md` (Markdown Standards section) for comprehensive guidelines ([web version](https://ismaelmartinez.github.io/teams-for-linux/development/contributing#markdown-standards))
 - Applies to documentation, README files, task lists, PRDs, and all markdown content
 
 ### Documentation Updates
 
 When making code changes, update relevant documentation in the same PR:
+
 - Module README.md files when changing functionality
 - **IPC channels**: Add descriptive comments above registrations and run `npm run generate-ipc-docs`
 - Configuration documentation for new options in `docs-site/docs/configuration.md`
@@ -176,6 +197,7 @@ When making code changes, update relevant documentation in the same PR:
 
 **Important for IPC changes:**
 When adding or modifying IPC channels, you must:
+
 1. Add a descriptive comment above the `ipcMain.handle()` or `ipcMain.on()` registration
 2. Add the channel to the allowlist in `app/security/ipcValidator.js`
 3. Run `npm run generate-ipc-docs` to update the auto-generated documentation
@@ -189,13 +211,19 @@ When adding or modifying IPC channels, you must:
 
 ```javascript
 // REQUIRED: These modules need ipcRenderer for IPC communication
-const modulesRequiringIpc = ["settings", "theme", "trayIconRenderer", "mqttStatusMonitor"];
+const modulesRequiringIpc = [
+  "settings",
+  "theme",
+  "trayIconRenderer",
+  "mqttStatusMonitor",
+];
 if (modulesRequiringIpc.includes(module.name)) {
   moduleInstance.init(config, ipcRenderer);
 }
 ```
 
 **Why this is critical:**
+
 - The `trayIconRenderer` module requires `ipcRenderer` to communicate with the main process for tray icon updates
 - The `mqttStatusMonitor` module requires `ipcRenderer` to send Teams status changes to the main process for MQTT publishing
 - Without these, tray icon functionality (badge counts, notifications) and MQTT status publishing break completely
@@ -203,6 +231,7 @@ if (modulesRequiringIpc.includes(module.name)) {
 - Most recently addressed in issue #1902
 
 **When modifying preload.js:**
+
 - Always verify `trayIconRenderer` and `mqttStatusMonitor` are in the condition that passes `ipcRenderer` to `init()`
 - Do NOT remove these modules from the list, even if they seem redundant
 - Test tray icon functionality and MQTT status publishing thoroughly after any changes to module initialization
@@ -218,6 +247,7 @@ if (modulesRequiringIpc.includes(module.name)) {
 When opening a PR that resolves a GitHub issue, always include a `closes #NNN` (or `fixes #NNN` / `resolves #NNN`) line in the PR body. This is required for the automated changelog generator to link the issue in release notes — the `closingIssuesReferences` GraphQL field only captures issues referenced this way.
 
 Example PR body footer:
+
 ```
 closes #2293
 ```
@@ -240,16 +270,19 @@ When a PR has review comments, address them proactively:
 **IMPORTANT:** The project maintains a development roadmap at `docs-site/docs/development/plan/roadmap.md`.
 
 **Before starting work:**
+
 - Check the roadmap to understand current priorities and feature status
 - Verify the feature you're implementing aligns with the roadmap
 
 **After implementing a feature (PR merged):**
+
 - Update the roadmap to reflect the completed work
 - Move completed features to appropriate sections or remove if fully done
 - Update status indicators (Ready → Implemented, etc.)
 - Add any new insights or follow-up work discovered during implementation
 
 **Roadmap sections:**
+
 - **Ready for Implementation** - Features with completed research, ready to build
 - **User Feedback Received** - MVP shipped, user feedback identifies gaps to address
 - **Requires Validation First** - Features needing spikes/validation before implementation
@@ -269,6 +302,7 @@ When a PR has review comments, address them proactively:
 ## Additional Resources
 
 **Local documentation files (read these):**
+
 - **Development Roadmap**: `docs-site/docs/development/plan/roadmap.md` - Future development priorities and feature status
 - **Quick Reference Guide**: `docs-site/docs/quick-reference.md` - Fast access to commands, configs, and troubleshooting
 - **Module Index**: `docs-site/docs/development/module-index.md` - Complete catalog of all application modules
@@ -281,6 +315,7 @@ When a PR has review comments, address them proactively:
 - **IPC API Documentation**: `docs-site/docs/development/ipc-api.md`
 
 **Web versions (for human reference):**
+
 - https://ismaelmartinez.github.io/teams-for-linux/development/plan/roadmap
 - https://ismaelmartinez.github.io/teams-for-linux/quick-reference
 - https://ismaelmartinez.github.io/teams-for-linux/development/module-index

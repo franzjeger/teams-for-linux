@@ -15,7 +15,7 @@ Microsoft Teams for Linux users experienced frequent authentication interruption
 ### Problem Analysis
 
 1. **Missing Interface**: Teams authentication provider expects a `_tokenCache` interface that wasn't provided
-2. **Silent Refresh Failure**: Without the cache interface, refresh tokens couldn't be used automatically  
+2. **Silent Refresh Failure**: Without the cache interface, refresh tokens couldn't be used automatically
 3. **User Experience Impact**: Frequent re-authentication disrupted productivity
 4. **Security Concerns**: localStorage tokens stored in plain text
 
@@ -31,12 +31,14 @@ Microsoft Teams for Linux users experienced frequent authentication interruption
 We will implement a **two-phase token cache solution**:
 
 ### Phase 1: localStorage-Compatible Token Cache Bridge
+
 - Implement Storage interface (`getItem`, `setItem`, `removeItem`, `clear`)
 - Inject cache into Teams authentication provider at runtime
 - Use existing localStorage for storage backend
 - Enable immediate silent token refresh capability
 
 ### Phase 2: Secure Storage with Electron safeStorage
+
 - Integrate Electron's `safeStorage` API for OS-level encryption
 - Use natural transition approach (new tokens secure, existing tokens via fallback)
 - Maintain backward compatibility with graceful fallback mechanisms
@@ -45,21 +47,25 @@ We will implement a **two-phase token cache solution**:
 ### Architectural Decisions
 
 #### 1. **Unified Implementation** (Revised from initial multi-module approach)
+
 - **Chosen**: Single `tokenCache.js` file with integrated secure storage
 - **Rejected**: Separate modules (`secureTokenStorage.js`, `tokenMigration.js`)
 - **Rationale**: Simplified architecture reduces complexity, easier maintenance, same functionality
 
 #### 2. **Storage Backend Selection**
+
 - **Chosen**: Electron `safeStorage` API
 - **Rejected**: External libraries (keytar, node-keychain)
 - **Rationale**: Native Electron support, no external dependencies, cross-platform compatibility
 
 #### 3. **Transition Strategy**
+
 - **Chosen**: Natural transition (new tokens secure, existing via fallback)
 - **Rejected**: Complex migration system with backup/rollback
 - **Rationale**: Eliminates migration complexity, zero risk, tokens refresh naturally
 
 #### 4. **Fallback Mechanisms**
+
 - **Chosen**: Graceful degradation (secure storage → localStorage → memory)
 - **Rejected**: Fail-fast approach
 - **Rationale**: Ensures authentication works on all platforms regardless of secure storage availability
@@ -85,10 +91,11 @@ We will implement a **two-phase token cache solution**:
 
 ### Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Secure storage unavailable | Medium | Automatic fallback to localStorage |
-| Storage unavailable | Low | Automatic fallback to localStorage, no disruption |
+| Risk                       | Impact | Mitigation                                        |
+| -------------------------- | ------ | ------------------------------------------------- |
+| Secure storage unavailable | Medium | Automatic fallback to localStorage                |
+| Storage unavailable        | Low    | Automatic fallback to localStorage, no disruption |
+
 ## Implementation Details
 
 ### Core Architecture
@@ -96,7 +103,7 @@ We will implement a **two-phase token cache solution**:
 ```mermaid
 graph TB
     A[Teams Auth Provider] --> B[TeamsTokenCache]
-    
+
     subgraph "Storage Strategy"
         B --> C{Secure Storage Available?}
         C -->|Yes| D[Electron safeStorage]
@@ -115,37 +122,43 @@ graph TB
 ### Performance Characteristics
 
 - **Initialization**: Less than 50ms for secure storage setup
-- **Token Operations**: Less than 5ms for encrypt/decrypt operations  
+- **Token Operations**: Less than 5ms for encrypt/decrypt operations
 - **Memory Usage**: Minimal overhead, no token caching in memory
 
 ## Alternatives Considered
 
 ### 1. **External Keychain Libraries**
+
 - **Keytar**: Mature but requires native compilation
 - **node-keychain**: macOS only
 - **Rejected**: External dependencies, compilation complexity
 
 ### 2. **File-Based Encryption**
+
 - Custom encryption with stored keys
 - **Rejected**: Key management complexity, security risks
 
 ### 3. **Database Storage**
+
 - SQLite with encryption
 - **Rejected**: Overhead for simple key-value storage
 
 ### 4. **No Secure Storage**
+
 - localStorage only implementation
 - **Rejected**: Security concerns for authentication tokens. It is ok but we can do better
 
 ## Monitoring and Success Metrics
 
 ### Primary Success Criteria
+
 - ✅ Zero re-authentication for 48+ hours continuous use
 - ✅ 100% authentication retention after system sleep cycles
 - ✅ 100% authentication persistence across application restarts
 - ✅ Less than 100ms performance overhead for token operations
 
 ### Monitoring Indicators
+
 - Authentication failure rate reduction
 - User support requests for re-authentication issues
 - Silent token refresh success rate
@@ -154,18 +167,20 @@ graph TB
 ## Future Considerations
 
 ### Version 1.x (Current Implementation)
+
 - Simplified secure storage with migration
 - Cross-platform compatibility
 - Graceful fallback mechanisms
 
 ### Version 2.x (Future Enhancements)
+
 - **Hardware Security Module Integration**: Leverage HSM for enterprise-grade key management and cryptographic operations
 
 ## Decision Record Metadata
 
 - **Authors**: Teams for Linux Development Team
 - **Decision Date**: September 2025
-- **Implementation Date**: September 2025  
+- **Implementation Date**: September 2025
 - **Review Date**: December 2025 (planned)
 - **Status**: Implemented and Active
 - **Related Issues**: #1357 (Authentication refresh failures)

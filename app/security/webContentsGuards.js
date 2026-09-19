@@ -223,31 +223,35 @@ function applyWebContentsGuards(session, webContents, config) {
   const trustedDomains = buildTrustedDomains(config);
   const restrictNavigation = config?.security?.restrictNavigation === true;
 
-  session.setPermissionRequestHandler((_webContents, permission, callback, details) => {
-    const requestingUrl = details?.requestingUrl ?? "";
-    const { granted, reason } = decidePermission(
-      permission,
-      requestingUrl,
-      trustedDomains
-    );
+  session.setPermissionRequestHandler(
+    (_webContents, permission, callback, details) => {
+      const requestingUrl = details?.requestingUrl ?? "";
+      const { granted, reason } = decidePermission(
+        permission,
+        requestingUrl,
+        trustedDomains,
+      );
 
-    if (!granted) {
-      // The permission name is safe to log; the requesting URL is not, as
-      // query parameters can carry tokens.
-      console.warn("[SECURITY] Permission denied", { permission, reason });
-    }
+      if (!granted) {
+        // The permission name is safe to log; the requesting URL is not, as
+        // query parameters can carry tokens.
+        console.warn("[SECURITY] Permission denied", { permission, reason });
+      }
 
-    callback(granted);
-  });
+      callback(granted);
+    },
+  );
 
-  session.setPermissionCheckHandler((_webContents, permission, requestingOrigin) => {
-    const { granted } = decidePermission(
-      permission,
-      requestingOrigin,
-      trustedDomains
-    );
-    return granted;
-  });
+  session.setPermissionCheckHandler(
+    (_webContents, permission, requestingOrigin) => {
+      const { granted } = decidePermission(
+        permission,
+        requestingOrigin,
+        trustedDomains,
+      );
+      return granted;
+    },
+  );
 
   // Teams does not use WebHID, WebSerial or WebUSB.
   session.setDevicePermissionHandler((details) => {
@@ -261,7 +265,7 @@ function applyWebContentsGuards(session, webContents, config) {
     const { allowed, reason } = decideNavigation(
       url,
       trustedDomains,
-      restrictNavigation
+      restrictNavigation,
     );
 
     if (allowed) return;

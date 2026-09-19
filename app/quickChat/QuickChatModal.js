@@ -1,6 +1,6 @@
-const { BrowserWindow } = require('electron');
-const path = require('node:path');
-const { moveWindow } = require('../utils/windowPositioner');
+const { BrowserWindow } = require("electron");
+const path = require("node:path");
+const { moveWindow } = require("../utils/windowPositioner");
 
 /**
  * Quick Chat Modal Window
@@ -27,22 +27,22 @@ class QuickChatModal {
       skipTaskbar: true,
       transparent: true,
       webPreferences: {
-        preload: path.join(__dirname, 'quickChatModalPreload.js'),
+        preload: path.join(__dirname, "quickChatModalPreload.js"),
         contextIsolation: true,
         nodeIntegration: false,
       },
     });
 
-    this.#window.loadFile(path.join(__dirname, 'quickChatModal.html'));
+    this.#window.loadFile(path.join(__dirname, "quickChatModal.html"));
 
     // Hide on blur (clicking outside)
-    this.#window.on('blur', () => {
+    this.#window.on("blur", () => {
       this.hide();
     });
 
     // Handle escape key
-    this.#window.webContents.on('before-input-event', (event, input) => {
-      if (input.key === 'Escape') {
+    this.#window.webContents.on("before-input-event", (event, input) => {
+      if (input.key === "Escape") {
         this.hide();
       }
     });
@@ -58,12 +58,12 @@ class QuickChatModal {
     }
 
     // Position near the main window's top-right
-    moveWindow(this.#window, 'topRight');
+    moveWindow(this.#window, "topRight");
     this.#window.show();
     this.#window.focus();
 
     // Send focus event to search input
-    this.#window.webContents.send('quick-chat-focus');
+    this.#window.webContents.send("quick-chat-focus");
   }
 
   hide() {
@@ -73,7 +73,9 @@ class QuickChatModal {
   }
 
   isVisible() {
-    return this.#window && !this.#window.isDestroyed() && this.#window.isVisible();
+    return (
+      this.#window && !this.#window.isDestroyed() && this.#window.isVisible()
+    );
   }
 
   toggle() {

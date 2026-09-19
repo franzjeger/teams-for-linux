@@ -125,17 +125,17 @@ Consolidate the scattered notification config keys under a `notification` namesp
 
 ```yaml
 notification:
-  method: "web"              # was: notificationMethod
-  disableSound: false         # was: disableNotificationSound
-  disableSoundIfNotAvailable: false  # was: disableNotificationSoundIfNotAvailable
-  disableWindowFlash: false   # was: disableNotificationWindowFlash
-  disableBadgeCount: false    # was: disableBadgeCount
-  defaultUrgency: "normal"   # was: defaultNotificationUrgency
+  method: "web" # was: notificationMethod
+  disableSound: false # was: disableNotificationSound
+  disableSoundIfNotAvailable: false # was: disableNotificationSoundIfNotAvailable
+  disableWindowFlash: false # was: disableNotificationWindowFlash
+  disableBadgeCount: false # was: disableBadgeCount
+  defaultUrgency: "normal" # was: defaultNotificationUrgency
   sounds:
-    new-message: "default"    # "default" | path to WAV/OGG | "none"
+    new-message: "default" # "default" | path to WAV/OGG | "none"
     meeting-started: "default"
   customToast:
-    duration: 5000            # was: customNotification.toastDuration
+    duration: 5000 # was: customNotification.toastDuration
 ```
 
 The old top-level keys would remain supported through deprecation aliases in `AppConfiguration` to avoid breaking existing user configs. The `sounds` map allows users to specify custom sound files per notification type, or "none" to disable a specific sound while keeping others.

@@ -5,6 +5,7 @@ Handles loading configuration from `config.json` and parsing command-line argume
 ## Usage
 
 View all available options:
+
 ```bash
 teams-for-linux --help
 ```

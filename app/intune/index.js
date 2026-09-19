@@ -23,20 +23,23 @@ const sessionBus = dbus.sessionBus();
  */
 function invokeBrokerMethod(methodName, request, correlationId = "") {
   return new Promise((resolve, reject) => {
-    sessionBus.invoke({
-      destination: BROKER_SERVICE,
-      path: BROKER_PATH,
-      interface: BROKER_INTERFACE,
-      member: methodName,
-      signature: "sss",
-      body: [PROTOCOL_VERSION, correlationId, JSON.stringify(request)]
-    }, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
+    sessionBus.invoke(
+      {
+        destination: BROKER_SERVICE,
+        path: BROKER_PATH,
+        interface: BROKER_INTERFACE,
+        member: methodName,
+        signature: "sss",
+        body: [PROTOCOL_VERSION, correlationId, JSON.stringify(request)],
+      },
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      },
+    );
   });
 }
 
@@ -51,7 +54,11 @@ function invokeBrokerMethod(methodName, request, correlationId = "") {
  */
 function extractCookieContent(response) {
   // New format (> 2.0.1): cookieItems array
-  if (response.cookieItems && Array.isArray(response.cookieItems) && response.cookieItems.length > 0) {
+  if (
+    response.cookieItems &&
+    Array.isArray(response.cookieItems) &&
+    response.cookieItems.length > 0
+  ) {
     return response.cookieItems[0].cookieContent;
   }
 
@@ -72,7 +79,8 @@ function processInTuneAccounts(resp, ssoInTuneAuthUser) {
       console.warn("[INTUNE_DIAG] Failed to retrieve InTune account list", {
         error: response.error.context,
         errorCode: response.error.code || "unknown",
-        suggestion: "Check if Microsoft Identity Broker has valid accounts configured"
+        suggestion:
+          "Check if Microsoft Identity Broker has valid accounts configured",
       });
       return;
     }
@@ -84,7 +92,8 @@ function processInTuneAccounts(resp, ssoInTuneAuthUser) {
 
     if (!response.accounts || response.accounts.length === 0) {
       console.warn("[INTUNE_DIAG] No InTune accounts found", {
-        suggestion: "Configure Microsoft Identity Broker with valid Intune accounts"
+        suggestion:
+          "Configure Microsoft Identity Broker with valid Intune accounts",
       });
       return;
     }
@@ -96,7 +105,7 @@ function processInTuneAccounts(resp, ssoInTuneAuthUser) {
         if (account.username?.toLowerCase() === requestedUserLower) {
           inTuneAccount = account;
           console.debug("[INTUNE_DIAG] Found matching InTune account", {
-            accountType: inTuneAccount.accountType || "unknown"
+            accountType: inTuneAccount.accountType || "unknown",
           });
           break;
         }
@@ -105,25 +114,25 @@ function processInTuneAccounts(resp, ssoInTuneAuthUser) {
       if (inTuneAccount == null) {
         console.warn("[INTUNE_DIAG] Failed to find matching InTune account", {
           availableCount: response.accounts.length,
-          suggestion: "Either configure the requested user in Identity Broker or use one of the available accounts"
+          suggestion:
+            "Either configure the requested user in Identity Broker or use one of the available accounts",
         });
       }
     } else {
       inTuneAccount = response.accounts[0];
       console.debug("[INTUNE_DIAG] Using first available InTune account", {
         accountType: inTuneAccount.accountType || "unknown",
-        totalAvailable: response.accounts.length
+        totalAvailable: response.accounts.length,
       });
     }
 
     if (inTuneAccount) {
       console.info("[INTUNE_DIAG] InTune SSO account configured successfully");
     }
-
   } catch (error) {
     console.error("[INTUNE_DIAG] Error parsing InTune accounts response", {
       error: error.message,
-      rawResponse: resp?.substring(0, 200) + (resp?.length > 200 ? "..." : "")
+      rawResponse: resp?.substring(0, 200) + (resp?.length > 200 ? "..." : ""),
     });
   }
 }
@@ -144,9 +153,12 @@ async function waitForBrokerReady(retries, delay) {
         clientId: "88200948-af09-45a1-9c03-53cdcc75c183",
         redirectUri: "urn:ietf:oob",
       });
-      console.debug("[INTUNE_DIAG] microsoft-identity-broker D-Bus service is ready", {
-        usesDirectInvocation: true
-      });
+      console.debug(
+        "[INTUNE_DIAG] microsoft-identity-broker D-Bus service is ready",
+        {
+          usesDirectInvocation: true,
+        },
+      );
       return;
     } catch (error) {
       if (error?.name === "org.freedesktop.DBus.Error.ServiceUnknown") {
@@ -156,11 +168,14 @@ async function waitForBrokerReady(retries, delay) {
       }
 
       if (attempt < retries) {
-        console.debug("[INTUNE_DIAG] microsoft-identity-broker not ready, retrying", {
-          attemptsRemaining: retries - attempt,
-          delay: `${delay}ms`
-        });
-        await new Promise(resolve => setTimeout(resolve, delay));
+        console.debug(
+          "[INTUNE_DIAG] microsoft-identity-broker not ready, retrying",
+          {
+            attemptsRemaining: retries - attempt,
+            delay: `${delay}ms`,
+          },
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         throw error || new Error("Broker D-Bus service not ready");
       }
@@ -195,7 +210,8 @@ exports.initSso = async function initIntuneSso(ssoInTuneAuthUser) {
   } catch (err) {
     console.warn("[INTUNE_DIAG] Broker cannot initialize SSO", {
       error: err.message || err,
-      suggestion: "Ensure Microsoft Identity Broker is installed and running on this system"
+      suggestion:
+        "Ensure Microsoft Identity Broker is installed and running on this system",
     });
   }
 };
@@ -229,7 +245,8 @@ function buildPrtSsoCookieRequest(ssoUrl) {
       authority: "https://login.microsoftonline.com/common",
       authorizationType: 8, // PRT_SSO_COOKIE
       clientId: "d7b530a4-7680-4c23-a8bf-c52c121d2e87",
-      redirectUri: "https://login.microsoftonline.com/common/oauth2/nativeclient",
+      redirectUri:
+        "https://login.microsoftonline.com/common/oauth2/nativeclient",
       requestedScopes: scopes,
       username: inTuneAccount.username,
       uxContextHandle: -1,
@@ -247,7 +264,8 @@ function processPrtResponse(resp, detail) {
       console.warn("[INTUNE_DIAG] Failed to retrieve Intune SSO cookie", {
         error: response.error.context,
         errorCode: response.error.code || "unknown",
-        suggestion: "Check if the account has valid PRT tokens or needs reauthentication"
+        suggestion:
+          "Check if the account has valid PRT tokens or needs reauthentication",
       });
     } else {
       const cookieContent = extractCookieContent(response);
@@ -255,7 +273,9 @@ function processPrtResponse(resp, detail) {
         console.debug("[INTUNE_DIAG] SSO credential added to request");
         detail.requestHeaders["X-Ms-Refreshtokencredential"] = cookieContent;
       } else {
-        console.warn("[INTUNE_DIAG] SSO cookie response missing cookie content");
+        console.warn(
+          "[INTUNE_DIAG] SSO cookie response missing cookie content",
+        );
       }
     }
   } catch (error) {
@@ -302,10 +322,13 @@ exports.addSsoCookie = function addIntuneSsoCookie(detail, callback) {
   }
 
   // Use direct D-Bus invocation (supports all broker versions including > 2.0.1)
-  acquirePrtSsoCookieFromBroker(detail, callback).catch(error => {
-    console.error("[INTUNE_DIAG] Unexpected error during SSO cookie retrieval", {
-      error: error.message,
-    });
+  acquirePrtSsoCookieFromBroker(detail, callback).catch((error) => {
+    console.error(
+      "[INTUNE_DIAG] Unexpected error during SSO cookie retrieval",
+      {
+        error: error.message,
+      },
+    );
     callback({
       requestHeaders: detail.requestHeaders,
     });

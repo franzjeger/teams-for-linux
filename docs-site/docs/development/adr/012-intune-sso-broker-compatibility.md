@@ -42,6 +42,7 @@ This method internally calls D-Bus introspection to discover available methods. 
 ### Research
 
 Analysis of the [linux-entra-sso project](https://github.com/siemens/linux-entra-sso) (PR #116) revealed the solution:
+
 - Use direct D-Bus method invocation instead of relying on introspection
 - Detect broker version to determine request/response format
 - Handle both old and new formats for backward compatibility
@@ -57,17 +58,20 @@ Analysis of the [linux-entra-sso project](https://github.com/siemens/linux-entra
 ```javascript
 function invokeBrokerMethod(methodName, request, correlationId = "") {
   return new Promise((resolve, reject) => {
-    sessionBus.invoke({
-      destination: "com.microsoft.identity.broker1",
-      path: "/com/microsoft/identity/broker1",
-      interface: "com.microsoft.identity.Broker1",
-      member: methodName,
-      signature: "sss",
-      body: ["0.0", correlationId, JSON.stringify(request)]
-    }, (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
-    });
+    sessionBus.invoke(
+      {
+        destination: "com.microsoft.identity.broker1",
+        path: "/com/microsoft/identity/broker1",
+        interface: "com.microsoft.identity.Broker1",
+        member: methodName,
+        signature: "sss",
+        body: ["0.0", correlationId, JSON.stringify(request)],
+      },
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      },
+    );
   });
 }
 ```
@@ -77,7 +81,11 @@ function invokeBrokerMethod(methodName, request, correlationId = "") {
 ```javascript
 function extractCookieContent(response) {
   // New format (> 2.0.1): { cookieItems: [{ cookieContent: "..." }] }
-  if (response.cookieItems && Array.isArray(response.cookieItems) && response.cookieItems.length > 0) {
+  if (
+    response.cookieItems &&
+    Array.isArray(response.cookieItems) &&
+    response.cookieItems.length > 0
+  ) {
     return response.cookieItems[0].cookieContent;
   }
   // Old format (≤ 2.0.1): { cookieContent: "..." }

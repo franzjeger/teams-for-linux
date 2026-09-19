@@ -17,7 +17,8 @@ exports = module.exports = (Menus) => ({
       ? [
           {
             label: "Quick Chat",
-            accelerator: Menus.configGroup.startupConfig.quickChat?.shortcut || undefined,
+            accelerator:
+              Menus.configGroup.startupConfig.quickChat?.shortcut || undefined,
             click: () => Menus.showQuickChat(),
           },
         ]
@@ -68,7 +69,8 @@ exports = module.exports = (Menus) => ({
       click: () => Menus.about(),
     },
     getHelpMenu(Menus),
-    ...((Menus.configGroup.startupConfig.media?.video?.menuEnabled || Menus.configGroup.startupConfig.videoMenu)
+    ...(Menus.configGroup.startupConfig.media?.video?.menuEnabled ||
+    Menus.configGroup.startupConfig.videoMenu
       ? [
           {
             type: "separator",
@@ -212,14 +214,14 @@ function getHelpMenu(Menus) {
         label: "Github Project",
         click: () =>
           shell.openExternal(
-            "https://github.com/IsmaelMartinez/teams-for-linux"
+            "https://github.com/IsmaelMartinez/teams-for-linux",
           ),
       },
       {
         label: "Microsoft Teams Support",
         click: () =>
           shell.openExternal(
-            "https://answers.microsoft.com/en-us/msteams/forum"
+            "https://answers.microsoft.com/en-us/msteams/forum",
           ),
       },
     ],

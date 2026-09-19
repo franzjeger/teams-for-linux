@@ -17,6 +17,7 @@
 ### Task 1: Move cross-distro from testing/ to tests/
 
 **Files:**
+
 - Move: `testing/cross-distro/` → `tests/cross-distro/`
 - Delete: `testing/spikes/` (all files)
 - Delete: `testing/` directory (now empty)
@@ -54,6 +55,7 @@ and e2e tests. Removes stale spike files from testing/spikes/."
 ### Task 2: Add npm scripts to package.json
 
 **Files:**
+
 - Modify: `package.json:21-27` (scripts section)
 
 - [ ] **Step 1: Add cross-distro scripts**
@@ -86,6 +88,7 @@ git commit -m "feat: add npm scripts for cross-distro testing"
 ### Task 3: Update documentation references
 
 **Files:**
+
 - Modify: `docs-site/docs/development/plan/roadmap.md:73` — change `testing/cross-distro/` to `tests/cross-distro/`
 - Modify: `docs-site/docs/development/adr/016-cross-distro-testing-environment.md:23` — change `testing/cross-distro/` to `tests/cross-distro/`
 - Modify: `docs-site/docs/development/research/webauthn-fido2-implementation-plan.md:25,76-78,85,133` — change `testing/spikes/` references to note that files were removed (these are historical references in the spike validation steps)
@@ -118,6 +121,7 @@ git commit -m "docs: update paths after test directory restructuring"
 ### Task 4: Fix Wayland/XWayland app log redirection
 
 **Files:**
+
 - Modify: `tests/cross-distro/scripts/start-wayland.sh:49-60`
 - Modify: `tests/cross-distro/scripts/start-xwayland.sh:52-63`
 
@@ -188,6 +192,7 @@ and improves manual debugging (previously no app logs on Wayland)."
 ### Task 5: Create smoke-check.sh script
 
 **Files:**
+
 - Create: `tests/cross-distro/scripts/smoke-check.sh`
 
 - [ ] **Step 1: Write the smoke check script**
@@ -281,6 +286,7 @@ download + startup), then polls for the marker string."
 ### Task 6: Create the GitHub Actions workflow
 
 **Files:**
+
 - Create: `.github/workflows/cross-distro-smoke.yml`
 
 - [ ] **Step 1: Write the workflow file**
@@ -412,6 +418,7 @@ closes #2332"
 ### Task 7: Update roadmap
 
 **Files:**
+
 - Modify: `docs-site/docs/development/plan/roadmap.md`
 
 - [ ] **Step 1: Update Phase 2 CI Integration section**
@@ -429,14 +436,14 @@ git commit -m "docs: update roadmap with cross-distro CI implementation"
 
 ## Summary
 
-| Task | Description | Files |
-|------|-------------|-------|
-| 1 | Move testing/ → tests/ | directory move + delete |
-| 2 | Add npm scripts | `package.json` |
-| 3 | Update doc references | roadmap, ADR-016, FIDO2 research |
-| 4 | Fix Wayland/XWayland log redirection | `start-wayland.sh`, `start-xwayland.sh` |
-| 5 | Create smoke-check.sh | new script |
-| 6 | Create GitHub Actions workflow | `.github/workflows/cross-distro-smoke.yml` |
-| 7 | Update roadmap | `roadmap.md` |
+| Task | Description                          | Files                                      |
+| ---- | ------------------------------------ | ------------------------------------------ |
+| 1    | Move testing/ → tests/               | directory move + delete                    |
+| 2    | Add npm scripts                      | `package.json`                             |
+| 3    | Update doc references                | roadmap, ADR-016, FIDO2 research           |
+| 4    | Fix Wayland/XWayland log redirection | `start-wayland.sh`, `start-xwayland.sh`    |
+| 5    | Create smoke-check.sh                | new script                                 |
+| 6    | Create GitHub Actions workflow       | `.github/workflows/cross-distro-smoke.yml` |
+| 7    | Update roadmap                       | `roadmap.md`                               |
 
 Tasks 1-3 are the prerequisite restructuring. Task 4 fixes a real gap in the existing scripts. Tasks 5-6 are the new CI functionality. Task 7 updates documentation.

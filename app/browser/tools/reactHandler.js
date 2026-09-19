@@ -1,5 +1,5 @@
 // Import token cache for authentication provider integration
-const TokenCache = require('./tokenCache');
+const TokenCache = require("./tokenCache");
 
 class ReactHandler {
   _validationEnabled = true;
@@ -38,7 +38,7 @@ class ReactHandler {
   getTokenCacheStatus() {
     return {
       injected: this._tokenCacheInjected,
-      canRetry: !this._tokenCacheInjected && this._validateTeamsEnvironment()
+      canRetry: !this._tokenCacheInjected && this._validateTeamsEnvironment(),
     };
   }
 
@@ -49,20 +49,20 @@ class ReactHandler {
   logAndAttemptTokenInjection() {
     try {
       if (!this._validateTeamsEnvironment()) {
-        console.debug('[AUTH_DIAG] Teams environment not validated');
+        console.debug("[AUTH_DIAG] Teams environment not validated");
         return;
       }
 
       const teams2CoreServices = this._getTeams2CoreServices();
       const authService = teams2CoreServices?.authenticationService;
-      
-      console.debug('[AUTH_DIAG] Authentication state:', {
+
+      console.debug("[AUTH_DIAG] Authentication state:", {
         hasAuthService: !!authService,
         hasCoreAuthService: !!authService?._coreAuthService,
         hasAuthProvider: !!authService?._coreAuthService?._authProvider,
-        tokenCacheInjected: this._tokenCacheInjected
+        tokenCacheInjected: this._tokenCacheInjected,
       });
-      
+
       // Attempt token cache injection if not yet done
       if (!this._tokenCacheInjected) {
         const authProvider = authService?._coreAuthService?._authProvider;
@@ -71,7 +71,7 @@ class ReactHandler {
         }
       }
     } catch (error) {
-      console.error('[AUTH_DIAG] Error logging authentication state:', error);
+      console.error("[AUTH_DIAG] Error logging authentication state:", error);
     }
   }
 
@@ -91,7 +91,6 @@ class ReactHandler {
       }
 
       return this._attemptTokenCacheInjection(authProvider);
-
     } catch (error) {
       console.error(`[TOKEN_CACHE] Error in token cache injection:`, error);
       return false;
@@ -104,11 +103,11 @@ class ReactHandler {
    * @param {object} options - Optional token acquisition options
    * @returns {Promise<object>} Token acquisition result
    */
-  async acquireToken(resource = 'https://graph.microsoft.com', options = {}) {
+  async acquireToken(resource = "https://graph.microsoft.com", options = {}) {
     try {
       if (!this._validateTeamsEnvironment()) {
-        console.warn('[GRAPH_API] Teams environment not validated');
-        return { success: false, error: 'Teams environment not validated' };
+        console.warn("[GRAPH_API] Teams environment not validated");
+        return { success: false, error: "Teams environment not validated" };
       }
 
       const teams2CoreServices = this._getTeams2CoreServices();
@@ -116,13 +115,13 @@ class ReactHandler {
       const authProvider = authService?._coreAuthService?._authProvider;
 
       if (!authProvider) {
-        console.warn('[GRAPH_API] Auth provider not available');
-        return { success: false, error: 'Auth provider not found' };
+        console.warn("[GRAPH_API] Auth provider not available");
+        return { success: false, error: "Auth provider not found" };
       }
 
-      if (typeof authProvider.acquireToken !== 'function') {
-        console.error('[GRAPH_API] acquireToken method not available');
-        return { success: false, error: 'acquireToken method not found' };
+      if (typeof authProvider.acquireToken !== "function") {
+        console.error("[GRAPH_API] acquireToken method not available");
+        return { success: false, error: "acquireToken method not found" };
       }
 
       // Get correlation from core services if available
@@ -134,18 +133,18 @@ class ReactHandler {
         forceRenew: options.forceRenew || false,
         forceRefresh: options.forceRefresh || false,
         skipCache: options.skipCache || false,
-        prompt: options.prompt || 'none',
-        ...options
+        prompt: options.prompt || "none",
+        ...options,
       };
 
       console.debug(`[GRAPH_API] Acquiring token for resource: ${resource}`);
       const result = await authProvider.acquireToken(resource, tokenOptions);
 
       if (result && result.token) {
-        console.debug('[GRAPH_API] Token acquired successfully', {
+        console.debug("[GRAPH_API] Token acquired successfully", {
           hasToken: true,
           fromCache: result.fromCache,
-          expiry: result.expiresOn || result.expires_on
+          expiry: result.expiresOn || result.expires_on,
         });
 
         return {
@@ -153,19 +152,18 @@ class ReactHandler {
           token: result.token,
           fromCache: result.fromCache,
           expiry: result.expiresOn || result.expires_on,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
       } else {
-        console.warn('[GRAPH_API] Token acquisition returned no result');
-        return { success: false, error: 'No token in result' };
+        console.warn("[GRAPH_API] Token acquisition returned no result");
+        return { success: false, error: "No token in result" };
       }
-
     } catch (error) {
-      console.error('[GRAPH_API] Token acquisition failed:', error);
+      console.error("[GRAPH_API] Token acquisition failed:", error);
       return {
         success: false,
         error: error.message || error.toString(),
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     }
   }
@@ -177,13 +175,13 @@ class ReactHandler {
         return true;
       }
 
-      if (!authProvider || typeof authProvider !== 'object') {
-        console.error('[TOKEN_CACHE] Invalid auth provider for injection');
+      if (!authProvider || typeof authProvider !== "object") {
+        console.error("[TOKEN_CACHE] Invalid auth provider for injection");
         return false;
       }
 
-      if (!TokenCache || typeof TokenCache.getItem !== 'function') {
-        console.error('[TOKEN_CACHE] TokenCache module not properly loaded');
+      if (!TokenCache || typeof TokenCache.getItem !== "function") {
+        console.error("[TOKEN_CACHE] TokenCache module not properly loaded");
         return false;
       }
 
@@ -195,13 +193,12 @@ class ReactHandler {
         this._tokenCacheInjected = true;
         return true;
       } else {
-        console.error('[TOKEN_CACHE] Validation failed after injection');
+        console.error("[TOKEN_CACHE] Validation failed after injection");
         delete authProvider._tokenCache;
         return false;
       }
-
     } catch (error) {
-      console.error('[TOKEN_CACHE] Error during token cache injection:', error);
+      console.error("[TOKEN_CACHE] Error during token cache injection:", error);
       return false;
     }
   }
@@ -211,8 +208,10 @@ class ReactHandler {
     const tokenCache = authProvider._tokenCache;
     if (!tokenCache) return false;
 
-    const requiredMethods = ['getItem', 'setItem', 'removeItem', 'clear'];
-    return requiredMethods.every(method => typeof tokenCache[method] === 'function');
+    const requiredMethods = ["getItem", "setItem", "removeItem", "clear"];
+    return requiredMethods.every(
+      (method) => typeof tokenCache[method] === "function",
+    );
   }
 
   _validateTeamsEnvironment() {
@@ -220,33 +219,36 @@ class ReactHandler {
       const validationResult = this._performEnvironmentValidation();
       this._validationEnabled = validationResult;
       return validationResult;
-
     } catch (error) {
-      console.error('ReactHandler: Validation error:', error);
+      console.error("ReactHandler: Validation error:", error);
       this._validationEnabled = false;
       return false;
     }
   }
 
   _performEnvironmentValidation() {
-    return this._validateDomain() &&
-           this._validateDocument() &&
-           this._validateAppElement() &&
-           this._validateReactStructure();
+    return (
+      this._validateDomain() &&
+      this._validateDocument() &&
+      this._validateAppElement() &&
+      this._validateReactStructure()
+    );
   }
 
   _validateDomain() {
-    const isTeamsDomain = this._isAllowedTeamsDomain(globalThis.location.hostname);
+    const isTeamsDomain = this._isAllowedTeamsDomain(
+      globalThis.location.hostname,
+    );
     if (!isTeamsDomain) {
-      console.warn('ReactHandler: Not in Teams domain context');
+      console.warn("ReactHandler: Not in Teams domain context");
       return false;
     }
     return true;
   }
 
   _validateDocument() {
-    if (!document || typeof document.getElementById !== 'function') {
-      console.warn('ReactHandler: Invalid document context');
+    if (!document || typeof document.getElementById !== "function") {
+      console.warn("ReactHandler: Invalid document context");
       return false;
     }
     return true;
@@ -255,7 +257,7 @@ class ReactHandler {
   _validateAppElement() {
     const appElement = document.getElementById("app");
     if (!appElement) {
-      console.warn('ReactHandler: Teams app element not found');
+      console.warn("ReactHandler: Teams app element not found");
       return false;
     }
     return true;
@@ -265,16 +267,17 @@ class ReactHandler {
     const appElement = document.getElementById("app");
 
     // Check for traditional React mount structures
-    const hasLegacyReact = appElement._reactRootContainer || appElement._reactInternalInstance;
+    const hasLegacyReact =
+      appElement._reactRootContainer || appElement._reactInternalInstance;
 
     // Check for React 18+ createRoot structure (keys starting with __react)
-    const reactKeys = Object.getOwnPropertyNames(appElement).filter(key =>
-      key.startsWith('__react') || key.startsWith('_react')
+    const reactKeys = Object.getOwnPropertyNames(appElement).filter(
+      (key) => key.startsWith("__react") || key.startsWith("_react"),
     );
     const hasModernReact = reactKeys.length > 0;
 
     if (!hasLegacyReact && !hasModernReact) {
-      console.warn('ReactHandler: No React structure detected');
+      console.warn("ReactHandler: No React structure detected");
       return false;
     }
 
@@ -290,39 +293,42 @@ class ReactHandler {
   _isAllowedTeamsDomain(hostname) {
     // List of valid Teams domains
     const allowedDomains = [
-      'teams.cloud.microsoft',
-      'teams.microsoft.com',
-      'teams.live.com'
+      "teams.cloud.microsoft",
+      "teams.microsoft.com",
+      "teams.live.com",
     ];
 
     // Handle Microsoft Cloud App Security (MCAS) suffix. eg: teams.cloud.microsoft.mcas.ms
-    if(hostname.endsWith('.mcas.ms')){
+    if (hostname.endsWith(".mcas.ms")) {
       hostname = hostname.slice(0, -8);
     }
-    
+
     for (const domain of allowedDomains) {
       // Exact match
       if (hostname === domain) return true;
       // Immediate subdomain match (prevents evil.com.teams.cloud.microsoft / evil.com.teams.microsoft.com attacks)
-      if (hostname.endsWith('.' + domain)) {
-        const subdomainPart = hostname.substring(0, hostname.length - (domain.length + 1));
-        if (!subdomainPart.includes('.')) {
+      if (hostname.endsWith("." + domain)) {
+        const subdomainPart = hostname.substring(
+          0,
+          hostname.length - (domain.length + 1),
+        );
+        if (!subdomainPart.includes(".")) {
           return true;
         }
       }
     }
-    
+
     return false;
   }
 
   _getTeams2ReactElement() {
     if (!this._validateTeamsEnvironment()) return null;
-    
+
     try {
       const element = document.getElementById("app");
       return element;
     } catch (error) {
-      console.error('ReactHandler: Error accessing React element:', error);
+      console.error("ReactHandler: Error accessing React element:", error);
       return null;
     }
   }
@@ -336,17 +342,19 @@ class ReactHandler {
         reactElement?._reactRootContainer?._internalRoot ||
         reactElement?._reactRootContainer;
 
-      const coreProps = internalRoot?.current?.updateQueue?.baseState?.element?.props;
-      const coreServices = coreProps?.coreServices || coreProps?.children?.props?.coreServices;
+      const coreProps =
+        internalRoot?.current?.updateQueue?.baseState?.element?.props;
+      const coreServices =
+        coreProps?.coreServices || coreProps?.children?.props?.coreServices;
 
       // Additional validation that we have legitimate core services
-      if (coreServices && typeof coreServices === 'object') {
+      if (coreServices && typeof coreServices === "object") {
         return coreServices;
       }
 
       return null;
     } catch (error) {
-      console.error('ReactHandler: Error accessing core services:', error);
+      console.error("ReactHandler: Error accessing core services:", error);
       return null;
     }
   }

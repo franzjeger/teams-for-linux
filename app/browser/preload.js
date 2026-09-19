@@ -9,20 +9,20 @@ const { ipcRenderer } = require("electron");
  */
 const notificationBridge = {
   showNotification: (options) => {
-    if (!options || typeof options !== 'object') {
-      return Promise.reject(new Error('Invalid notification options'));
+    if (!options || typeof options !== "object") {
+      return Promise.reject(new Error("Invalid notification options"));
     }
     return ipcRenderer.invoke("show-notification", options);
   },
   playNotificationSound: (options) => {
-    if (options && typeof options !== 'object') {
-      return Promise.reject(new Error('Invalid sound options'));
+    if (options && typeof options !== "object") {
+      return Promise.reject(new Error("Invalid sound options"));
     }
     return ipcRenderer.invoke("play-notification-sound", options);
   },
   sendNotificationToast: (data) => {
-    if (!data || typeof data !== 'object') {
-      throw new Error('Invalid notification toast data');
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid notification toast data");
     }
     ipcRenderer.send("notification-show-toast", data);
   },
@@ -44,10 +44,13 @@ const notificationBridge = {
  */
 globalThis.electronAPI = {
   sendScreenSharingStarted: (sourceId) => {
-    if (sourceId === null || (typeof sourceId === 'string' && sourceId.length < 100)) {
+    if (
+      sourceId === null ||
+      (typeof sourceId === "string" && sourceId.length < 100)
+    ) {
       return ipcRenderer.send("screen-sharing-started", sourceId);
     }
-    console.error('Invalid sourceId for screen sharing');
+    console.error("Invalid sourceId for screen sharing");
   },
   sendScreenSharingStopped: () => ipcRenderer.send("screen-sharing-stopped"),
 };
@@ -77,15 +80,18 @@ try {
 // Fetch config and override Notification immediately (matching v2.2.1 pattern)
 // Config is fetched asynchronously but notification function references it via closure
 let notificationConfig = null;
-ipcRenderer.invoke("get-config").then((config) => {
-  notificationConfig = config;
-  console.debug("Preload: Config loaded for notifications:", {
-    notificationMethod: config?.notificationMethod,
-    disableNotifications: config?.disableNotifications
+ipcRenderer
+  .invoke("get-config")
+  .then((config) => {
+    notificationConfig = config;
+    console.debug("Preload: Config loaded for notifications:", {
+      notificationMethod: config?.notificationMethod,
+      disableNotifications: config?.disableNotifications,
+    });
+  })
+  .catch((err) => {
+    console.error("Preload: Failed to load config for notifications:", err);
   });
-}).catch((err) => {
-  console.error("Preload: Failed to load config for notifications:", err);
-});
 
 // Create a Notification-like stub so Teams can manage lifecycle without errors.
 // Without addEventListener/close/dispatchEvent, Teams' internal state machine
@@ -96,23 +102,33 @@ function createNotificationStub() {
     onclose: null,
     onerror: null,
     onshow: null,
-    close() { if (this.onclose) this.onclose(); },
+    close() {
+      if (this.onclose) this.onclose();
+    },
     addEventListener(type, listener) {
-      if (type === 'click') this.onclick = listener;
-      else if (type === 'close') this.onclose = listener;
-      else if (type === 'show') this.onshow = listener;
-      else if (type === 'error') this.onerror = listener;
+      if (type === "click") this.onclick = listener;
+      else if (type === "close") this.onclose = listener;
+      else if (type === "show") this.onshow = listener;
+      else if (type === "error") this.onerror = listener;
     },
     removeEventListener(type, listener) {
-      if (type === 'click' && (!listener || this.onclick === listener)) this.onclick = null;
-      else if (type === 'close' && (!listener || this.onclose === listener)) this.onclose = null;
-      else if (type === 'show' && (!listener || this.onshow === listener)) this.onshow = null;
-      else if (type === 'error' && (!listener || this.onerror === listener)) this.onerror = null;
+      if (type === "click" && (!listener || this.onclick === listener))
+        this.onclick = null;
+      else if (type === "close" && (!listener || this.onclose === listener))
+        this.onclose = null;
+      else if (type === "show" && (!listener || this.onshow === listener))
+        this.onshow = null;
+      else if (type === "error" && (!listener || this.onerror === listener))
+        this.onerror = null;
     },
-    dispatchEvent() { return true; },
+    dispatchEvent() {
+      return true;
+    },
   };
   // Fire the show event asynchronously like a real Notification
-  setTimeout(() => { if (stub.onshow) stub.onshow(); }, 0);
+  setTimeout(() => {
+    if (stub.onshow) stub.onshow();
+  }, 0);
   return stub;
 }
 
@@ -165,7 +181,7 @@ function createCustomNotification(title, options) {
     id: crypto.randomUUID(),
     timestamp: Date.now(),
     title: title,
-    body: options.body || '',
+    body: options.body || "",
     icon: options.icon,
   };
 
@@ -190,7 +206,7 @@ function createCustomNotification(title, options) {
 
 // Override window.Notification immediately before Teams loads
 // Using factory function pattern instead of class to avoid "return in constructor" anti-pattern
-(function() {
+(function () {
   const ICON_BASE64 =
     "data:image/png;base64,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";
 
@@ -219,7 +235,11 @@ function createCustomNotification(title, options) {
     }
 
     if (method === "web") {
-      const notification = createWebNotification(classicNotification, title, options);
+      const notification = createWebNotification(
+        classicNotification,
+        title,
+        options,
+      );
       return notification || { onclick: null, onclose: null, onerror: null };
     }
 
@@ -227,14 +247,14 @@ function createCustomNotification(title, options) {
   }
 
   // Add static methods to factory function
-  CustomNotification.requestPermission = async function() {
+  CustomNotification.requestPermission = async function () {
     return "granted";
   };
 
-  Object.defineProperty(CustomNotification, 'permission', {
-    get: function() {
+  Object.defineProperty(CustomNotification, "permission", {
+    get: function () {
       return "granted";
-    }
+    },
   });
 
   globalThis.Notification = CustomNotification;
@@ -242,29 +262,29 @@ function createCustomNotification(title, options) {
 })();
 
 // Initialize browser modules after DOM is loaded
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.debug("Preload: DOMContentLoaded, initializing browser modules...");
   try {
     const config = await ipcRenderer.invoke("get-config");
     console.debug("Preload: Got config:", {
       trayIconEnabled: config?.trayIconEnabled,
-      useMutationTitleLogic: config?.useMutationTitleLogic
+      useMutationTitleLogic: config?.useMutationTitleLogic,
     });
-    
+
     // Initialize title monitoring using existing module
     if (config.useMutationTitleLogic) {
       const mutationTitle = require("./tools/mutationTitle");
       mutationTitle.init(config);
     }
-    
+
     // Initialize tray icon functionality directly in preload with secure IPC
     if (config.trayIconEnabled) {
       // NOTE: unread-count event is handled by trayIconRenderer.js
       // This redundant listener was causing duplicate IPC traffic and rendering.
     }
-    
+
     console.debug("Preload: Essential tray modules initialized successfully");
-    
+
     // Initialize other modules safely
     const modules = [
       { name: "zoom", path: "./tools/zoom" },
@@ -280,7 +300,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       { name: "cameraResolution", path: "./tools/cameraResolution" },
       { name: "cameraAspectRatio", path: "./tools/cameraAspectRatio" },
       { name: "navigationButtons", path: "./tools/navigationButtons" },
-      { name: "framelessTweaks", path: "./tools/frameless" }
+      { name: "framelessTweaks", path: "./tools/frameless" },
     ];
 
     // CRITICAL: These modules need ipcRenderer for IPC communication (see CLAUDE.md)
@@ -306,15 +326,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error(`Preload: Failed to load ${module.name}:`, err.message);
       }
     }
-    
-    console.info(`Preload: ${successCount}/${modules.length} browser modules initialized successfully`);
+
+    console.info(
+      `Preload: ${successCount}/${modules.length} browser modules initialized successfully`,
+    );
 
     // Initialize ActivityManager
     try {
       const ActivityManager = require("./notifications/activityManager");
       new ActivityManager(ipcRenderer, config).start();
     } catch (err) {
-      console.error("Preload: ActivityManager failed to initialize:", err.message);
+      console.error(
+        "Preload: ActivityManager failed to initialize:",
+        err.message,
+      );
     }
 
     // Listen for config changes from the main process (e.g., when menu toggles are clicked)
@@ -324,7 +349,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         config[key] = value;
       }
     });
-
   } catch (error) {
     console.error("Preload: Failed to initialize browser modules:", error);
   }
@@ -336,13 +360,15 @@ try {
     try {
       const reason = event?.reason;
       const errorData = {
-        message: reason?.message ? String(reason.message).substring(0, 1000) : String(reason).substring(0, 1000),
+        message: reason?.message
+          ? String(reason.message).substring(0, 1000)
+          : String(reason).substring(0, 1000),
         stack: reason?.stack ? String(reason.stack).substring(0, 5000) : null,
         timestamp: Date.now(),
         // Keep the raw reason only when it's a plain object to avoid huge payloads
         reason: typeof reason === "object" && reason !== null ? reason : null,
       };
-      
+
       ipcRenderer.send("unhandled-rejection", errorData);
     } catch (err) {
       console.debug("Unhandled rejection forwarding failed:", err);
@@ -353,14 +379,18 @@ try {
   globalThis.addEventListener("error", (event) => {
     try {
       const errorData = {
-        message: event?.message ? String(event.message).substring(0, 1000) : '',
-        filename: event?.filename ? String(event.filename).substring(0, 200) : '',
-        lineno: typeof event?.lineno === 'number' ? event.lineno : 0,
-        colno: typeof event?.colno === 'number' ? event.colno : 0,
+        message: event?.message ? String(event.message).substring(0, 1000) : "",
+        filename: event?.filename
+          ? String(event.filename).substring(0, 200)
+          : "",
+        lineno: typeof event?.lineno === "number" ? event.lineno : 0,
+        colno: typeof event?.colno === "number" ? event.colno : 0,
         timestamp: Date.now(),
-        errorStack: event?.error?.stack ? String(event.error.stack).substring(0, 5000) : null,
+        errorStack: event?.error?.stack
+          ? String(event.error.stack).substring(0, 5000)
+          : null,
       };
-      
+
       ipcRenderer.send("window-error", errorData);
     } catch (err) {
       console.debug("Window error forwarding failed:", err);

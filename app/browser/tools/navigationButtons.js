@@ -44,22 +44,22 @@ class NavigationButtons {
   }
 
   createNavigationButton(id, label, svgPath) {
-    const button = document.createElement('button');
+    const button = document.createElement("button");
     button.id = id;
-    button.className = 'tfl-nav-button';
+    button.className = "tfl-nav-button";
     button.title = label;
-    button.setAttribute('aria-label', label);
+    button.setAttribute("aria-label", label);
 
     // Create SVG element
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '20');
-    svg.setAttribute('height', '20');
-    svg.setAttribute('viewBox', '0 0 20 20');
-    svg.setAttribute('fill', 'currentColor');
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "20");
+    svg.setAttribute("height", "20");
+    svg.setAttribute("viewBox", "0 0 20 20");
+    svg.setAttribute("fill", "currentColor");
 
     // Create path element
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', svgPath);
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", svgPath);
 
     svg.appendChild(path);
     button.appendChild(svg);
@@ -69,43 +69,49 @@ class NavigationButtons {
 
   injectNavigationButtons() {
     // Check if buttons already exist
-    if (document.getElementById('tfl-nav-buttons-container')) {
-      console.debug('Navigation buttons already exist');
+    if (document.getElementById("tfl-nav-buttons-container")) {
+      console.debug("Navigation buttons already exist");
       return true;
     }
 
     // Check if document body is ready
     if (!document.body) {
-      console.debug('Document body not ready yet');
+      console.debug("Document body not ready yet");
       return false;
     }
 
     // Find the search navigation region - we'll insert buttons BEFORE it (as a sibling)
-    const searchRegion = document.querySelector('[data-tid="search-f6-navigation-region"]');
+    const searchRegion = document.querySelector(
+      '[data-tid="search-f6-navigation-region"]',
+    );
 
     if (!searchRegion) {
-      console.debug('Search navigation region not found, buttons not injected yet');
+      console.debug(
+        "Search navigation region not found, buttons not injected yet",
+      );
       return false;
     }
 
-    console.debug('Found search navigation region, injecting navigation buttons before it');
+    console.debug(
+      "Found search navigation region, injecting navigation buttons before it",
+    );
 
     // Create container for navigation buttons
-    const container = document.createElement('div');
-    container.id = 'tfl-nav-buttons-container';
+    const container = document.createElement("div");
+    container.id = "tfl-nav-buttons-container";
 
     // Create back button
     const backButton = this.createNavigationButton(
-      'tfl-nav-back',
-      'Go back',
-      'M12.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z'
+      "tfl-nav-back",
+      "Go back",
+      "M12.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z",
     );
 
     // Create forward button
     const forwardButton = this.createNavigationButton(
-      'tfl-nav-forward',
-      'Go forward',
-      'M7.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 10-1.414 1.414L11.586 10l-4.293 4.293a1 1 0 000 1.414z'
+      "tfl-nav-forward",
+      "Go forward",
+      "M7.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 10-1.414 1.414L11.586 10l-4.293 4.293a1 1 0 000 1.414z",
     );
 
     container.appendChild(backButton);
@@ -113,7 +119,9 @@ class NavigationButtons {
 
     // Insert before the search region as a sibling (not inside it)
     searchRegion.parentNode.insertBefore(container, searchRegion);
-    console.debug('Navigation buttons injected as sibling before search region');
+    console.debug(
+      "Navigation buttons injected as sibling before search region",
+    );
 
     // Add event listeners
     this.setupEventListeners();
@@ -121,25 +129,25 @@ class NavigationButtons {
     // Inject CSS styles
     this.injectStyles();
 
-    console.debug('Navigation buttons injected successfully');
+    console.debug("Navigation buttons injected successfully");
     return true;
   }
 
   setupEventListeners() {
     // Cache button elements to avoid repeated DOM queries
-    this.#backButton = document.getElementById('tfl-nav-back');
-    this.#forwardButton = document.getElementById('tfl-nav-forward');
+    this.#backButton = document.getElementById("tfl-nav-back");
+    this.#forwardButton = document.getElementById("tfl-nav-forward");
 
     if (this.#backButton) {
-      this.#backButton.addEventListener('click', () => {
-        console.debug('Back button clicked');
+      this.#backButton.addEventListener("click", () => {
+        console.debug("Back button clicked");
         this.#ipcRenderer?.send("navigate-back");
       });
     }
 
     if (this.#forwardButton) {
-      this.#forwardButton.addEventListener('click', () => {
-        console.debug('Forward button clicked');
+      this.#forwardButton.addEventListener("click", () => {
+        console.debug("Forward button clicked");
         this.#ipcRenderer?.send("navigate-forward");
       });
     }
@@ -152,7 +160,7 @@ class NavigationButtons {
       "navigation-state-changed",
       (_event, canGoBack, canGoForward) => {
         this.updateButtonStates(canGoBack, canGoForward);
-      }
+      },
     );
   }
 
@@ -173,24 +181,24 @@ class NavigationButtons {
     // Use cached button references for better performance
     if (this.#backButton) {
       this.#backButton.disabled = !canGoBack;
-      this.#backButton.classList.toggle('disabled', !canGoBack);
+      this.#backButton.classList.toggle("disabled", !canGoBack);
     }
 
     if (this.#forwardButton) {
       this.#forwardButton.disabled = !canGoForward;
-      this.#forwardButton.classList.toggle('disabled', !canGoForward);
+      this.#forwardButton.classList.toggle("disabled", !canGoForward);
     }
   }
 
   injectStyles() {
-    const styleId = 'tfl-navigation-buttons-style';
+    const styleId = "tfl-navigation-buttons-style";
 
     // Don't inject styles if they already exist
     if (document.getElementById(styleId)) {
       return;
     }
 
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.id = styleId;
     style.textContent = `
       #tfl-nav-buttons-container {

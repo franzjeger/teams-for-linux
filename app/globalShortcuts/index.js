@@ -59,19 +59,23 @@ function sendKeyboardEventToWindow(window, accelerator) {
     window.webContents.sendInputEvent({
       type: "keyDown",
       keyCode: parsed.key,
-      modifiers: parsed.modifiers
+      modifiers: parsed.modifiers,
     });
 
     // Send keyUp event
     window.webContents.sendInputEvent({
       type: "keyUp",
       keyCode: parsed.key,
-      modifiers: parsed.modifiers
+      modifiers: parsed.modifiers,
     });
 
-    console.debug(`[GLOBAL_SHORTCUTS] Forwarded keyboard event: ${accelerator}`);
+    console.debug(
+      `[GLOBAL_SHORTCUTS] Forwarded keyboard event: ${accelerator}`,
+    );
   } catch (err) {
-    console.error(`[GLOBAL_SHORTCUTS] Error sending keyboard event for ${accelerator}: ${err.message}`);
+    console.error(
+      `[GLOBAL_SHORTCUTS] Error sending keyboard event for ${accelerator}: ${err.message}`,
+    );
   }
 }
 
@@ -89,7 +93,10 @@ function register(config, mainAppWindow, app) {
     return;
   }
 
-  if (!Array.isArray(config.globalShortcuts) || config.globalShortcuts.length === 0) {
+  if (
+    !Array.isArray(config.globalShortcuts) ||
+    config.globalShortcuts.length === 0
+  ) {
     console.debug("[GLOBAL_SHORTCUTS] No global shortcuts configured");
     isRegistered = true; // Mark as registered even with no shortcuts to maintain guard integrity
     return;
@@ -100,7 +107,9 @@ function register(config, mainAppWindow, app) {
   for (const shortcut of config.globalShortcuts) {
     // Skip empty or invalid shortcuts
     if (!shortcut || typeof shortcut !== "string") {
-      console.debug(`[GLOBAL_SHORTCUTS] Skipping invalid shortcut: ${shortcut}`);
+      console.debug(
+        `[GLOBAL_SHORTCUTS] Skipping invalid shortcut: ${shortcut}`,
+      );
       continue;
     }
 
@@ -116,7 +125,9 @@ function register(config, mainAppWindow, app) {
           // If issues arise on specific platforms, consider calling window.focus() before sendInputEvent.
           sendKeyboardEventToWindow(window, shortcut);
         } else {
-          console.warn(`[GLOBAL_SHORTCUTS] Main window not available for shortcut: ${shortcut}`);
+          console.warn(
+            `[GLOBAL_SHORTCUTS] Main window not available for shortcut: ${shortcut}`,
+          );
         }
       });
 
@@ -124,10 +135,14 @@ function register(config, mainAppWindow, app) {
         console.info(`[GLOBAL_SHORTCUTS] Registered: ${shortcut}`);
         registeredCount++;
       } else {
-        console.warn(`[GLOBAL_SHORTCUTS] Failed to register ${shortcut} (may already be in use by another application)`);
+        console.warn(
+          `[GLOBAL_SHORTCUTS] Failed to register ${shortcut} (may already be in use by another application)`,
+        );
       }
     } catch (err) {
-      console.error(`[GLOBAL_SHORTCUTS] Error registering ${shortcut}: ${err.message}`);
+      console.error(
+        `[GLOBAL_SHORTCUTS] Error registering ${shortcut}: ${err.message}`,
+      );
     }
   }
 
@@ -140,7 +155,9 @@ function register(config, mainAppWindow, app) {
 
   if (registeredCount > 0) {
     isRegistered = true;
-    console.info(`[GLOBAL_SHORTCUTS] Successfully registered ${registeredCount} global shortcut(s)`);
+    console.info(
+      `[GLOBAL_SHORTCUTS] Successfully registered ${registeredCount} global shortcut(s)`,
+    );
   }
 }
 

@@ -36,13 +36,13 @@ a summary of pass/fail results.
 
 ### Test results (run on Codespaces with v2.7.9 AppImage session)
 
-| Configuration      | Result | Notes                                    |
-|--------------------|--------|------------------------------------------|
-| ubuntu-x11         | 7/7    | Expected after networkidle fix           |
-| ubuntu-wayland     | 6/6    | 1 skipped (desktopCapturer needs X11)    |
-| ubuntu-xwayland    | 7/7    | All pass                                 |
-| fedora-*           | 0/7    | Session not recognized (see Known Issues)|
-| debian-*           | ---    | Disk space exhausted on Codespace        |
+| Configuration   | Result | Notes                                     |
+| --------------- | ------ | ----------------------------------------- |
+| ubuntu-x11      | 7/7    | Expected after networkidle fix            |
+| ubuntu-wayland  | 6/6    | 1 skipped (desktopCapturer needs X11)     |
+| ubuntu-xwayland | 7/7    | All pass                                  |
+| fedora-*        | 0/7    | Session not recognized (see Known Issues) |
+| debian-*        | ---    | Disk space exhausted on Codespace         |
 
 ### Known Issues
 

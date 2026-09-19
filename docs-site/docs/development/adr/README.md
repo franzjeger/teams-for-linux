@@ -21,31 +21,32 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ## Status Overview
 
-| ADR | Title | Status | Date | Version |
-|-----|-------|--------|------|---------|
-| [001](001-desktopcapturer-source-id-format.md) | DesktopCapturer Source ID Format | ✅ Implemented | 2024-09-15 | v2.3.0+ |
-| [002](002-token-cache-secure-storage.md) | Token Cache Secure Storage | ✅ Implemented | 2024-09-08 | v2.5.9 |
-| [003](003-token-refresh-implementation.md) | Token Refresh Implementation | ✅ Implemented | 2024-09-22 | v2.6.0 |
-| [004](004-agents-md-standard-investigation.md) | agents.md Standard Investigation | ❌ Rejected | 2025-11-16 | N/A |
-| [005](005-ai-powered-changelog-generation.md) | AI-Powered Changelog Generation | ✅ Implemented | 2025-11-17 | v2.6.15 |
-| [006](006-cli-argument-parsing-library.md) | CLI Argument Parsing Library | ✅ Implemented | 2025-11-19 | N/A |
-| [007](007-embedded-mqtt-broker.md) | Embedded MQTT Broker | ❌ Rejected | 2025-11-19 | N/A |
-| [008](008-usesystempicker-electron-38.md) | useSystemPicker Feature for Electron 38 | ❌ Rejected | 2025-11-24 | N/A |
-| [009](009-automated-testing-strategy.md) | Automated Testing Strategy | ✅ Implemented | 2025-12-13 | v2.7.4+ |
-| [010](010-multiple-windows-support.md) | Multiple Windows Support | ❌ Rejected | 2025-11-26 | N/A |
-| [011](011-appimage-update-info.md) | AppImage Update Info for Third-Party Managers | ✅ Implemented | 2026-01-25 | v2.7.1 |
-| [012](012-intune-sso-broker-compatibility.md) | Intune SSO Broker Compatibility | ✅ Accepted | 2026-01-25 | v2.7.1 |
-| [013](013-pii-log-sanitization.md) | PII Log Sanitization | ✅ Implemented | 2026-01-31 | v2.7.3 |
-| [014](014-quick-chat-deep-link-approach.md) | Quick Chat Deep Link Approach | ✅ Accepted | 2026-01-31 | v2.7.3 |
-| [015](015-quick-chat-inline-messaging.md) | Quick Chat Inline Messaging | ✅ Implemented | 2026-02-04 | N/A |
-| [016](016-cross-distro-testing-environment.md) | Cross-Distro Testing Environment | ✅ Implemented | 2026-02-25 | v2.7.9 |
-| [017](017-workflow-run-pr-comments.md) | Use workflow_run for PR Artifact Comments | ✅ Implemented | 2026-02-26 | N/A |
-| [018](018-issue-triage-bot-github-app-migration.md) | Issue Triage Bot GitHub App Migration | ✅ Implemented | 2026-03-06 | N/A |
-| [019](019-repo-activity-dashboard.md) | Repository Activity Dashboard | ✅ Accepted | 2026-03-11 | N/A |
-| [020](020-context-isolation-migration.md) | Context Isolation Migration | 🚧 Proposed | 2026-08-04 | N/A |
-| [021](021-snap-core24-migration.md) | Snap core24 Migration | ✅ Implemented | 2026-08-04 | N/A |
+| ADR                                                 | Title                                         | Status         | Date       | Version |
+| --------------------------------------------------- | --------------------------------------------- | -------------- | ---------- | ------- |
+| [001](001-desktopcapturer-source-id-format.md)      | DesktopCapturer Source ID Format              | ✅ Implemented | 2024-09-15 | v2.3.0+ |
+| [002](002-token-cache-secure-storage.md)            | Token Cache Secure Storage                    | ✅ Implemented | 2024-09-08 | v2.5.9  |
+| [003](003-token-refresh-implementation.md)          | Token Refresh Implementation                  | ✅ Implemented | 2024-09-22 | v2.6.0  |
+| [004](004-agents-md-standard-investigation.md)      | agents.md Standard Investigation              | ❌ Rejected    | 2025-11-16 | N/A     |
+| [005](005-ai-powered-changelog-generation.md)       | AI-Powered Changelog Generation               | ✅ Implemented | 2025-11-17 | v2.6.15 |
+| [006](006-cli-argument-parsing-library.md)          | CLI Argument Parsing Library                  | ✅ Implemented | 2025-11-19 | N/A     |
+| [007](007-embedded-mqtt-broker.md)                  | Embedded MQTT Broker                          | ❌ Rejected    | 2025-11-19 | N/A     |
+| [008](008-usesystempicker-electron-38.md)           | useSystemPicker Feature for Electron 38       | ❌ Rejected    | 2025-11-24 | N/A     |
+| [009](009-automated-testing-strategy.md)            | Automated Testing Strategy                    | ✅ Implemented | 2025-12-13 | v2.7.4+ |
+| [010](010-multiple-windows-support.md)              | Multiple Windows Support                      | ❌ Rejected    | 2025-11-26 | N/A     |
+| [011](011-appimage-update-info.md)                  | AppImage Update Info for Third-Party Managers | ✅ Implemented | 2026-01-25 | v2.7.1  |
+| [012](012-intune-sso-broker-compatibility.md)       | Intune SSO Broker Compatibility               | ✅ Accepted    | 2026-01-25 | v2.7.1  |
+| [013](013-pii-log-sanitization.md)                  | PII Log Sanitization                          | ✅ Implemented | 2026-01-31 | v2.7.3  |
+| [014](014-quick-chat-deep-link-approach.md)         | Quick Chat Deep Link Approach                 | ✅ Accepted    | 2026-01-31 | v2.7.3  |
+| [015](015-quick-chat-inline-messaging.md)           | Quick Chat Inline Messaging                   | ✅ Implemented | 2026-02-04 | N/A     |
+| [016](016-cross-distro-testing-environment.md)      | Cross-Distro Testing Environment              | ✅ Implemented | 2026-02-25 | v2.7.9  |
+| [017](017-workflow-run-pr-comments.md)              | Use workflow_run for PR Artifact Comments     | ✅ Implemented | 2026-02-26 | N/A     |
+| [018](018-issue-triage-bot-github-app-migration.md) | Issue Triage Bot GitHub App Migration         | ✅ Implemented | 2026-03-06 | N/A     |
+| [019](019-repo-activity-dashboard.md)               | Repository Activity Dashboard                 | ✅ Accepted    | 2026-03-11 | N/A     |
+| [020](020-context-isolation-migration.md)           | Context Isolation Migration                   | 🚧 Proposed    | 2026-08-04 | N/A     |
+| [021](021-snap-core24-migration.md)                 | Snap core24 Migration                         | ✅ Implemented | 2026-08-04 | N/A     |
 
 **Legend:**
+
 - ✅ **Implemented** - Decision accepted and code in production
 - ❌ **Rejected** - Decision evaluated and declined with rationale
 - 🚧 **Proposed** - Under review, not yet accepted
@@ -55,14 +56,15 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### Authentication & Security
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [002](002-token-cache-secure-storage.md) | Token Cache Secure Storage | Secure token storage using Electron safeStorage with OS-level encryption to prevent daily re-authentication |
-| [003](003-token-refresh-implementation.md) | Token Refresh Implementation | Configurable token refresh mechanism to proactively renew authentication before expiry |
-| [012](012-intune-sso-broker-compatibility.md) | Intune SSO Broker Compatibility | Direct D-Bus invocation for Microsoft Identity Broker version compatibility |
-| [013](013-pii-log-sanitization.md) | PII Log Sanitization | Custom regex sanitizer to redact sensitive data from logs |
+| ADR                                           | Title                           | Summary                                                                                                     |
+| --------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [002](002-token-cache-secure-storage.md)      | Token Cache Secure Storage      | Secure token storage using Electron safeStorage with OS-level encryption to prevent daily re-authentication |
+| [003](003-token-refresh-implementation.md)    | Token Refresh Implementation    | Configurable token refresh mechanism to proactively renew authentication before expiry                      |
+| [012](012-intune-sso-broker-compatibility.md) | Intune SSO Broker Compatibility | Direct D-Bus invocation for Microsoft Identity Broker version compatibility                                 |
+| [013](013-pii-log-sanitization.md)            | PII Log Sanitization            | Custom regex sanitizer to redact sensitive data from logs                                                   |
 
 **Key Outcomes:**
+
 - Eliminated daily re-authentication issues
 - Platform-native secure storage (Keychain/DPAPI/kwallet)
 - Graceful fallback for unsupported platforms
@@ -72,12 +74,13 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### Screen Sharing
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [001](001-desktopcapturer-source-id-format.md) | DesktopCapturer Source ID Format | Use `screen:x:y` format throughout screen sharing pipeline for Wayland compatibility |
-| [008](008-usesystempicker-electron-38.md) | useSystemPicker Feature for Electron 38 | Rejected OS native picker due to incomplete Linux Wayland/PipeWire support |
+| ADR                                            | Title                                   | Summary                                                                              |
+| ---------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------ |
+| [001](001-desktopcapturer-source-id-format.md) | DesktopCapturer Source ID Format        | Use `screen:x:y` format throughout screen sharing pipeline for Wayland compatibility |
+| [008](008-usesystempicker-electron-38.md)      | useSystemPicker Feature for Electron 38 | Rejected OS native picker due to incomplete Linux Wayland/PipeWire support           |
 
 **Key Outcomes:**
+
 - Fixed Wayland screen sharing preview
 - Standardized source identification
 - Improved cross-platform compatibility
@@ -85,12 +88,13 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### Testing & Quality
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [009](009-automated-testing-strategy.md) | Automated Testing Strategy | Smoke testing with Playwright; comprehensive testing impractical due to MS authentication constraints |
+| ADR                                            | Title                            | Summary                                                                                                        |
+| ---------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [009](009-automated-testing-strategy.md)       | Automated Testing Strategy       | Smoke testing with Playwright; comprehensive testing impractical due to MS authentication constraints          |
 | [016](016-cross-distro-testing-environment.md) | Cross-Distro Testing Environment | Docker-based manual testing across 9 distro/display server combinations via noVNC, hosted on GitHub Codespaces |
 
 **Key Outcomes:**
+
 - Playwright E2E smoke tests validate app launch and login redirect
 - Tests run in isolated temp directories for clean state
 - Manual testing remains primary quality gate for feature changes
@@ -100,37 +104,40 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### Documentation & Standards
 
-| ADR | Title | Summary |
-|-----|-------|---------|
+| ADR                                            | Title                            | Summary                                                                                                               |
+| ---------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | [004](004-agents-md-standard-investigation.md) | agents.md Standard Investigation | Investigated and rejected agents.md standard in favor of tool-specific standards (CLAUDE.md, copilot-instructions.md) |
 
 **Key Outcomes:**
+
 - Consolidated instruction files (removed 28% duplication)
 - Centralized markdown standards in contributing.md
 - Maintained tool-specific official standards
 
 ### Security
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [013](013-pii-log-sanitization.md) | PII Log Sanitization | Regex-based sanitizer applied through an electron-log hook |
-| [020](020-context-isolation-migration.md) | Context Isolation Migration | Staged main-world agent plus isolated-world bridge to reach `contextIsolation: true` |
-| [021](021-snap-core24-migration.md) | Snap core24 Migration | Move snap config to `snapcraft.core24`; the explicit `browser-support` plug is what keeps Chromium's sandbox on |
+| ADR                                       | Title                       | Summary                                                                                                         |
+| ----------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [013](013-pii-log-sanitization.md)        | PII Log Sanitization        | Regex-based sanitizer applied through an electron-log hook                                                      |
+| [020](020-context-isolation-migration.md) | Context Isolation Migration | Staged main-world agent plus isolated-world bridge to reach `contextIsolation: true`                            |
+| [021](021-snap-core24-migration.md)       | Snap core24 Migration       | Move snap config to `snapcraft.core24`; the explicit `browser-support` plug is what keeps Chromium's sandbox on |
 
 **Key Outcomes:**
+
 - Page-exposed `electronAPI` surface reduced from 22 entries to 2
 - Migration blocker identified: React internals are main-world expando properties
 - Staged plan keeps `contextIsolation: false` until authenticated testing covers the risky stages
 
 ### Release Process & Automation
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [005](005-ai-powered-changelog-generation.md) | AI-Powered Changelog Generation | Use Gemini 2.0 Flash for automated changelog generation with release-pr workflow |
-| [017](017-workflow-run-pr-comments.md) | Use workflow_run for PR Artifact Comments | Move PR artifact commenting to a workflow_run-triggered workflow to support fork PRs |
-| [018](018-issue-triage-bot-github-app-migration.md) | Issue Triage Bot GitHub App Migration | Migrate triage bot from in-repo GitHub Actions to standalone Go service as a GitHub App |
+| ADR                                                 | Title                                     | Summary                                                                                 |
+| --------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------- |
+| [005](005-ai-powered-changelog-generation.md)       | AI-Powered Changelog Generation           | Use Gemini 2.0 Flash for automated changelog generation with release-pr workflow        |
+| [017](017-workflow-run-pr-comments.md)              | Use workflow_run for PR Artifact Comments | Move PR artifact commenting to a workflow_run-triggered workflow to support fork PRs    |
+| [018](018-issue-triage-bot-github-app-migration.md) | Issue Triage Bot GitHub App Migration     | Migrate triage bot from in-repo GitHub Actions to standalone Go service as a GitHub App |
 
 **Key Outcomes:**
+
 - Decoupled merging from releasing
 - AI-generated concise changelog entries (60 chars avg vs 165 manual)
 - Quality score: 9.0/10 on validation testing
@@ -140,23 +147,25 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### Community & Metrics
 
-| ADR | Title | Summary |
-|-----|-------|---------|
+| ADR                                   | Title                         | Summary                                                                     |
+| ------------------------------------- | ----------------------------- | --------------------------------------------------------------------------- |
 | [019](019-repo-activity-dashboard.md) | Repository Activity Dashboard | Use Repobeats for embeddable repo activity visualization in README and docs |
 
 **Key Outcomes:**
+
 - Repobeats SVG embed added to project README for at-a-glance activity stats
 - Zero maintenance: hosted service updates automatically
 - No CI/CD cost or GitHub Actions minutes consumed
 
 ### MQTT & Integration
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [006](006-cli-argument-parsing-library.md) | CLI Argument Parsing Library | Keep yargs for config parsing, use MQTT for action commands instead of CLI subcommands |
-| [007](007-embedded-mqtt-broker.md) | Embedded MQTT Broker | Rejected bundling Aedes broker - users still need client tools, better alternatives exist |
+| ADR                                        | Title                        | Summary                                                                                   |
+| ------------------------------------------ | ---------------------------- | ----------------------------------------------------------------------------------------- |
+| [006](006-cli-argument-parsing-library.md) | CLI Argument Parsing Library | Keep yargs for config parsing, use MQTT for action commands instead of CLI subcommands    |
+| [007](007-embedded-mqtt-broker.md)         | Embedded MQTT Broker         | Rejected bundling Aedes broker - users still need client tools, better alternatives exist |
 
 **Key Outcomes:**
+
 - Avoid fragile CLI argument bypass layer
 - MQTT commands provide clean architecture for external triggers
 - Users provide own MQTT broker (localhost or Home Assistant)
@@ -164,13 +173,14 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### UI Features
 
-| ADR | Title | Summary |
-|-----|-------|---------|
-| [010](010-multiple-windows-support.md) | Multiple Windows Support | Rejected multi-window due to Teams architecture constraints |
+| ADR                                         | Title                         | Summary                                                                      |
+| ------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------- |
+| [010](010-multiple-windows-support.md)      | Multiple Windows Support      | Rejected multi-window due to Teams architecture constraints                  |
 | [014](014-quick-chat-deep-link-approach.md) | Quick Chat Deep Link Approach | Use People API + Deep Links for quick chat access after Chat API was blocked |
-| [015](015-quick-chat-inline-messaging.md) | Quick Chat Inline Messaging | Hybrid Teams commanding + Graph API approach for inline message sending |
+| [015](015-quick-chat-inline-messaging.md)   | Quick Chat Inline Messaging   | Hybrid Teams commanding + Graph API approach for inline message sending      |
 
 **Key Outcomes:**
+
 - Quick chat access via People API (works) instead of Chat API (blocked 403)
 - Inline message sending via Graph API ChatMessage.Send scope
 - Chat resolution via Teams entityCommanding + DOM scanning + member verification
@@ -178,11 +188,12 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ### Distribution & Packaging
 
-| ADR | Title | Summary |
-|-----|-------|---------|
+| ADR                                | Title                | Summary                                                                                       |
+| ---------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
 | [011](011-appimage-update-info.md) | AppImage Update Info | Post-process AppImages with appimagetool to embed update info for third-party update managers |
 
 **Key Outcomes:**
+
 - Third-party tools (Gear Lever, AppImageUpdate) can detect and manage updates
 - Delta updates via `.zsync` files reduce bandwidth
 - Both electron-updater and AppImage update info coexist
@@ -193,6 +204,7 @@ Architecture Decision Records capture important architectural decisions along wi
 ### When to Create an ADR
 
 Create an ADR for decisions that:
+
 - Have significant architectural impact
 - Affect multiple modules or systems
 - Involve trade-offs between alternatives
@@ -217,6 +229,7 @@ id: 00X-your-title
 ## Context
 
 What is the issue we're trying to address? Include:
+
 - Problem description
 - Why this needs a decision now
 - Technical background and constraints
@@ -225,6 +238,7 @@ What is the issue we're trying to address? Include:
 ## Decision
 
 What did we decide to do? Be specific:
+
 - Exact approach chosen
 - Implementation strategy
 - Key parameters or configurations
@@ -234,16 +248,19 @@ What did we decide to do? Be specific:
 What are the impacts of this decision?
 
 ### Positive
+
 - Benefits gained
 - Problems solved
 - Improvements delivered
 
 ### Negative
+
 - Trade-offs accepted
 - Limitations introduced
 - Future constraints
 
 ### Neutral
+
 - Implementation notes
 - Maintenance considerations
 - Migration requirements (if applicable)
@@ -253,15 +270,18 @@ What are the impacts of this decision?
 What other options did we evaluate and why were they not chosen?
 
 ### Option 1: [Name]
+
 - Description
 - Pros
 - Cons
 - **Why rejected**: [Specific reason]
 
 ### Option 2: [Name]
+
 - ...
 
 ## Related
+
 - ADR-XXX: [Related decision]
 - Issue #XXX
 - PR #XXX
@@ -274,6 +294,7 @@ What other options did we evaluate and why were they not chosen?
 - **Filename**: `00X-lowercase-with-hyphens.md`
 
 **Examples:**
+
 - ✅ `001-desktopcapturer-source-id-format.md`
 - ✅ `002-token-cache-secure-storage.md`
 - ❌ `001-screen-sharing-bug-fix.md` (too vague)
@@ -299,6 +320,7 @@ What other options did we evaluate and why were they not chosen?
 ### Superseding ADRs
 
 When replacing an old decision:
+
 1. Create new ADR documenting the new approach
 2. Update old ADR status to: `Superseded by ADR-XXX`
 3. Link new ADR to old one in "Related" section
@@ -320,6 +342,7 @@ See ADR-008 for the current implementation.
 ### Writing Good ADRs
 
 ✅ **Do:**
+
 - Write for future readers who don't have your context
 - Explain the "why" more than the "what"
 - Document alternatives considered
@@ -327,6 +350,7 @@ See ADR-008 for the current implementation.
 - Update ADR when you learn something new post-implementation
 
 ❌ **Don't:**
+
 - Write implementation documentation (that belongs in module READMEs)
 - Skip the consequences section
 - Forget to add links to related issues/PRs

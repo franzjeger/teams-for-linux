@@ -32,7 +32,7 @@ Through systematic testing, we identified the **minimal required parameters** fo
 {
   correlation: correlation,        // Required - Teams correlation object
   forceRenew: true,               // Force new token request
-  forceRefresh: true,             // Override cache behavior  
+  forceRefresh: true,             // Override cache behavior
   skipCache: true,                // Bypass token cache
   prompt: 'none'                  // Silent refresh (no user interaction)
 }
@@ -51,6 +51,7 @@ Through systematic testing, we identified the **minimal required parameters** fo
 ### Timer Implementation Strategy
 
 **Decision**: Use `setInterval` for refresh scheduling
+
 - **Rationale**: Simple, reliable, and sufficient for our needs
 - **Alternative Considered**: `setTimeout` with recursive calls - unnecessary complexity
 - **Alternative Considered**: Advanced scheduling systems - over-engineering for this use case
@@ -60,11 +61,12 @@ Through systematic testing, we identified the **minimal required parameters** fo
 **Refresh Frequency Considerations:**
 
 - **Frequent Refresh** (1 hour default): More proactive, prevents authentication interruptions
-- **Less Frequent** (4-6 hours): Reduces API calls, closer to native Teams behavior  
+- **Less Frequent** (4-6 hours): Reduces API calls, closer to native Teams behavior
 - **User Choice**: Configurable interval allows users to balance security vs. resource usage
 - **Mitigation**: Risk is acceptable due to secure storage implementation (ADR-001) using Electron safeStorage API
 
 **Validation Bounds:**
+
 - **Minimum**: 1 hour (prevent Microsoft API spam)
 - **Maximum**: 24 hours (prevent token expiry)
 - **Default**: 1 hour proactive strategy (balances security with usability)
@@ -92,6 +94,7 @@ Through systematic testing, we identified the **minimal required parameters** fo
 ### MS Teams Native Refresh Handling
 
 **Research Required**: Determine whether to:
+
 - **Option A**: Override native Teams refresh calls (preferred if simple)
 - **Option B**: Run alongside native refresh (acceptable fallback)
 
@@ -153,7 +156,8 @@ This ADR establishes the foundation for tasks 3.0-6.0 in `tasks-prd-configurable
 ---
 
 **References:**
-- ADR-002: Token Cache Secure Storage Implementation  
+
+- ADR-002: Token Cache Secure Storage Implementation
 - POC Implementation: `app/browser/tools/reactHandler.js` (triggerTokenRefresh method)
 - Configuration Patterns: `app/appConfiguration/index.js`
 - Task List: `tasks/tasks-prd-configurable-token-refresh.md`

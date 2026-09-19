@@ -54,10 +54,12 @@ See the [example README](https://github.com/IsmaelMartinez/teams-for-linux/tree/
 ## Configuring the List of Images
 
 ### Configuration File Location
+
 The list of custom images should be stored at:  
 `<customBGServiceBaseUrl>/config.json`
 
 ### Example Configuration File
+
 The configuration should be a JSON object with a `videoBackgroundImages`
 array. For example:
 
@@ -81,13 +83,13 @@ to your `customBGServiceBaseUrl`.
 
 ### Configuration Properties
 
-| Property | Description | Recommendations |
-|----------|-------------|-----------------|
-| `filetype` | The type of image (e.g., jpg, png) | Use common web formats |
-| `id` | A unique identifier for the image | Use unique names without spaces |
-| `name` | The display name for your image | Keep descriptive but concise |
-| `src` | Path to the full-resolution image | Use ~1920x1080 resolution |
-| `thumb_src` | Path to the thumbnail image | Use ~280x158 resolution for faster loading |
+| Property    | Description                        | Recommendations                            |
+| ----------- | ---------------------------------- | ------------------------------------------ |
+| `filetype`  | The type of image (e.g., jpg, png) | Use common web formats                     |
+| `id`        | A unique identifier for the image  | Use unique names without spaces            |
+| `name`      | The display name for your image    | Keep descriptive but concise               |
+| `src`       | Path to the full-resolution image  | Use ~1920x1080 resolution                  |
+| `thumb_src` | Path to the thumbnail image        | Use ~280x158 resolution for faster loading |
 
 :::note Path Resolution
 Image paths are relative to `customBGServiceBaseUrl`. For example, if your
@@ -101,6 +103,7 @@ Image paths are relative to `customBGServiceBaseUrl`. For example, if your
 ### Local Web Server Setup
 
 #### Using Python HTTP Server
+
 ```bash
 # Navigate to your images directory
 cd /path/to/your/images
@@ -113,6 +116,7 @@ teams-for-linux --isCustomBackgroundEnabled=true --customBGServiceBaseUrl=http:/
 ```
 
 #### Using Node.js HTTP Server
+
 ```bash
 # Install http-server globally
 npm install -g http-server
@@ -130,6 +134,7 @@ teams-for-linux --isCustomBackgroundEnabled=true --customBGServiceBaseUrl=http:/
 ### Advanced Configuration
 
 #### Persistent Configuration
+
 Add to your `~/.config/teams-for-linux/config.json`:
 
 ```json
@@ -141,6 +146,7 @@ Add to your `~/.config/teams-for-linux/config.json`:
 ```
 
 #### Corporate Environment Setup
+
 For corporate environments with existing web infrastructure:
 
 ```json
@@ -156,21 +162,25 @@ For corporate environments with existing web infrastructure:
 ### Common Issues
 
 #### Backgrounds Not Loading
+
 1. **Check CORS headers**: Ensure your web server includes `Access-Control-Allow-Origin: *`
 2. **Verify URL accessibility**: Test that `<customBGServiceBaseUrl>/config.json` is reachable
 3. **Check image paths**: Ensure image files exist at the specified paths
 
 #### Poor Performance
+
 1. **Optimize image sizes**: Use recommended resolutions (1920x1080 for full, 280x158 for thumbnails)
 2. **Adjust fetch interval**: Increase `customBGServiceConfigFetchInterval` to reduce server load
 3. **Use local server**: Host images locally for better performance
 
 #### Configuration Not Updating
+
 1. **Check fetch interval**: Ensure `customBGServiceConfigFetchInterval` is set appropriately
 2. **Restart application**: Changes may require restarting Teams for Linux
 3. **Verify JSON syntax**: Validate your config.json file syntax
 
 ### Debug Mode
+
 Enable debug logging to troubleshoot custom background issues:
 
 ```bash
@@ -180,13 +190,15 @@ teams-for-linux --logConfig='{"level":"debug"}' --isCustomBackgroundEnabled=true
 ## Security Considerations
 
 :::warning Security Notice
+
 - Only host custom backgrounds on trusted servers
 - Regularly review and update background image content
 - Consider bandwidth usage in corporate environments
 - Ensure CORS configuration doesn't overly expose your server
-:::
+  :::
 
 ### Best Practices
+
 1. **Use HTTPS**: Secure your background image server with SSL/TLS
 2. **Validate Content**: Ensure background images are appropriate for business use
 3. **Monitor Usage**: Track bandwidth and server load from background requests

@@ -86,10 +86,12 @@ Using Playwright's storage state to persist authentication:
 
 ```javascript
 // Save authenticated state after manual login
-await window.context().storageState({ path: 'tests/.auth/teams-user.json' });
+await window.context().storageState({ path: "tests/.auth/teams-user.json" });
 
 // Reuse in tests
-use: { storageState: 'tests/.auth/teams-user.json' }
+use: {
+  storageState: "tests/.auth/teams-user.json";
+}
 ```
 
 **Why rejected:**
@@ -104,7 +106,7 @@ use: { storageState: 'tests/.auth/teams-user.json' }
 Mock Graph API and Teams interfaces for isolated module testing:
 
 ```javascript
-vi.mock('electron', () => ({ /* mocked APIs */ }));
+vi.mock("electron", () => ({/* mocked APIs */}));
 ```
 
 **Why rejected:**
@@ -152,4 +154,3 @@ These would not require authentication and could be added incrementally.
 
 - [Playwright Electron API](https://playwright.dev/docs/api/class-electron)
 - [Electron Testing Guide](https://www.electronjs.org/docs/latest/tutorial/automated-testing)
-

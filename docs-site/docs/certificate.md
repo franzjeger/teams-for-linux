@@ -52,9 +52,7 @@ Many corporate environments use proxy servers with custom certificates:
 
 ```json
 {
-  "customCACertsFingerprints": [
-    "sha256/YOUR-CORPORATE-PROXY-CERT-FINGERPRINT"
-  ],
+  "customCACertsFingerprints": ["sha256/YOUR-CORPORATE-PROXY-CERT-FINGERPRINT"],
   "proxyServer": "proxy.company.com:8080"
 }
 ```
@@ -78,6 +76,7 @@ For environments with multiple custom CAs:
 ### Common Certificate Errors
 
 #### SSL Certificate Verification Failed
+
 ```
 Error: certificate verify failed: self signed certificate in certificate chain
 ```
@@ -85,6 +84,7 @@ Error: certificate verify failed: self signed certificate in certificate chain
 **Solution**: Add the self-signed certificate fingerprint to `customCACertsFingerprints`.
 
 #### Unknown Certificate Authority
+
 ```
 Error: certificate verify failed: unable to get local issuer certificate
 ```
@@ -94,11 +94,13 @@ Error: certificate verify failed: unable to get local issuer certificate
 ### Debugging Certificate Issues
 
 1. **Enable debug logging** to see certificate details:
+
    ```bash
    ELECTRON_ENABLE_LOGGING=true teams-for-linux
    ```
 
 2. **Check the certificate chain** with openssl:
+
    ```bash
    openssl s_client -connect teams.cloud.microsoft:443 -showcerts
    ```
@@ -108,11 +110,12 @@ Error: certificate verify failed: unable to get local issuer certificate
 ### Security Considerations
 
 :::warning Security Notice
+
 - Only add certificate fingerprints from trusted sources
 - Regularly review and update certificate fingerprints
 - Remove fingerprints for expired or revoked certificates
 - Consider using corporate certificate management tools
-:::
+  :::
 
 ## Related Documentation
 

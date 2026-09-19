@@ -28,18 +28,21 @@ This is an independent project, not affiliated with Microsoft. Some features are
 ## Getting Started
 
 ### Installation
+
 - **[Installation Guide](installation.md)** - Package repositories, distribution packages, and manual installation
 - **[Configuration Guide](configuration.md)** - Complete configuration options and settings
 - **[Multiple Instances](multiple-instances.md)** - Running separate profiles (work/personal)
 - **[Intune SSO Integration](intune-sso.md)** - Microsoft Intune Single Sign-On for enterprise environments
 
 ### Features
+
 - **[Screen Sharing Guide](screen-sharing.md)** - Complete screen sharing implementation and usage
 - **[Custom Backgrounds](custom-backgrounds.md)** - Setting up custom video call backgrounds
 - **[Certificate Management](certificate.md)** - Custom CA certificate handling for corporate environments
 - **[MQTT Integration](mqtt-integration.md)** - Home automation and status publishing via MQTT
 
 ## Developer Documentation
+
 - **[Development Guide](development/README.md)** - Architecture patterns, security guidelines, and development practices
 - **[Contributing Guide](development/contributing.md)** - Development setup, code standards, and contribution guidelines
 - **[Architecture Decision Records](development/adr/README.md)** - Significant technical decisions and their rationale

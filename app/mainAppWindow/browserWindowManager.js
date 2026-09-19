@@ -30,9 +30,11 @@ class BrowserWindowManager {
    * @returns {string} "Electron" or "WakeLockSentinel"
    */
   get screenLockInhibitionMethod() {
-    return this.config?.screenSharing?.lockInhibitionMethod ??
-           this.config?.screenLockInhibitionMethod ??
-           "Electron";
+    return (
+      this.config?.screenSharing?.lockInhibitionMethod ??
+      this.config?.screenLockInhibitionMethod ??
+      "Electron"
+    );
   }
 
   async createWindow() {
@@ -54,8 +56,9 @@ class BrowserWindowManager {
 
     windowState.manage(this.window);
 
-    if (process.env.E2E_TESTING !== 'true') {
-      this.window.eval = globalThis.eval = function () { // eslint-disable-line no-eval
+    if (process.env.E2E_TESTING !== "true") {
+      this.window.eval = globalThis.eval = function () {
+        // eslint-disable-line no-eval
         throw new Error("Sorry, this app does not support window.eval().");
       };
     }
@@ -90,7 +93,9 @@ class BrowserWindowManager {
 
       show: false,
       autoHideMenuBar: this.config.menubar === "auto",
-      icon: this.iconChooser ? this.getIconImage(this.iconChooser.getFile()) : undefined,
+      icon: this.iconChooser
+        ? this.getIconImage(this.iconChooser.getFile())
+        : undefined,
       frame: this.config.frame,
 
       webPreferences: {
@@ -102,9 +107,9 @@ class BrowserWindowManager {
         // enabled only gives remote content a way to spawn a child WebContents.
         webviewTag: false,
         // SECURITY: Disabled for Teams DOM access, compensated by IPC validation
-        contextIsolation: false,  // Required for ReactHandler DOM access
-        nodeIntegration: false,   // Secure: preload scripts don't need this
-        sandbox: false,           // Required for system API access
+        contextIsolation: false, // Required for ReactHandler DOM access
+        nodeIntegration: false, // Secure: preload scripts don't need this
+        sandbox: false, // Required for system API access
       },
     });
   }
@@ -118,12 +123,12 @@ class BrowserWindowManager {
     // Handle incoming call notification created
     ipcMain.handle(
       "incoming-call-created",
-      this.assignOnIncomingCallCreatedHandler()
+      this.assignOnIncomingCallCreatedHandler(),
     );
     // Handle incoming call notification ended
     ipcMain.handle(
       "incoming-call-ended",
-      this.assignOnIncomingCallEndedHandler()
+      this.assignOnIncomingCallEndedHandler(),
     );
     // Notify when a call is connected
     ipcMain.handle("call-connected", this.assignOnCallConnectedHandler());
@@ -144,7 +149,7 @@ class BrowserWindowManager {
     if (this.blockerId == null) {
       this.blockerId = powerSaveBlocker.start("prevent-display-sleep");
       console.debug(
-        `Power save is disabled using ${this.screenLockInhibitionMethod} API.`
+        `Power save is disabled using ${this.screenLockInhibitionMethod} API.`,
       );
       return true;
     }
@@ -154,7 +159,7 @@ class BrowserWindowManager {
   disableScreenLockWakeLockSentinel() {
     this.window.webContents.send("enable-wakelock");
     console.debug(
-      `Power save is disabled using ${this.screenLockInhibitionMethod} API.`
+      `Power save is disabled using ${this.screenLockInhibitionMethod} API.`,
     );
     return true;
   }
@@ -162,7 +167,7 @@ class BrowserWindowManager {
   enableScreenLockElectron() {
     if (this.blockerId != null && powerSaveBlocker.isStarted(this.blockerId)) {
       console.debug(
-        `Power save is restored using ${this.screenLockInhibitionMethod} API`
+        `Power save is restored using ${this.screenLockInhibitionMethod} API`,
       );
       powerSaveBlocker.stop(this.blockerId);
       this.blockerId = null;
@@ -174,7 +179,7 @@ class BrowserWindowManager {
   enableScreenLockWakeLockSentinel() {
     this.window.webContents.send("disable-wakelock");
     console.debug(
-      `Power save is restored using ${this.screenLockInhibitionMethod} API`
+      `Power save is restored using ${this.screenLockInhibitionMethod} API`,
     );
     return true;
   }
@@ -190,9 +195,9 @@ class BrowserWindowManager {
    * Ensures the value is a string and limits its length to prevent abuse.
    */
   sanitizeCommandArg(value) {
-    if (typeof value !== 'string') return '';
+    if (typeof value !== "string") return "";
     // Limit argument length and strip all control characters (C0, C1, DEL)
-    return value.substring(0, 500).replaceAll(/\p{Cc}/gu, '');
+    return value.substring(0, 500).replaceAll(/\p{Cc}/gu, "");
   }
 
   assignOnIncomingCallCreatedHandler() {
@@ -207,10 +212,13 @@ class BrowserWindowManager {
         ];
         this.incomingCallCommandProcess = spawn(
           this.config.incomingCallCommand,
-          commandArgs
+          commandArgs,
         );
-        this.incomingCallCommandProcess.on('error', (err) => {
-          console.error('[IncomingCall] Failed to execute incoming call command', { code: err.code });
+        this.incomingCallCommandProcess.on("error", (err) => {
+          console.error(
+            "[IncomingCall] Failed to execute incoming call command",
+            { code: err.code },
+          );
           this.incomingCallCommandProcess = null;
         });
       }
@@ -239,11 +247,12 @@ class BrowserWindowManager {
   assignOnCallConnectedHandler() {
     return async (_e) => {
       this.isOnCall = true;
-      const result = this.screenLockInhibitionMethod === "Electron"
-        ? this.disableScreenLockElectron()
-        : this.disableScreenLockWakeLockSentinel();
+      const result =
+        this.screenLockInhibitionMethod === "Electron"
+          ? this.disableScreenLockElectron()
+          : this.disableScreenLockWakeLockSentinel();
 
-      app.emit('teams-call-connected');
+      app.emit("teams-call-connected");
       return result;
     };
   }
@@ -251,11 +260,12 @@ class BrowserWindowManager {
   assignOnCallDisconnectedHandler() {
     return async (_e) => {
       this.isOnCall = false;
-      const result = this.screenLockInhibitionMethod === "Electron"
-        ? this.enableScreenLockElectron()
-        : this.enableScreenLockWakeLockSentinel();
+      const result =
+        this.screenLockInhibitionMethod === "Electron"
+          ? this.enableScreenLockElectron()
+          : this.enableScreenLockWakeLockSentinel();
 
-      app.emit('teams-call-disconnected');
+      app.emit("teams-call-disconnected");
       return result;
     };
   }

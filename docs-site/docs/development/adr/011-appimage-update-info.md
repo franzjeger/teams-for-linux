@@ -28,6 +28,7 @@ Teams for Linux distributes AppImage builds for Linux users. A feature request (
 ### The Problem
 
 Without embedded update information:
+
 - Third-party AppImage update tools (Gear Lever, AppImageUpdate, etc.) cannot detect available updates
 - Users must manually check GitHub releases for new versions
 - The AppImages lack the embedded `.upd_info` ELF section that standard tools expect
@@ -51,11 +52,11 @@ Uses the GitHub releases zsync format:
 gh-releases-zsync|IsmaelMartinez|teams-for-linux|latest|teams-for-linux-*<arch>*.AppImage.zsync
 ```
 
-| Architecture | ARCH env | Pattern |
-|--------------|----------|---------|
-| x86_64 | `x86_64` | `*x86_64*.AppImage.zsync` |
-| arm64 | `aarch64` | `*arm64*.AppImage.zsync` |
-| armv7l | `armhf` | `*armv7l*.AppImage.zsync` |
+| Architecture | ARCH env  | Pattern                   |
+| ------------ | --------- | ------------------------- |
+| x86_64       | `x86_64`  | `*x86_64*.AppImage.zsync` |
+| arm64        | `aarch64` | `*arm64*.AppImage.zsync`  |
+| armv7l       | `armhf`   | `*armv7l*.AppImage.zsync` |
 
 ### CI Compatibility
 
@@ -89,6 +90,7 @@ Uses `--appimage-extract-and-run` flag with appimagetool to avoid FUSE requireme
 Configure electron-builder to generate `.zsync` files via publish settings.
 
 **Why rejected:**
+
 - electron-builder does NOT embed update info in the AppImage's ELF section
 - Third-party tools still cannot detect updates
 - Only works with electron-updater, not standard AppImage tools
@@ -98,6 +100,7 @@ Configure electron-builder to generate `.zsync` files via publish settings.
 Implement post-processing in a custom electron-builder hook.
 
 **Why rejected:**
+
 - Requires appimagetool to be available during local builds
 - Complicates local development workflow
 - Less transparent than explicit CI steps
@@ -107,6 +110,7 @@ Implement post-processing in a custom electron-builder hook.
 Create a separate workflow triggered after release publication.
 
 **Why rejected:**
+
 - Adds complexity with multiple workflows
 - Potential timing issues with release publication
 - Harder to debug failures

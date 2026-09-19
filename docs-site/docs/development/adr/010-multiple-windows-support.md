@@ -14,6 +14,7 @@ Issue [#1984](https://github.com/IsmaelMartinez/teams-for-linux/issues/1984) req
 
 **Investigation Date:** November 2025
 **Requested Features:**
+
 - Pop-out windows for individual chats
 - Separate windows for meetings
 - Simultaneous access to meetings and chat conversations
@@ -78,11 +79,13 @@ The user believed the Teams PWA previously supported this feature and it was dis
 Run multiple completely independent instances with separate userData directories.
 
 **Pros:**
+
 - Simple implementation (remove single instance lock)
 - Each window fully isolated
 - No state synchronization needed
 
 **Cons:**
+
 - Each instance has separate tray icon
 - No coordination between windows
 - Higher memory usage
@@ -96,11 +99,13 @@ Run multiple completely independent instances with separate userData directories
 Maintain one primary window and allow secondary windows with limited functionality.
 
 **Pros:**
+
 - Clear ownership of global state
 - Reduced complexity vs full multi-window
 - Aligns with native client behavior
 
 **Cons:**
+
 - Still requires extensive IPC refactoring
 - Browser tools need window-type awareness
 - Unknown if Teams web UI supports this model
@@ -113,11 +118,13 @@ Maintain one primary window and allow secondary windows with limited functionali
 Use Electron BrowserViews to create "virtual" windows within single window.
 
 **Pros:**
+
 - No IPC refactoring needed
 - Single window context preserved
 - Lower memory usage
 
 **Cons:**
+
 - Not true separate windows (can't move to different monitors easily)
 - Requires custom window management UI
 - Does not match user expectations
@@ -139,6 +146,7 @@ teams-for-linux --user-data-dir=/path/to/profile2
 ```
 
 Each instance operates independently with:
+
 - Separate tray icons
 - Separate login sessions
 - Separate configuration
@@ -150,6 +158,7 @@ Each instance operates independently with:
 ### Monitor Teams PWA Evolution
 
 If Microsoft adds native multi-window support to Teams PWA:
+
 1. Evaluate minimal changes needed in Teams for Linux
 2. Implement support for native feature
 3. Update documentation

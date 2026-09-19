@@ -7,7 +7,7 @@ exports.onDidFinishLoad = function onDidFinishLoad(content, config) {
     applyCustomCSSToContent(content, customCssLocation);
   }
   content.insertCSS(
-    "#download-mobile-app-button, #download-app-button, #get-app-button { display:none; }"
+    "#download-mobile-app-button, #download-app-button, #get-app-button { display:none; }",
   );
   content.insertCSS(".zoetrope { animation-iteration-count: 1 !important; }");
 };

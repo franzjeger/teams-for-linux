@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Arca Passkey Bridge Client
@@ -29,7 +29,7 @@ const BRIDGE_FILE = path.join(
   ".local",
   "share",
   "no.sybr.vault",
-  "native-bridge.json"
+  "native-bridge.json",
 );
 
 /**
@@ -89,7 +89,7 @@ async function readBridgeDescriptor(file = BRIDGE_FILE) {
   } catch (error) {
     throw new ArcaUnavailableError(
       "passkey bridge descriptor not readable",
-      error.code === "ENOENT" ? "not-running" : "unreadable"
+      error.code === "ENOENT" ? "not-running" : "unreadable",
     );
   }
 
@@ -97,17 +97,26 @@ async function readBridgeDescriptor(file = BRIDGE_FILE) {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new ArcaUnavailableError("passkey bridge descriptor is not JSON", "malformed");
+    throw new ArcaUnavailableError(
+      "passkey bridge descriptor is not JSON",
+      "malformed",
+    );
   }
 
   const port = parsed?.port;
   const token = parsed?.token;
 
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new ArcaUnavailableError("passkey bridge port is invalid", "malformed");
+    throw new ArcaUnavailableError(
+      "passkey bridge port is invalid",
+      "malformed",
+    );
   }
   if (typeof token !== "string" || token === "") {
-    throw new ArcaUnavailableError("passkey bridge token is invalid", "malformed");
+    throw new ArcaUnavailableError(
+      "passkey bridge token is invalid",
+      "malformed",
+    );
   }
 
   return { port, token };
@@ -140,16 +149,19 @@ function sendRequest({ port, token, request, timeoutMs = REQUEST_TIMEOUT_MS }) {
       () =>
         finish(
           reject,
-          new ArcaUnavailableError("passkey bridge timed out", "timeout")
+          new ArcaUnavailableError("passkey bridge timed out", "timeout"),
         ),
-      timeoutMs
+      timeoutMs,
     );
 
     socket.setTimeout(CONNECT_TIMEOUT_MS, () => {
       if (!authenticated) {
         finish(
           reject,
-          new ArcaUnavailableError("passkey bridge did not answer hello", "timeout")
+          new ArcaUnavailableError(
+            "passkey bridge did not answer hello",
+            "timeout",
+          ),
         );
       }
     });
@@ -161,14 +173,20 @@ function sendRequest({ port, token, request, timeoutMs = REQUEST_TIMEOUT_MS }) {
     socket.on("error", (error) => {
       finish(
         reject,
-        new ArcaUnavailableError(`passkey bridge connection failed: ${error.code}`, "unreachable")
+        new ArcaUnavailableError(
+          `passkey bridge connection failed: ${error.code}`,
+          "unreachable",
+        ),
       );
     });
 
     socket.on("close", () => {
       finish(
         reject,
-        new ArcaUnavailableError("passkey bridge closed the connection", "closed")
+        new ArcaUnavailableError(
+          "passkey bridge closed the connection",
+          "closed",
+        ),
       );
     });
 
@@ -187,13 +205,18 @@ function sendRequest({ port, token, request, timeoutMs = REQUEST_TIMEOUT_MS }) {
         } catch {
           finish(
             reject,
-            new ArcaUnavailableError("passkey bridge sent malformed JSON", "malformed")
+            new ArcaUnavailableError(
+              "passkey bridge sent malformed JSON",
+              "malformed",
+            ),
           );
           return;
         }
 
         if (message?.type === "error") {
-          const reason = ARCA_ERRORS.has(message.message) ? message.message : "internal";
+          const reason = ARCA_ERRORS.has(message.message)
+            ? message.message
+            : "internal";
           finish(reject, new ArcaRequestError(reason));
           return;
         }
@@ -202,7 +225,10 @@ function sendRequest({ port, token, request, timeoutMs = REQUEST_TIMEOUT_MS }) {
           if (message?.type !== "ok") {
             finish(
               reject,
-              new ArcaUnavailableError("passkey bridge rejected the token", "unauthorised")
+              new ArcaUnavailableError(
+                "passkey bridge rejected the token",
+                "unauthorised",
+              ),
             );
             return;
           }
@@ -227,7 +253,10 @@ function sendRequest({ port, token, request, timeoutMs = REQUEST_TIMEOUT_MS }) {
  * Arca binds rpId to origin as an anti-phishing check, and with
  * contextIsolation disabled anything the page hands us is page-controlled.
  */
-async function getAssertion({ origin, rpId, clientDataHash, allowCredentials = [] }, deps = {}) {
+async function getAssertion(
+  { origin, rpId, clientDataHash, allowCredentials = [] },
+  deps = {},
+) {
   const { readDescriptor = readBridgeDescriptor, send = sendRequest } = deps;
   const { port, token } = await readDescriptor();
 
@@ -246,7 +275,7 @@ async function getAssertion({ origin, rpId, clientDataHash, allowCredentials = [
   if (response?.type !== "passkey_assertion") {
     throw new ArcaUnavailableError(
       `unexpected reply '${response?.type}' to passkey_get`,
-      "protocol"
+      "protocol",
     );
   }
 
@@ -263,7 +292,7 @@ async function getAssertion({ origin, rpId, clientDataHash, allowCredentials = [
  */
 async function createCredential(
   { origin, rpId, userName, userHandle, excludeCredentials = [] },
-  deps = {}
+  deps = {},
 ) {
   const { readDescriptor = readBridgeDescriptor, send = sendRequest } = deps;
   const { port, token } = await readDescriptor();
@@ -284,7 +313,7 @@ async function createCredential(
   if (response?.type !== "passkey_credential") {
     throw new ArcaUnavailableError(
       `unexpected reply '${response?.type}' to passkey_create`,
-      "protocol"
+      "protocol",
     );
   }
 

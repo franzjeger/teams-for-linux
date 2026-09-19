@@ -1,12 +1,14 @@
 # MQTT Module
 
 This module provides bidirectional MQTT integration for Teams for Linux, allowing you to:
+
 - **Publish** your Teams status to an MQTT broker for home automation
 - **Receive** action commands from MQTT to control Teams (toggle mute, video, etc.)
 
 ## Features
 
 ### Status Publishing (Outbound)
+
 - Publishes Teams status changes to MQTT broker
 - JSON payload with status, timestamp, and client information
 - Automatic reconnection handling
@@ -14,6 +16,7 @@ This module provides bidirectional MQTT integration for Teams for Linux, allowin
 - Status change detection to avoid duplicate publishes
 
 ### Command Reception (Inbound)
+
 - Receives action commands from MQTT broker
 - Executes Teams keyboard shortcuts (toggle mute, video, raise hand, etc.)
 - Security features: action whitelist, JSON validation
@@ -52,11 +55,13 @@ The MQTT module is configured through the main application configuration. Add th
 ## MQTT Topics
 
 ### Status Publishing (Outbound)
+
 Status updates are published to: `{topicPrefix}/{statusTopic}`
 
 Example: `teams/status`
 
 ### Command Reception (Inbound)
+
 Commands are received from: `{topicPrefix}/{commandTopic}`
 
 Example: `teams/command`
@@ -106,6 +111,7 @@ Command messages should be sent as JSON with the following structure:
 #### Command Security
 
 Commands are validated with the following security measures:
+
 - **Action whitelist**: Only the supported actions listed above are allowed
 - **JSON validation**: Commands must be valid JSON
 - **Localhost recommended**: For maximum security, use a localhost MQTT broker (`mqtt://localhost:1883`)
@@ -157,6 +163,7 @@ mosquitto_pub -h localhost -t "teams/command" -m '{"action":"toggle-hand-raise",
 ```
 
 **Expected behavior:**
+
 - Teams should execute the corresponding keyboard shortcut
 - Application logs should show: `[MQTT] Received valid command: <action>`
 - Application logs should show: `[MQTT] Executed command '<action>' -> <shortcut>`

@@ -177,17 +177,17 @@ The project uses two Chromium feature flags in `app/startup/commandLine.js`:
 
 ### Major Version Bumps
 
-| Package | Current | Target | Breaking Changes |
-|---------|---------|--------|------------------|
-| Electron | 39.5.1 | 40.4.0 | See above |
-| ESLint | 9.39.2 | 10.x | Already shipped in v2.7.8 |
-| @eslint/js | 9.39.2 | 10.x | Already shipped in v2.7.8 |
+| Package    | Current | Target | Breaking Changes          |
+| ---------- | ------- | ------ | ------------------------- |
+| Electron   | 39.5.1  | 40.4.0 | See above                 |
+| ESLint     | 9.39.2  | 10.x   | Already shipped in v2.7.8 |
+| @eslint/js | 9.39.2  | 10.x   | Already shipped in v2.7.8 |
 
 ### Minor/Patch Bumps (Low Risk)
 
-| Package | Current | Target | Notes |
-|---------|---------|--------|-------|
-| @homebridge/dbus-native | 0.7.2 | 0.7.3 | Pure JS, confirmed Node 24 compatible |
+| Package                 | Current | Target | Notes                                 |
+| ----------------------- | ------- | ------ | ------------------------------------- |
+| @homebridge/dbus-native | 0.7.2   | 0.7.3  | Pure JS, confirmed Node 24 compatible |
 
 ---
 
@@ -294,13 +294,13 @@ ESLint 10 was migrated independently in v2.7.8 (shipped 2026-02-21). No issues e
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| `node-sound` fails to compile with Node 24 | Low | Low | Already wrapped in try/catch; graceful degradation |
-| OpenSSL 3.5 rejects corporate TLS certs | Low | Medium | Monitor during testing; can add `--tls-min-v1.0` flag if needed |
-| Chromium feature flag renamed/removed | Low | High | Verify flags in Chromium 144 source before release |
-| `window.open` popup behavior regression | Low | Low | Teams mostly uses internal navigation; popups are denied |
-| ESLint 10 plugin incompatibility | Low | Low | Can stay on ESLint 9 temporarily if needed |
+| Risk                                       | Likelihood | Impact | Mitigation                                                      |
+| ------------------------------------------ | ---------- | ------ | --------------------------------------------------------------- |
+| `node-sound` fails to compile with Node 24 | Low        | Low    | Already wrapped in try/catch; graceful degradation              |
+| OpenSSL 3.5 rejects corporate TLS certs    | Low        | Medium | Monitor during testing; can add `--tls-min-v1.0` flag if needed |
+| Chromium feature flag renamed/removed      | Low        | High   | Verify flags in Chromium 144 source before release              |
+| `window.open` popup behavior regression    | Low        | Low    | Teams mostly uses internal navigation; popups are denied        |
+| ESLint 10 plugin incompatibility           | Low        | Low    | Can stay on ESLint 9 temporarily if needed                      |
 
 ---
 

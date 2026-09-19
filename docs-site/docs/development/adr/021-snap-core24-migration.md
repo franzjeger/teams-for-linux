@@ -69,10 +69,10 @@ This project does supply custom plugs, so the injection is skipped and
 electron-builder appends `--no-sandbox` to the launch command instead. Verified
 by generating the descriptor both ways:
 
-| Config | Generated `command` |
-|---|---|
+| Config                          | Generated `command`                |
+| ------------------------------- | ---------------------------------- |
 | plugs without `browser-support` | `app/teams-for-linux --no-sandbox` |
-| plugs with `browser-support` | `app/teams-for-linux` |
+| plugs with `browser-support`    | `app/teams-for-linux`              |
 
 Shipping the first would disable Chromium's sandbox in every snap install. The
 plug list therefore ends with an explicit descriptor object:
@@ -114,12 +114,12 @@ snap options are built as `deepAssign({}, snapLinuxOptions, options)` where
 `executableArgs: ["--ozone-platform=x11"]` for deb/rpm/AppImage/tar.gz. And
 `deepAssign` **concatenates** arrays rather than replacing them:
 
-| `snapcraft.core24.executableArgs` | Resulting args |
-|---|---|
-| `[]` | `["--ozone-platform=x11"]` (inherited) |
-| `undefined` | `["--ozone-platform=x11"]` (inherited) |
-| `["--x"]` | `["--ozone-platform=x11", "--x"]` (concatenated) |
-| `null` | `[]` |
+| `snapcraft.core24.executableArgs` | Resulting args                                   |
+| --------------------------------- | ------------------------------------------------ |
+| `[]`                              | `["--ozone-platform=x11"]` (inherited)           |
+| `undefined`                       | `["--ozone-platform=x11"]` (inherited)           |
+| `["--x"]`                         | `["--ozone-platform=x11", "--x"]` (concatenated) |
+| `null`                            | `[]`                                             |
 
 Only `null` replaces. Hence the literal `"executableArgs": null` in the config
 --- it looks like a mistake, but an empty array silently inherits the very

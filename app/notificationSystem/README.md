@@ -10,10 +10,10 @@ Custom in-app toast notifications as an alternative to OS-level notifications.
 
 ## IPC Channels
 
-| Channel | Type | Purpose |
-|---------|------|---------|
-| `notification-show-toast` | Event | Request to display a toast notification |
-| `notification-toast-click` | Event | User clicked on a toast |
+| Channel                    | Type  | Purpose                                 |
+| -------------------------- | ----- | --------------------------------------- |
+| `notification-show-toast`  | Event | Request to display a toast notification |
+| `notification-toast-click` | Event | User clicked on a toast                 |
 
 ## Configuration
 

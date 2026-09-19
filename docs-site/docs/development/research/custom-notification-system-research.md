@@ -39,6 +39,7 @@ This document tracks the development of a **custom notification modal system** f
 The MVP delivered toast notifications as an opt-in alternative (`notificationMethod: "custom"`):
 
 **Files Created:**
+
 ```
 app/notificationSystem/
 ├── index.js                     # CustomNotificationManager class + IPC handlers
@@ -49,6 +50,7 @@ app/notificationSystem/
 ```
 
 **Features Delivered:**
+
 - Toast notifications appear for Teams notifications
 - Auto-dismiss after configurable duration (default 5 seconds)
 - Click toast to focus main window
@@ -57,6 +59,7 @@ app/notificationSystem/
 - Secure implementation (contextIsolation, IPC validation)
 
 **Configuration:**
+
 ```json
 {
   "notificationMethod": "custom",
@@ -75,12 +78,14 @@ app/notificationSystem/
 Based on the original research and common user needs, the most valuable next enhancement would be a **Notification Center** - a drawer showing current session's notifications.
 
 **Why This Phase:**
+
 - Users cannot review missed notifications with toast-only system
 - Provides context when returning to the application
 - Follows established patterns (Teams, Slack, Discord all have notification panels)
 - Session-based (no persistence) keeps implementation simple
 
 **Proposed Features:**
+
 - Slide-in drawer showing current session's notifications
 - Mark as read/unread status
 - Badge count on tray icon
@@ -94,6 +99,7 @@ Based on the original research and common user needs, the most valuable next enh
 If user feedback indicates toast improvements are more valuable than a notification center:
 
 **Potential Enhancements:**
+
 - Toast queue management (limit visible toasts, e.g., max 3)
 - Action buttons (View, Dismiss, Reply)
 - Hover to pause auto-dismiss
@@ -132,6 +138,7 @@ Before proceeding with Phase 2, evaluate:
 **Wait for user feedback** before implementing Phase 2. The MVP provides a working alternative for users with notification issues. Additional features should be driven by actual user needs rather than speculative development.
 
 **Suggested approach:**
+
 1. Monitor GitHub issues for 2-4 weeks post-release
 2. Create a discussion or issue asking users what they'd find most valuable
 3. Prioritize based on actual feedback
@@ -192,16 +199,19 @@ customNotification: {
 ## 5. Long-Term Roadmap
 
 ### Phase 3: Enhanced Toast Features
+
 - Toast queue management
 - Action buttons
 - Hover to pause
 
 ### Phase 4: Integration & Polish
+
 - Incoming call toast integration
 - Unified notification system
 - Performance optimizations
 
 ### Phase 5: Advanced Features (If Requested)
+
 - Persistent storage (IndexedDB)
 - Search & filter
 - Custom sounds per type
@@ -217,6 +227,7 @@ customNotification: {
 ### Problem Statement
 
 Users reported OS-level notifications don't work reliably, especially on Linux:
+
 - Application freezes when no notification daemon is running
 - Inconsistent behavior across desktop environments
 - No notification history or actionable notifications
@@ -240,16 +251,19 @@ Users reported OS-level notifications don't work reliably, especially on Linux:
 ## 7. Related Documentation
 
 ### Internal References
+
 - **Module README** (`app/notificationSystem/README.md`) - Implementation details
 - **[Contributing Guide](../contributing.md)** - Architecture overview
 - **[IPC API Documentation](../ipc-api.md)** - IPC channel reference
 - **[Configuration Reference](../../configuration.md)** - Config options
 
 ### External References
+
 - **[Electron BrowserWindow API](https://www.electronjs.org/docs/latest/api/browser-window)**
 - **[Microsoft Fluent Design](https://fluent2.microsoft.design/)**
 
 ### Related Issues
+
 - **#1979** - Implement notifications modal MVP
 - **#1981** - Add custom notification system to docs
 - **#1935** - Build notification modal component research

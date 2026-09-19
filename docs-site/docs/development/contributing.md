@@ -25,6 +25,7 @@ You can test PR changes without building from source by downloading pre-built ar
 A bot automatically posts a comment on each PR with direct download links to all build artifacts.
 
 Alternatively:
+
 1. Go to the PR's "Checks" tab
 2. Select a workflow run
 3. Scroll to "Artifacts" section and download
@@ -97,12 +98,12 @@ graph TD
     A --> C[Window Management]
     A --> D[IPC Handlers]
     A --> E[System Integration]
-    
+
     B --> F[config.json Files]
     C --> G[Browser Window]
     D --> H[Renderer Process]
     E --> I[OS Features]
-    
+
     G --> J[Teams Web App]
     H --> K[Browser Scripts]
     I --> L[Notifications, Tray, etc.]
@@ -131,22 +132,22 @@ graph TD
 
 ```javascript
 class ExampleModule {
-  #privateField = 'value';
-  
+  #privateField = "value";
+
   constructor(config) {
     this.config = config;
   }
-  
+
   async performAction() {
     try {
       const result = await this.#processData();
       return result;
     } catch (error) {
-      console.error('Error in performAction:', error);
+      console.error("Error in performAction:", error);
       throw error;
     }
   }
-  
+
   #processData() {
     // Private method implementation
     return Promise.resolve(this.#privateField);
@@ -248,6 +249,7 @@ When creating or updating any markdown documentation in this project (including 
 
 :::tip Single Source of Truth
 These markdown standards apply to ALL markdown files in the project:
+
 - Documentation site (`docs-site/docs/`)
 - Root-level documentation (README, CONTRIBUTING, CLAUDE.md)
 - Module READMEs in `app/` directories
@@ -293,36 +295,35 @@ When contributing new features, consider adding E2E tests. Tests are located in 
 Example test structure:
 
 ```javascript
-import { test, expect } from '@playwright/test';
-import { _electron as electron } from 'playwright';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { test, expect } from "@playwright/test";
+import { _electron as electron } from "playwright";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-test('your feature test', async () => {
+test("your feature test", async () => {
   let electronApp;
   let userDataDir;
 
   try {
     // Create clean state
-    userDataDir = mkdtempSync(join(tmpdir(), 'teams-e2e-'));
+    userDataDir = mkdtempSync(join(tmpdir(), "teams-e2e-"));
 
     electronApp = await electron.launch({
-      args: ['./app/index.js'],
+      args: ["./app/index.js"],
       env: {
         ...process.env,
-        E2E_USER_DATA_DIR: userDataDir
-      }
+        E2E_USER_DATA_DIR: userDataDir,
+      },
     });
 
     const mainWindow = await electronApp.firstWindow();
 
     // Your test logic here
-
   } finally {
     // Cleanup
     if (electronApp) {
-      electronApp.process().kill('SIGTERM');
+      electronApp.process().kill("SIGTERM");
     }
     if (userDataDir) {
       rmSync(userDataDir, { recursive: true, force: true });
@@ -387,6 +388,7 @@ Fixes #123
 ```
 
 Examples:
+
 - `feat(config): add support for custom proxy settings`
 - `fix(notifications): resolve notification sound not playing`
 - `docs(api): update IPC channel documentation`
@@ -404,10 +406,11 @@ Releases use AI-generated changelog entries that accumulate in `.changelog/` dir
 7. **Promote Snap candidate → stable** - Manual step after testing
 
 :::note Snap Channel Strategy
+
 - Pushes to main publish snaps to **edge** with a commit SHA suffix (e.g., `2.7.5-edge.g1a2b3c4`)
 - Publishing a GitHub Release automatically builds and publishes to the **candidate** channel
 - Promotion from candidate to **stable** is manual
-:::
+  :::
 
 See [Manual Release Process](manual-release-process.md) for detailed instructions.
 

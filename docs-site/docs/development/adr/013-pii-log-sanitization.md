@@ -17,6 +17,7 @@ The codebase has ~590 log statements across 42 files. Audit revealed HIGH-RISK P
 Use custom regex-based sanitization utility (`app/utils/logSanitizer.js`) instead of third-party libraries.
 
 **Pattern replacement order** (specific before general):
+
 1. MQTT URLs → preserve protocol, redact credentials
 2. Bearer tokens → `Bearer [TOKEN]`
 3. Passwords, auth headers, API keys, tokens, secrets → `[REDACTED]`
@@ -30,11 +31,13 @@ Use custom regex-based sanitization utility (`app/utils/logSanitizer.js`) instea
 ## Consequences
 
 ### Positive
+
 - Zero dependencies, fast execution
 - Full control over patterns
 - UUIDs remain correlatable for debugging
 
 ### Negative
+
 - Requires pattern maintenance
 - May miss edge cases (regex-only, no NER)
 
@@ -47,11 +50,11 @@ Use custom regex-based sanitization utility (`app/utils/logSanitizer.js`) instea
 
 ## Alternatives Considered
 
-| Option | Rejected Because |
-|--------|------------------|
-| Microsoft Presidio | Requires Docker, network latency |
-| PII-PALADIN | 90MB bundle size |
-| @redactpii/node | Additional dependency, less control |
+| Option              | Rejected Because                     |
+| ------------------- | ------------------------------------ |
+| Microsoft Presidio  | Requires Docker, network latency     |
+| PII-PALADIN         | 90MB bundle size                     |
+| @redactpii/node     | Additional dependency, less control  |
 | Pino with redaction | Would require replacing electron-log |
 
 ## Related

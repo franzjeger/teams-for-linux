@@ -17,19 +17,19 @@ the ceremony is answered from inside the app instead.
 
 ## Layout
 
-| File | Process | Responsibility |
-|------|---------|----------------|
-| `webauthnShim.js` | page world | Wraps `navigator.credentials.get/create` |
-| `index.js` | main | IPC handlers; binds the ceremony to the frame's origin |
-| `ceremony.js` | main | rpId validation and clientData construction (pure) |
-| `arcaClient.js` | main | Arca's loopback bridge: discovery, transport, protocol |
+| File              | Process    | Responsibility                                         |
+| ----------------- | ---------- | ------------------------------------------------------ |
+| `webauthnShim.js` | page world | Wraps `navigator.credentials.get/create`               |
+| `index.js`        | main       | IPC handlers; binds the ceremony to the frame's origin |
+| `ceremony.js`     | main       | rpId validation and clientData construction (pure)     |
+| `arcaClient.js`   | main       | Arca's loopback bridge: discovery, transport, protocol |
 
 ## The two things that make this safe
 
 **The origin never comes from the page.** A provider binds `rp_id` to `origin`
 as an anti-phishing check, and with `contextIsolation: false` everything the
 page hands the preload is page-controlled. The origin is therefore read from
-`event.senderFrame.url` in the main process — the *frame*, not the window,
+`event.senderFrame.url` in the main process — the _frame_, not the window,
 because Entra runs the ceremony inside an iframe and the top-level URL would be
 the wrong binding. The page supplies only the challenge and the credential
 filters. `resolveRpId` then requires the requested `rpId` to be that frame's
@@ -39,7 +39,7 @@ host or a registrable parent of it.
 literal carrying the right fields passes every field check and still breaks the
 relying party: modern RP code calls `toJSON()` and tests `instanceof`, and Entra
 does both. The failure is vicious — the ceremony completes, everything reports
-success, and the *site* throws while handling the answer. `shapeAs()` therefore
+success, and the _site_ throws while handling the answer. `shapeAs()` therefore
 sets the real prototype and shadows every member along the chain with an own
 property, because those members are brand-checked accessors that throw on an
 object the authenticator did not produce.

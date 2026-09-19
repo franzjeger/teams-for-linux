@@ -14,6 +14,7 @@ Issue [#2109](https://github.com/IsmaelMartinez/teams-for-linux/issues/2109) (or
 
 **Investigation Date:** January 2025
 **Requested Features:**
+
 - Quick access to start/open chat conversations
 - User search functionality
 - Lightweight modal interface
@@ -25,6 +26,7 @@ This feature was investigated as an alternative after multiple windows support w
 **Implement Quick Chat Access using Deep Links + People API.**
 
 The Chat API approach was rejected due to API permission blockers. Instead, we will use:
+
 - **People API** (`/me/people`) for contact search
 - **Deep Links** (`/l/chat/0/0?users=email`) for navigation to chat
 
@@ -34,8 +36,8 @@ The Chat API approach was rejected due to API permission blockers. Instead, we w
 
 **Spike Result:** BLOCKED
 
-| Test | Endpoint | Result |
-|------|----------|--------|
+| Test             | Endpoint               | Result        |
+| ---------------- | ---------------------- | ------------- |
 | Chat Permissions | `GET /me/chats?$top=1` | 403 Forbidden |
 
 **Error:** "Missing scope permissions on the request. API requires one of 'Chat.Read, Chat.ReadBasic, Chat.ReadWrite...'"
@@ -43,6 +45,7 @@ The Chat API approach was rejected due to API permission blockers. Instead, we w
 **Why Blocked:** The Teams authentication token provided to the embedded web application does not include `Chat.Read` or `Chat.ReadWrite` scopes. This is a fundamental limitation of how Microsoft has designed Teams permissions - chat functionality requires explicit consent that cannot be obtained through the embedded web app token.
 
 **Capabilities if it had worked:**
+
 - List user's chats
 - Get chat messages
 - Send messages inline
@@ -52,12 +55,13 @@ The Chat API approach was rejected due to API permission blockers. Instead, we w
 
 **Spike Result:** PASS
 
-| Test | Endpoint | Result |
-|------|----------|--------|
-| People API | `GET /me/people?$top=5` | 200 OK |
-| Deep Link | Navigate to `/l/chat/0/0?users=email` | Works |
+| Test       | Endpoint                              | Result |
+| ---------- | ------------------------------------- | ------ |
+| People API | `GET /me/people?$top=5`               | 200 OK |
+| Deep Link  | Navigate to `/l/chat/0/0?users=email` | Works  |
 
 **Capabilities:**
+
 - Search contacts by relevance (People API returns contacts ranked by interaction frequency)
 - Navigate Teams to chat with specified user (causes page refresh but functional)
 - Uses current Teams origin automatically
@@ -104,11 +108,13 @@ The Chat API approach was rejected due to API permission blockers. Instead, we w
 Original design using Chat API for complete inline chat experience.
 
 **Pros:**
+
 - Rich inline messaging experience
 - Message history display
 - Send messages without leaving current context
 
 **Cons:**
+
 - API permissions blocked (403 Forbidden)
 - Cannot be implemented with available token
 
@@ -119,10 +125,12 @@ Original design using Chat API for complete inline chat experience.
 Leave feature unimplemented.
 
 **Pros:**
+
 - No development effort
 - No additional complexity
 
 **Cons:**
+
 - Does not address user request
 - No quick chat access functionality
 
@@ -133,10 +141,12 @@ Leave feature unimplemented.
 Use `msteams://` protocol URLs to open Teams native client.
 
 **Pros:**
+
 - Works without API access
 - Opens in native Teams client if installed
 
 **Cons:**
+
 - Opens external application
 - May not work if native Teams not installed
 - Poor experience for Linux users (Teams for Linux IS their Teams client)
@@ -170,10 +180,10 @@ Use `msteams://` protocol URLs to open Teams native client.
 
 ```javascript
 // Required IPC channels
-'quick-chat:show'           // Show the quick chat modal
-'quick-chat:hide'           // Hide the modal
-'quick-chat:search-people'  // Search contacts via People API
-'quick-chat:open-chat'      // Navigate to chat with user
+"quick-chat:show"; // Show the quick chat modal
+"quick-chat:hide"; // Hide the modal
+"quick-chat:search-people"; // Search contacts via People API
+"quick-chat:open-chat"; // Navigate to chat with user
 ```
 
 ### Configuration

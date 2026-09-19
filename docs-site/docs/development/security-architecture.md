@@ -18,13 +18,15 @@ Teams for Linux requires DOM access to Microsoft Teams' React components to prov
 The application faces a fundamental security vs. functionality trade-off:
 
 **Option A: Maximum Security**
+
 - Enable Electron `contextIsolation` and `sandbox`
 - ❌ Breaks all DOM access functionality
 - ❌ Eliminates core application features
 
 **Option B: Balanced Security** (Current Approach)
+
 - Disable `contextIsolation` and `sandbox` for main window
-- ✅ Restore all DOM access functionality  
+- ✅ Restore all DOM access functionality
 - ✅ Implement comprehensive compensating controls
 - ✅ Recommend system-level sandboxing
 
@@ -51,13 +53,13 @@ webPreferences: {
 
 ```javascript
 const responseHeaders = {
-  'Content-Security-Policy': [
+  "Content-Security-Policy": [
     "default-src 'self' https://teams.cloud.microsoft https://teams.microsoft.com https://teams.live.com ...",
     "script-src 'self' https://teams.cloud.microsoft https://teams.microsoft.com ...",
     "object-src 'none';",
     "base-uri 'self';",
-    "frame-ancestors 'none';"
-  ]
+    "frame-ancestors 'none';",
+  ],
 };
 ```
 
@@ -68,6 +70,7 @@ const responseHeaders = {
 **Implementation**: `app/security/ipcValidator.js`
 
 **Features**:
+
 - **Channel Allowlisting**: Only legitimate IPC channels are permitted
 - **Recursive Payload Sanitization**: Removes dangerous properties (`__proto__`, `constructor`, `prototype`) from payloads at all nesting depths
 - **Prototype Pollution Protection**: Guards against object prototype manipulation with depth-limited recursion (max 10 levels)
@@ -95,7 +98,7 @@ _isAllowedTeamsDomain(hostname) {
     'teams.microsoft.com',
     'teams.live.com'
   ];
-  
+
   // Prevents subdomain hijacking attacks
   for (const domain of allowedDomains) {
     if (hostname === domain) return true;
@@ -110,8 +113,9 @@ _isAllowedTeamsDomain(hostname) {
 #### 4. Screen Sharing Isolation
 
 **Security Model**: Screen sharing windows maintain full security isolation:
+
 - `contextIsolation: true`
-- `sandbox: true` 
+- `sandbox: true`
 - No DOM access requirements
 - Separate security context
 
@@ -120,6 +124,7 @@ _isAllowedTeamsDomain(hostname) {
 **Implementation**: `app/index.js` (top-level)
 
 **Features**:
+
 - **`uncaughtException` handler**: Logs error details and exits with code 1 (process state unknown after uncaught exception)
 - **`unhandledRejection` handler**: Logs rejection details, allows process to continue (non-fatal)
 - **Startup try/catch**: `handleAppReady()` wrapped with error logging and graceful `app.quit()` on failure
@@ -131,6 +136,7 @@ _isAllowedTeamsDomain(hostname) {
 **Implementation**: `app/mainAppWindow/browserWindowManager.js`
 
 **Features**:
+
 - **`sanitizeCommandArg()`**: Validates string type, limits length to 500 characters, strips control characters
 - Applied to all incoming call notification arguments (`caller`, `text`, `image`) before passing to `spawn()`
 
@@ -145,22 +151,26 @@ Instead of relying solely on Electron security features, users should adopt **sy
 #### Available Options
 
 **Flatpak**
+
 - Built-in application isolation
 - Available via Flathub
 - Automatic permission management
 - Filesystem access restrictions
 
 **Snap Packages**
+
 - Application confinement system
 - Auto-updates with security patches
 - Interface-based permission system
 
 **AppArmor/SELinux**
+
 - Available by default on most Linux distributions
 - Kernel-level security enforcement
 - Fine-grained access control policies
 
 **Manual Sandboxing Tools**
+
 - `firejail`: User-space sandboxing
 - `bubblewrap`: Container-based isolation
 - Custom chroot environments
@@ -193,6 +203,7 @@ _detectAndLogReactVersion() {
 ### Token Storage Security (Implemented v2.5.9)
 
 **Token Cache Secure Storage Implementation**:
+
 - **OS-Level Encryption**: Authentication tokens encrypted using Electron `safeStorage` API
 - **Platform-Native Security**: Leverages Keychain (macOS), DPAPI (Windows), kwallet/gnome (Linux)
 - **Graceful Fallback**: Automatic fallback to localStorage if secure storage unavailable
@@ -200,16 +211,17 @@ _detectAndLogReactVersion() {
 - **PII Protection**: All logging sanitizes personally identifiable information
 
 **Security Benefits**:
+
 ```mermaid
 graph TB
     A[Teams Authentication Tokens] --> B[Secure Storage Layer]
-    
+
     subgraph "Platform Security"
         B --> C[macOS Keychain<br/>High Security]
         B --> D[Windows DPAPI<br/>Medium Security]
         B --> E[Linux kwallet/gnome<br/>Variable Security]
     end
-    
+
     subgraph "Fallback Chain"
         B --> F[localStorage Fallback]
         F --> G[Memory Emergency Fallback]
@@ -217,6 +229,7 @@ graph TB
 ```
 
 **Risk Mitigation**:
+
 - ✅ Tokens encrypted at rest using OS cryptographic APIs
 - ✅ Application-specific access control
 - ✅ No plain text token storage (when secure storage available)
@@ -227,8 +240,9 @@ graph TB
 ### Phase 2: API Integration Security
 
 **Future Planned Security Improvements**:
+
 - **OAuth 2.0 Integration**: Secure Microsoft Graph authentication
-- **Permission Scoping**: Minimal required API permissions  
+- **Permission Scoping**: Minimal required API permissions
 - **Rate Limiting**: API abuse prevention
 
 **Timeline**: Future consideration based on user needs
@@ -236,7 +250,7 @@ graph TB
 ### Long-term Security Goals
 
 1. **Progressive Hardening**: Gradual restoration of Electron security features as API migration completes
-2. **Zero-Trust Architecture**: Assume all external inputs are malicious  
+2. **Zero-Trust Architecture**: Assume all external inputs are malicious
 3. **Automated Security Testing**: Integration of security tests in CI/CD
 4. **Security Documentation**: Comprehensive security guide for developers
 
@@ -247,6 +261,7 @@ graph TB
 **Real-World Security Assessment**:
 
 **Effective Security Controls**:
+
 - ✅ **System-Level Sandboxing**: Modern OS distributions enforce application sandboxing by default (Flatpak, Snap, AppArmor, SELinux)
 - ✅ **Microsoft's Infrastructure Security**: Teams web app runs on Microsoft's secured infrastructure with their security controls
 - ✅ **Domain Restrictions**: Application limited to Teams domains only, not arbitrary web content
@@ -255,6 +270,7 @@ graph TB
 - ✅ **Token Encryption**: Authentication tokens encrypted at rest using OS-level security
 
 **Technical Trade-offs** (Mitigated by Above):
+
 - ⚠️ Electron context isolation disabled for DOM access functionality
 - ⚠️ Electron sandbox disabled for system integration features
 
@@ -263,11 +279,13 @@ graph TB
 ### Continued Security Best Practices
 
 **For Users**:
+
 - Use official package repositories (Flatpak, Snap, distribution packages) when available
 - Keep the application updated through your package manager
 - Follow your distribution's security recommendations
 
 **For Developers**:
+
 - Continue monitoring Teams web app changes that could affect security
 - Maintain IPC channel validation and domain restrictions
 - Keep dependencies updated and monitor security advisories
@@ -275,6 +293,7 @@ graph TB
 ### Security Architecture Benefits
 
 **Why This Approach Works**:
+
 - **Layered Security**: System-level sandboxing + application controls + Microsoft's security
 - **Transparent Trade-offs**: Clear documentation of technical decisions and mitigations
 - **Future-Compatible**: Architecture supports progressive enhancement as APIs become available

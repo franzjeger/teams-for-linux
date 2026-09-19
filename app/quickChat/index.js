@@ -1,5 +1,5 @@
-const { ipcMain } = require('electron');
-const QuickChatModal = require('./QuickChatModal');
+const { ipcMain } = require("electron");
+const QuickChatModal = require("./QuickChatModal");
 
 /**
  * Quick Chat Manager
@@ -19,7 +19,7 @@ class QuickChatManager {
 
   initialize() {
     if (!this.#enabled) {
-      console.info('[QuickChat] Quick Chat feature is disabled');
+      console.info("[QuickChat] Quick Chat feature is disabled");
       return;
     }
 
@@ -27,12 +27,12 @@ class QuickChatManager {
     this.#modal = new QuickChatModal(this.#mainWindow);
 
     // Show the Quick Chat modal
-    ipcMain.on('quick-chat:show', () => this.show());
+    ipcMain.on("quick-chat:show", () => this.show());
 
     // Hide the Quick Chat modal
-    ipcMain.on('quick-chat:hide', () => this.hide());
+    ipcMain.on("quick-chat:hide", () => this.hide());
 
-    console.info('[QuickChat] Initialized');
+    console.info("[QuickChat] Initialized");
   }
 
   /**

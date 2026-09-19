@@ -58,7 +58,7 @@ The notification lifecycle is now stable ([#2248](https://github.com/IsmaelMarti
 
 Work aimed at deployments managed by an IT department rather than an individual user.
 
-Shipped: a `managedPolicy` section in the system-wide config lets administrators lock settings against user override, enforced after config files, environment variables and CLI arguments so no input path bypasses it. Crash reporting (local by default, upload only when an administrator configures an endpoint), file logging on by default with bounded rotation, renderer crash recovery instead of a silent `app.quit()`, and a *Help > Save Diagnostics* support bundle with secrets redacted. Permission, device and navigation guards for the main window. `disableAutoUpdate` and `disableDevTools` for fleets managed through a package manager.
+Shipped: a `managedPolicy` section in the system-wide config lets administrators lock settings against user override, enforced after config files, environment variables and CLI arguments so no input path bypasses it. Crash reporting (local by default, upload only when an administrator configures an endpoint), file logging on by default with bounded rotation, renderer crash recovery instead of a silent `app.quit()`, and a _Help > Save Diagnostics_ support bundle with secrets redacted. Permission, device and navigation guards for the main window. `disableAutoUpdate` and `disableDevTools` for fleets managed through a package manager.
 
 Supply chain: CycloneDX SBOM published per build, signed build-provenance attestations on release artifacts, `npm audit` gated at high.
 
@@ -150,17 +150,17 @@ Shipped in v2.7.4 ([#2109](https://github.com/IsmaelMartinez/teams-for-linux/iss
 
 ## Not Planned / Not Feasible
 
-| Feature | Issue | Reason | Notes |
-|---------|-------|--------|-------|
-| Screen Lock Media Privacy | [#2106](https://github.com/IsmaelMartinez/teams-for-linux/issues/2106) | Closed --- no user interest | Reopen if requested |
-| Meeting Join with ID | [#2152](https://github.com/IsmaelMartinez/teams-for-linux/issues/2152) | Microsoft limitation | Workaround: use meeting link via clipboard |
-| Custom Notifications Phase 2 | [#2108](https://github.com/IsmaelMartinez/teams-for-linux/issues/2108) | Dropped --- didn't work for the user | MVP (v2.6.16) remains |
-| GNOME Search Provider | [#2075](https://github.com/IsmaelMartinez/teams-for-linux/issues/2075) | Latency too high (~300-1100ms) | Technically feasible but poor UX |
-| External Browser Auth | [#2017](https://github.com/IsmaelMartinez/teams-for-linux/issues/2017) | Not feasible | Teams manages OAuth internally |
-| Multiple Windows | [#1984](https://github.com/IsmaelMartinez/teams-for-linux/issues/1984) | Rejected ([ADR-010](../adr/010-multiple-windows-support.md)) | Quick Chat is the alternative |
-| useSystemPicker | --- | Rejected ([ADR-008](../adr/008-usesystempicker-electron-38.md)) | Reconsider when Electron improves Linux support |
-| Disable Chat Spellcheck | [#2304](https://github.com/IsmaelMartinez/teams-for-linux/issues/2304) | Not feasible | Spellcheck is controlled by Teams/Chromium, not the wrapper; existing `spellCheckerLanguages` config is the extent of our control |
-| Formatting View on Compose | [#2318](https://github.com/IsmaelMartinez/teams-for-linux/issues/2318) | Not feasible | Teams UI internals; no API or injection point to control compose view state |
+| Feature                      | Issue                                                                  | Reason                                                          | Notes                                                                                                                             |
+| ---------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Screen Lock Media Privacy    | [#2106](https://github.com/IsmaelMartinez/teams-for-linux/issues/2106) | Closed --- no user interest                                     | Reopen if requested                                                                                                               |
+| Meeting Join with ID         | [#2152](https://github.com/IsmaelMartinez/teams-for-linux/issues/2152) | Microsoft limitation                                            | Workaround: use meeting link via clipboard                                                                                        |
+| Custom Notifications Phase 2 | [#2108](https://github.com/IsmaelMartinez/teams-for-linux/issues/2108) | Dropped --- didn't work for the user                            | MVP (v2.6.16) remains                                                                                                             |
+| GNOME Search Provider        | [#2075](https://github.com/IsmaelMartinez/teams-for-linux/issues/2075) | Latency too high (~300-1100ms)                                  | Technically feasible but poor UX                                                                                                  |
+| External Browser Auth        | [#2017](https://github.com/IsmaelMartinez/teams-for-linux/issues/2017) | Not feasible                                                    | Teams manages OAuth internally                                                                                                    |
+| Multiple Windows             | [#1984](https://github.com/IsmaelMartinez/teams-for-linux/issues/1984) | Rejected ([ADR-010](../adr/010-multiple-windows-support.md))    | Quick Chat is the alternative                                                                                                     |
+| useSystemPicker              | ---                                                                    | Rejected ([ADR-008](../adr/008-usesystempicker-electron-38.md)) | Reconsider when Electron improves Linux support                                                                                   |
+| Disable Chat Spellcheck      | [#2304](https://github.com/IsmaelMartinez/teams-for-linux/issues/2304) | Not feasible                                                    | Spellcheck is controlled by Teams/Chromium, not the wrapper; existing `spellCheckerLanguages` config is the extent of our control |
+| Formatting View on Compose   | [#2318](https://github.com/IsmaelMartinez/teams-for-linux/issues/2318) | Not feasible                                                    | Teams UI internals; no API or injection point to control compose view state                                                       |
 
 ---
 

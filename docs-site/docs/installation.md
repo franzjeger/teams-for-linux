@@ -184,6 +184,7 @@ cd teams-for-linux/
 ### Quick Start
 
 1. **Launch** the application:
+
    ```bash
    teams-for-linux
    ```
@@ -203,6 +204,7 @@ mkdir -p ~/.config/teams-for-linux/
 ```
 
 Example basic configuration:
+
 ```json
 {
   "minimizeToTray": true,
@@ -231,7 +233,7 @@ teams-for-linux --user-data-dir=/path/to/custom/profile
 # Work profile
 teams-for-linux --user-data-dir=~/.config/teams-work --class=teams-work
 
-# Personal profile  
+# Personal profile
 teams-for-linux --user-data-dir=~/.config/teams-personal --class=teams-personal
 ```
 

@@ -106,12 +106,12 @@ rm -rf teams-for-linux/
 
 Uninstalling the application does not remove your user data and configuration. To perform a complete removal, delete the configuration directory for your installation type:
 
-| Installation type | Configuration directory |
-|-------------------|----------------------|
-| Standard installations (deb, rpm, AUR, etc.) | `~/.config/teams-for-linux` |
-| Snap | `~/snap/teams-for-linux/current/.config/teams-for-linux/` |
-| Flatpak (user install) | `~/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/teams-for-linux` |
-| From source | `~/.config/Electron/` |
+| Installation type                            | Configuration directory                                                       |
+| -------------------------------------------- | ----------------------------------------------------------------------------- |
+| Standard installations (deb, rpm, AUR, etc.) | `~/.config/teams-for-linux`                                                   |
+| Snap                                         | `~/snap/teams-for-linux/current/.config/teams-for-linux/`                     |
+| Flatpak (user install)                       | `~/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/teams-for-linux` |
+| From source                                  | `~/.config/Electron/`                                                         |
 
 :::warning
 Removing user data deletes your cached login sessions, configuration, and any local application data. This action cannot be undone.

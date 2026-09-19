@@ -18,75 +18,75 @@ All module READMEs are available in the GitHub repository. Click the documentati
 
 These modules form the foundation of the application and are essential for basic operation.
 
-| Module | Path | Purpose | Documentation |
-|--------|------|---------|---------------|
-| **Startup** | `app/startup/` | Command line switches & initialization flags | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/startup/README.md) |
-| **Main App Window** | `app/mainAppWindow/` | Primary BrowserWindow that hosts Teams web interface | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/mainAppWindow/README.md) |
-| **App Configuration** | `app/appConfiguration/` | Application-wide configuration management | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/appConfiguration/README.md) |
-| **Browser** | `app/browser/` | Preload scripts & client-side injected scripts | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/browser/README.md) |
+| Module                | Path                    | Purpose                                              | Documentation                                                                                        |
+| --------------------- | ----------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Startup**           | `app/startup/`          | Command line switches & initialization flags         | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/startup/README.md)          |
+| **Main App Window**   | `app/mainAppWindow/`    | Primary BrowserWindow that hosts Teams web interface | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/mainAppWindow/README.md)    |
+| **App Configuration** | `app/appConfiguration/` | Application-wide configuration management            | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/appConfiguration/README.md) |
+| **Browser**           | `app/browser/`          | Preload scripts & client-side injected scripts       | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/browser/README.md)          |
 
 ## Feature Modules
 
 User-facing features and integrations.
 
-| Module | Path | Purpose | Documentation |
-|--------|------|---------|---------------|
-| **Auto Updater** | `app/autoUpdater/` | In-app auto-update for AppImage distributions | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/autoUpdater/README.md) |
-| **MQTT** | `app/mqtt/` | MQTT broker integration for status publishing | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/mqtt/README.md), [User Guide](../mqtt-integration.md) |
-| **Screen Sharing** | `app/screenSharing/` | Native screen/window selection and preview | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/screenSharing/README.md), [User Guide](../screen-sharing.md) |
-| **Custom Background** | `app/customBackground/` | Virtual background management | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/customBackground/README.md), [User Guide](../custom-backgrounds.md) |
-| **Custom CSS** | `app/customCSS/` | Custom styling and themes | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/customCSS/README.md) |
-| **Notifications** | `app/notifications/` | Native desktop notifications & sound playback | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/notifications/README.md) |
-| **Notification System** | `app/notificationSystem/` | Custom in-app toast notifications | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/notificationSystem/README.md) |
-| **Incoming Call Toast** | `app/incomingCallToast/` | Call notification toasts | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/incomingCallToast/README.md) |
-| **InTune SSO** | `app/intune/` | Microsoft InTune single sign-on integration | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/intune/README.md), [User Guide](../intune-sso.md) |
-| **Global Shortcuts** | `app/globalShortcuts/` | System-wide keyboard shortcuts | No README yet |
-| **Graph API** | `app/graphApi/` | Microsoft Graph API integration for calendar and mail | [Research](./research/graph-api-integration-research.md) |
-| **Speaking Indicator** | `app/browser/tools/speakingIndicator.js` | Visual overlay showing microphone state during calls (speaking/silent/muted) via RTCPeerConnection.getStats() | [PR #2299](https://github.com/IsmaelMartinez/teams-for-linux/pull/2299) |
+| Module                  | Path                                     | Purpose                                                                                                       | Documentation                                                                                                                                |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Auto Updater**        | `app/autoUpdater/`                       | In-app auto-update for AppImage distributions                                                                 | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/autoUpdater/README.md)                                              |
+| **MQTT**                | `app/mqtt/`                              | MQTT broker integration for status publishing                                                                 | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/mqtt/README.md), [User Guide](../mqtt-integration.md)               |
+| **Screen Sharing**      | `app/screenSharing/`                     | Native screen/window selection and preview                                                                    | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/screenSharing/README.md), [User Guide](../screen-sharing.md)        |
+| **Custom Background**   | `app/customBackground/`                  | Virtual background management                                                                                 | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/customBackground/README.md), [User Guide](../custom-backgrounds.md) |
+| **Custom CSS**          | `app/customCSS/`                         | Custom styling and themes                                                                                     | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/customCSS/README.md)                                                |
+| **Notifications**       | `app/notifications/`                     | Native desktop notifications & sound playback                                                                 | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/notifications/README.md)                                            |
+| **Notification System** | `app/notificationSystem/`                | Custom in-app toast notifications                                                                             | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/notificationSystem/README.md)                                       |
+| **Incoming Call Toast** | `app/incomingCallToast/`                 | Call notification toasts                                                                                      | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/incomingCallToast/README.md)                                        |
+| **InTune SSO**          | `app/intune/`                            | Microsoft InTune single sign-on integration                                                                   | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/intune/README.md), [User Guide](../intune-sso.md)                   |
+| **Global Shortcuts**    | `app/globalShortcuts/`                   | System-wide keyboard shortcuts                                                                                | No README yet                                                                                                                                |
+| **Graph API**           | `app/graphApi/`                          | Microsoft Graph API integration for calendar and mail                                                         | [Research](./research/graph-api-integration-research.md)                                                                                     |
+| **Speaking Indicator**  | `app/browser/tools/speakingIndicator.js` | Visual overlay showing microphone state during calls (speaking/silent/muted) via RTCPeerConnection.getStats() | [PR #2299](https://github.com/IsmaelMartinez/teams-for-linux/pull/2299)                                                                      |
 
 ## System Integration Modules
 
 OS-level integrations and platform-specific functionality.
 
-| Module | Path | Purpose | Documentation |
-|--------|------|---------|---------------|
-| **Idle Monitor** | `app/idle/` | System idle state monitoring & status correlation | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/idle/README.md) |
-| **Login** | `app/login/` | Authentication and login flow management | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/login/README.md) |
-| **Menus** | `app/menus/` | Application menu bar and context menus | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/menus/README.md) |
-| **Passkey** | `app/passkey/` | WebAuthn ceremonies answered by a local passkey provider | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/passkey/README.md) |
-| **Spell Check Provider** | `app/spellCheckProvider/` | Text spelling correction integration | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/spellCheckProvider/README.md) |
+| Module                   | Path                      | Purpose                                                  | Documentation                                                                                          |
+| ------------------------ | ------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Idle Monitor**         | `app/idle/`               | System idle state monitoring & status correlation        | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/idle/README.md)               |
+| **Login**                | `app/login/`              | Authentication and login flow management                 | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/login/README.md)              |
+| **Menus**                | `app/menus/`              | Application menu bar and context menus                   | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/menus/README.md)              |
+| **Passkey**              | `app/passkey/`            | WebAuthn ceremonies answered by a local passkey provider | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/passkey/README.md)            |
+| **Spell Check Provider** | `app/spellCheckProvider/` | Text spelling correction integration                     | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/spellCheckProvider/README.md) |
 
 ## Utility & Infrastructure Modules
 
 Supporting infrastructure, utilities, and cross-cutting concerns.
 
-| Module | Path | Purpose | Documentation |
-|--------|------|---------|---------------|
-| **Audio** | `app/audio/` | Sound playback via system audio commands (`paplay`, `aplay`, `afplay`) | — |
-| **Utils** | `app/utils/` | Shared utilities (window positioning, log sanitization) | — |
-| **Helpers** | `app/helpers/` | Shared utility functions and common logic | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/helpers/README.md) |
-| **Cache Manager** | `app/cacheManager/` | Application cache handling | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/cacheManager/README.md) |
-| **Config** | `app/config/` | Configuration file loading, parsing and managed-policy enforcement (`managedPolicy.js`) | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/config/README.md), [Managed Policy](../configuration.md#managed-policy-locking-settings) |
-| **Connection Manager** | `app/connectionManager/` | Network connectivity and connection state | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/connectionManager/README.md) |
-| **Partitions** | `app/partitions/` | Electron partition management for sessions | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/partitions/README.md) |
-| **Security** | `app/security/` | IPC channel allowlisting (`ipcValidator.js`) and permission, device and navigation guards for the main window (`webContentsGuards.js`) | [ADR 020](./adr/020-context-isolation-migration.md) |
-| **Diagnostics** | `app/diagnostics/` | Crash reporter startup and the Help > Save Diagnostics support bundle | [Configuration](../configuration.md#diagnostics--crash-reporting) |
-| **Certificate** | `app/certificate/` | Custom certificate handling | [User Guide](../certificate.md) |
+| Module                 | Path                     | Purpose                                                                                                                                | Documentation                                                                                                                                                     |
+| ---------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audio**              | `app/audio/`             | Sound playback via system audio commands (`paplay`, `aplay`, `afplay`)                                                                 | —                                                                                                                                                                 |
+| **Utils**              | `app/utils/`             | Shared utilities (window positioning, log sanitization)                                                                                | —                                                                                                                                                                 |
+| **Helpers**            | `app/helpers/`           | Shared utility functions and common logic                                                                                              | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/helpers/README.md)                                                                       |
+| **Cache Manager**      | `app/cacheManager/`      | Application cache handling                                                                                                             | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/cacheManager/README.md)                                                                  |
+| **Config**             | `app/config/`            | Configuration file loading, parsing and managed-policy enforcement (`managedPolicy.js`)                                                | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/config/README.md), [Managed Policy](../configuration.md#managed-policy-locking-settings) |
+| **Connection Manager** | `app/connectionManager/` | Network connectivity and connection state                                                                                              | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/connectionManager/README.md)                                                             |
+| **Partitions**         | `app/partitions/`        | Electron partition management for sessions                                                                                             | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/partitions/README.md)                                                                    |
+| **Security**           | `app/security/`          | IPC channel allowlisting (`ipcValidator.js`) and permission, device and navigation guards for the main window (`webContentsGuards.js`) | [ADR 020](./adr/020-context-isolation-migration.md)                                                                                                               |
+| **Diagnostics**        | `app/diagnostics/`       | Crash reporter startup and the Help > Save Diagnostics support bundle                                                                  | [Configuration](../configuration.md#diagnostics--crash-reporting)                                                                                                 |
+| **Certificate**        | `app/certificate/`       | Custom certificate handling                                                                                                            | [User Guide](../certificate.md)                                                                                                                                   |
 
 ## UI Components
 
 Special-purpose windows and UI elements.
 
-| Module | Path | Purpose | Documentation |
-|--------|------|---------|---------------|
-| **Documentation Window** | `app/documentationWindow/` | In-app documentation viewer | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/documentationWindow/README.md) |
-| **GPU Info Window** | `app/gpuInfoWindow/` | GPU information display window | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/gpuInfoWindow/README.md) |
-| **Screen Picker** | `app/screenPicker/` | Screen/window selection interface | No README yet |
+| Module                   | Path                       | Purpose                           | Documentation                                                                                           |
+| ------------------------ | -------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Documentation Window** | `app/documentationWindow/` | In-app documentation viewer       | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/documentationWindow/README.md) |
+| **GPU Info Window**      | `app/gpuInfoWindow/`       | GPU information display window    | [README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/gpuInfoWindow/README.md)       |
+| **Screen Picker**        | `app/screenPicker/`        | Screen/window selection interface | No README yet                                                                                           |
 
 ## Assets
 
-| Path | Purpose |
-|------|---------|
+| Path          | Purpose                                                                                                                          |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `app/assets/` | Icons, sounds, and static resources ([README](https://github.com/IsmaelMartinez/teams-for-linux/blob/main/app/assets/README.md)) |
 
 ## Module Development Guidelines

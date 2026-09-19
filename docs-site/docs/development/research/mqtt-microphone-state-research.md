@@ -49,23 +49,23 @@ mediaStatusService.js (main process)
 
 The `{topicPrefix}/microphone` topic publishes one of four string values:
 
-| Value | Meaning | Trigger |
-|-------|---------|---------|
-| `speaking` | Audio is being transmitted | audioLevel >= 0.01 |
-| `silent` | Mic is open but quiet | audioLevel >= 0.0001 and < 0.01 |
-| `muted` | Teams has zeroed the audio signal | audioLevel < 0.0001 after first non-zero seen |
-| `off` | Not in a call / overlay hidden | All peer connections closed or call ended |
+| Value      | Meaning                           | Trigger                                       |
+| ---------- | --------------------------------- | --------------------------------------------- |
+| `speaking` | Audio is being transmitted        | audioLevel >= 0.01                            |
+| `silent`   | Mic is open but quiet             | audioLevel >= 0.0001 and < 0.01               |
+| `muted`    | Teams has zeroed the audio signal | audioLevel < 0.0001 after first non-zero seen |
+| `off`      | Not in a call / overlay hidden    | All peer connections closed or call ended     |
 
 The `retain: true` flag ensures new MQTT subscribers immediately get the current state.
 
 ### Home Automation Mapping (vbartik's use case)
 
-| MQTT Value | LED Colour | Family Guidance |
-|------------|-----------|-----------------|
-| `speaking` | Orange | Keep quiet — mic is live |
-| `silent` | Yellow | In a call, moderate noise OK |
-| `muted` | Yellow (dim) | In a call but muted, moderate noise OK |
-| `off` | Green | Not in a call |
+| MQTT Value | LED Colour   | Family Guidance                        |
+| ---------- | ------------ | -------------------------------------- |
+| `speaking` | Orange       | Keep quiet — mic is live               |
+| `silent`   | Yellow       | In a call, moderate noise OK           |
+| `muted`    | Yellow (dim) | In a call but muted, moderate noise OK |
+| `off`      | Green        | Not in a call                          |
 
 Camera state (`{topicPrefix}/camera` → red LED) remains a separate future feature, unrelated to the speaking indicator.
 

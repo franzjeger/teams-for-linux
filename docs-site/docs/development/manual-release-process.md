@@ -22,14 +22,14 @@ There are times when releases come faster than usual. This typically happens whe
 
 Not all installation methods receive updates at the same pace. If frequent updates are a concern, choosing a slower channel can help:
 
-| Channel | Update frequency | Notes |
-|---------|-----------------|-------|
-| Flatpak (Flathub) | Slowest | Only updated after the release has reached 100% across all other channels |
-| Snap stable | Slow | Manual promotion after testing on candidate |
-| Snap candidate | On GitHub Release publish | Automatic, good for early adopters |
-| deb/rpm repositories | On GitHub Release publish | Gets every release promptly |
-| AppImage | On GitHub Release publish | Supports in-app auto-update |
-| Snap edge | Every push to main | Development channel, not for general use |
+| Channel              | Update frequency          | Notes                                                                     |
+| -------------------- | ------------------------- | ------------------------------------------------------------------------- |
+| Flatpak (Flathub)    | Slowest                   | Only updated after the release has reached 100% across all other channels |
+| Snap stable          | Slow                      | Manual promotion after testing on candidate                               |
+| Snap candidate       | On GitHub Release publish | Automatic, good for early adopters                                        |
+| deb/rpm repositories | On GitHub Release publish | Gets every release promptly                                               |
+| AppImage             | On GitHub Release publish | Supports in-app auto-update                                               |
+| Snap edge            | Every push to main        | Development channel, not for general use                                  |
 
 Users who find updates too frequent can switch to Flatpak or Snap stable for a more measured experience, or simply adjust their OS update-check interval (for example, from daily to weekly).
 
@@ -57,6 +57,7 @@ The easiest and most reliable method is to use the automated GitHub Actions work
 4. Click "Run workflow"
 
 The workflow will automatically:
+
 - Validate changelog entries exist
 - Run the release preparation script
 - Generate categorized release notes
@@ -69,6 +70,7 @@ You'll get a PR ready for review and merging. No local setup required.
 ### Option B: Using the Script Locally
 
 **Preview what will happen (dry-run mode):**
+
 ```bash
 npm run release:prepare -- patch --dry-run
 ```
@@ -76,16 +78,19 @@ npm run release:prepare -- patch --dry-run
 This shows you exactly what will change without modifying any files.
 
 **Apply the changes:**
+
 ```bash
 npm run release:prepare patch  # or minor, major, or 2.6.15
 ```
 
 Or without argument to be prompted:
+
 ```bash
 npm run release:prepare
 ```
 
 This will:
+
 - Review changelog entries
 - Update package.json, package-lock.json, appdata.xml
 - Delete consumed changelog files
@@ -93,6 +98,7 @@ This will:
 - Show next steps
 
 Then create release PR:
+
 ```bash
 git checkout -b release/vX.Y.Z
 git add .
@@ -104,18 +110,21 @@ gh pr create --title "Release vX.Y.Z" --body-file <(npm run generate-release-not
 ### Option C: Manual
 
 1. Review changelog files:
+
    ```bash
    ls .changelog/
    cat .changelog/*
    ```
 
 2. Update version:
+
    ```bash
    # Edit package.json: "version": "X.Y.Z"
    npm install  # Updates package-lock.json
    ```
 
 3. Update appdata.xml:
+
    ```xml
    <release version="X.Y.Z" date="YYYY-MM-DD">
      <description>
@@ -128,6 +137,7 @@ gh pr create --title "Release vX.Y.Z" --body-file <(npm run generate-release-not
    ```
 
 4. Delete changelog files:
+
    ```bash
    rm .changelog/*.txt
    ```
@@ -163,6 +173,7 @@ The release process automatically generates enhanced release notes that include:
 ### Categorization
 
 Changes are automatically categorized based on conventional commit prefixes:
+
 - 🚀 **New Features** - `feat:` prefix or "add", "implement" keywords
 - 🐛 **Bug Fixes** - `fix:` prefix or "fix" keyword
 - 📚 **Documentation** - `docs:` prefix
@@ -206,11 +217,13 @@ npm run release:prepare -- patch --dry-run
 ```
 
 Or with short flag:
+
 ```bash
 npm run release:prepare -- patch -n
 ```
 
 Dry-run mode shows:
+
 - Files that would be updated
 - Version changes (old → new)
 - Changelog files that would be deleted
@@ -221,11 +234,13 @@ No files are modified during dry-run.
 ## After PR Merge
 
 When the release PR merges to main:
+
 - Build workflow detects version change
 - Creates GitHub draft release
 - Snap edge channel publishes with a version suffix (e.g., `2.7.5-edge.g1a2b3c4`) to distinguish it from the release build
 
 Then:
+
 1. Promote GitHub draft → full release
    - This triggers Flatpak
    - This triggers the **Snap Release** workflow, which builds and publishes the release version to the **candidate** channel
@@ -233,10 +248,11 @@ Then:
 3. Manually promote Snap candidate → stable: `snapcraft release teams-for-linux <revision> stable`
 
 :::info Snap Channels
+
 - **edge** — Every push to main. Versioned with commit SHA suffix (e.g., `2.7.5-edge.g1a2b3c4`)
 - **candidate** — Automatically published when a GitHub Release is published. Uses the clean release version (e.g., `2.7.5`)
 - **stable** — Manual promotion from candidate after testing
-:::
+  :::
 
 ## Manual Changelog Entries
 
@@ -262,6 +278,7 @@ scripts/
 ```
 
 Each changelog file contains one line:
+
 ```
 Add MQTT integration - by @username (#123)
 ```
@@ -289,6 +306,7 @@ Test candidate → Promote Snap candidate → stable
 ## Tips
 
 **Preview before releasing:**
+
 ```bash
 npm run release:prepare -- patch --dry-run
 ```
@@ -298,16 +316,19 @@ npm run release:prepare -- patch --dry-run
 **Skip entries:** Delete any `.changelog/*.txt` file you don't want in the release
 
 **Check pending changes:**
+
 ```bash
 ls .changelog/ && cat .changelog/*
 ```
 
 **Preview release notes:**
+
 ```bash
 npm run generate-release-notes
 ```
 
 **See recent commits:**
+
 ```bash
 git log --oneline --since="2 weeks ago"
 ```

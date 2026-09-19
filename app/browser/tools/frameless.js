@@ -11,18 +11,18 @@
  * respective module. This function only needs to make the search box and waffle menu non-draggable.
  */
 function init(config, _ipcRenderer) {
-	if (!config.frame) {
-		const style = document.createElement('style');
-		style.id = 'frameless-tweaks';
-		style.textContent = `
+  if (!config.frame) {
+    const style = document.createElement("style");
+    style.id = "frameless-tweaks";
+    style.textContent = `
             #ms-searchux-search-box-2-0,
             button[data-tid="waffle-open-button"],
             .tfl-nav-button {
               -webkit-app-region: no-drag;
             }
         `;
-		document.head.appendChild(style);
-	}
+    document.head.appendChild(style);
+  }
 }
 
 module.exports = { init };

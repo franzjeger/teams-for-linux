@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Passkey Bridge IPC Handlers
@@ -26,7 +26,10 @@ const CREATE_CHANNEL = "passkey-create";
 
 /** No origins, rpIds or credential ids in logs - all of them identify a tenant. */
 function logFallback(kind, reason) {
-  console.debug("[PASSKEY] Falling back to the browser handler", { kind, reason });
+  console.debug("[PASSKEY] Falling back to the browser handler", {
+    kind,
+    reason,
+  });
 }
 
 /**
@@ -46,7 +49,9 @@ function frameOrigin(event) {
     // Arca's anti-phishing check compares against.
     return new URL(url).origin;
   } catch {
-    throw new ceremony.CeremonyError("passkey: sender frame URL is not parseable");
+    throw new ceremony.CeremonyError(
+      "passkey: sender frame URL is not parseable",
+    );
   }
 }
 
@@ -57,7 +62,7 @@ function prepare(event, payload, type) {
   const { clientDataJSON, clientDataHash } = ceremony.buildClientData(
     type,
     payload?.challenge,
-    origin
+    origin,
   );
   return { origin, rpId, clientDataJSON, clientDataHash };
 }
@@ -91,14 +96,16 @@ async function handleGet(event, payload, deps = {}) {
     const { origin, rpId, clientDataJSON, clientDataHash } = prepare(
       event,
       payload,
-      "webauthn.get"
+      "webauthn.get",
     );
 
     const assertion = await getAssertion({
       origin,
       rpId,
       clientDataHash,
-      allowCredentials: ceremony.normaliseCredentialList(payload?.allowCredentials),
+      allowCredentials: ceremony.normaliseCredentialList(
+        payload?.allowCredentials,
+      ),
     });
 
     return {
@@ -120,14 +127,20 @@ async function handleCreate(event, payload, deps = {}) {
     // Arca's passkey_create takes no client_data_hash - it is not signed over
     // in the attestation - but the clientDataJSON still has to be built here so
     // the page receives the same origin Arca was told about.
-    const { origin, rpId, clientDataJSON } = prepare(event, payload, "webauthn.create");
+    const { origin, rpId, clientDataJSON } = prepare(
+      event,
+      payload,
+      "webauthn.create",
+    );
 
     const credential = await createCredential({
       origin,
       rpId,
       userName: typeof payload?.userName === "string" ? payload.userName : "",
       userHandle: ceremony.toByteArray(payload?.userHandle) ?? [],
-      excludeCredentials: ceremony.normaliseCredentialList(payload?.excludeCredentials),
+      excludeCredentials: ceremony.normaliseCredentialList(
+        payload?.excludeCredentials,
+      ),
     });
 
     return {
@@ -160,12 +173,12 @@ function registerPasskeyHandlers(ipcMain, config) {
 
   // Request a WebAuthn assertion from the local passkey provider
   ipcMain.handle("passkey-get", (event, payload) =>
-    enabled ? handleGet(event, payload) : { ok: false, reason: "disabled" }
+    enabled ? handleGet(event, payload) : { ok: false, reason: "disabled" },
   );
 
   // Request a new WebAuthn credential from the local passkey provider
   ipcMain.handle("passkey-create", (event, payload) =>
-    enabled ? handleCreate(event, payload) : { ok: false, reason: "disabled" }
+    enabled ? handleCreate(event, payload) : { ok: false, reason: "disabled" },
   );
 }
 

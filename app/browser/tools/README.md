@@ -11,29 +11,36 @@ These tools operate in the renderer process and interact directly with the Teams
 ### Core Functionality
 
 #### [activityHub.js](activityHub.js)
+
 Monitors Teams activity and user presence for system integration.
 
-#### [mutationTitle.js](mutationTitle.js)  
+#### [mutationTitle.js](mutationTitle.js)
+
 Uses MutationObserver to track title changes for unread message counting and tray icon updates.
 
 #### [reactHandler.js](reactHandler.js)
+
 Handles React application detection, version detection, and provides safe access to Teams internal React structures.
 
 #### [settings.js](settings.js)
+
 Manages application settings and configuration synchronization between main and renderer processes.
 
 ### Media & Communication
 
 #### [disableAutogain.js](disableAutogain.js)
+
 Disables microphone auto-gain control by intercepting `getUserMedia` calls and modifying audio constraints. Supports both modern (`autoGainControl`) and legacy (`googAutoGainControl`) MediaStream APIs.
 
 **Configuration**: `media.microphone.disableAutogain: true`
 **Use Case**: Professional audio setups, external mixers, manual gain control preference
 
 #### [cameraResolution.js](cameraResolution.js)
+
 Removes or overrides video resolution constraints that Microsoft Teams sets when accessing the camera. By default, Teams requests 720p which may not be the native or preferred resolution of the camera.
 
 **Configuration**:
+
 ```json
 {
   "media": {
@@ -48,10 +55,12 @@ Removes or overrides video resolution constraints that Microsoft Teams sets when
 ```
 
 **Modes**:
+
 - `remove` (default): Removes all resolution constraints, allowing the camera to use its native resolution
 - `override`: Sets camera to a specific resolution specified by `width` and `height`
 
 **Override Example**:
+
 ```json
 {
   "media": {
@@ -70,9 +79,11 @@ Removes or overrides video resolution constraints that Microsoft Teams sets when
 **Use Case**: Cameras that support higher resolutions than 720p, professional video setups, improving video quality in meetings
 
 #### [cameraAspectRatio.js](cameraAspectRatio.js)
+
 Fixes camera video stretching when moving Teams between monitors with different orientations (horizontal to vertical or vice versa). Intercepts `getUserMedia` calls to monitor video tracks and reapplies proper aspect ratio constraints to the MediaStreamTrack when window size changes are detected, ensuring remote participants don't see a stretched video feed.
 
 **Configuration**:
+
 ```json
 {
   "media": {
@@ -88,37 +99,47 @@ Fixes camera video stretching when moving Teams between monitors with different 
 **Use Case**: Multi-monitor setups with different orientations, prevents stretched/distorted camera feed when moving windows between portrait and landscape monitors
 
 #### [wakeLock.js](wakeLock.js)
+
 Prevents system sleep during meetings and active calls.
 
 ### UI & Display
 
 #### [theme.js](theme.js)
+
 Manages application theming, including system theme synchronization and custom CSS injection.
 
 #### [timestampCopyOverride.js](timestampCopyOverride.js)
+
 Enhances timestamp copying functionality in Teams messages.
 
 #### [trayIconChooser.js](trayIconChooser.js) & [trayIconRenderer.js](trayIconRenderer.js)
+
 Handle tray icon selection, rendering, and badge count display based on Teams activity.
 
 #### [zoom.js](zoom.js)
+
 Manages zoom level controls and persistence across sessions.
 
 #### [navigationButtons.js](navigationButtons.js)
+
 Adds back and forward navigation buttons to the Teams interface, similar to the Microsoft official Teams app. Injects styled buttons next to the search region and handles navigation state updates.
 
 ### System Integration
 
 #### [emulatePlatform.js](emulatePlatform.js)
+
 Modifies platform detection to improve Teams web compatibility on Linux.
 
 #### [shortcuts.js](shortcuts.js)
+
 Implements custom keyboard shortcuts for in-app actions like zoom control and navigation.
 
 #### [frameless.js](frameless.js)
+
 Ensures proper functionality of the top bar in frameless mode (i.e. without native window title bar).
 
 #### Global Shortcuts System (Main Process)
+
 System-wide keyboard shortcuts that work even when Teams is not focused. When triggered, the keyboard event is forwarded to Teams, which handles it with its built-in shortcuts. Configured via the `globalShortcuts` array in `config.json`.
 
 **Disabled by default** - opt-in by adding shortcuts to your config.
@@ -126,6 +147,7 @@ System-wide keyboard shortcuts that work even when Teams is not focused. When tr
 **How it works**: The main process registers global shortcuts and forwards keyboard events to Teams' window, allowing Teams' native shortcuts to work system-wide without needing to find buttons in the DOM.
 
 **Common Teams Shortcuts**:
+
 - `Ctrl+Shift+M` - Toggle mute/unmute
 - `Ctrl+Shift+O` - Toggle video on/off
 - `Ctrl+Shift+K` - Raise/lower hand
@@ -136,16 +158,15 @@ System-wide keyboard shortcuts that work even when Teams is not focused. When tr
 - `Ctrl+Shift+/` - Show keyboard shortcuts
 
 **Configuration Example** (add to config.json to enable):
+
 ```json
 {
-  "globalShortcuts": [
-    "Control+Shift+M",
-    "Control+Shift+O"
-  ]
+  "globalShortcuts": ["Control+Shift+M", "Control+Shift+O"]
 }
 ```
 
 **Important Notes**:
+
 - 🔑 **Use `Control` not `CommandOrControl`**: Teams uses Ctrl on all platforms, including macOS
 - ⚠️ **QWERTY keyboard layout only**: Shortcuts are based on physical QWERTY key positions
 - ⚠️ **macOS**: Non-QWERTY layouts (Dvorak, AZERTY, Colemak, etc.) are **not supported** due to [Electron bug #19747](https://github.com/electron/electron/issues/19747)
@@ -154,9 +175,11 @@ System-wide keyboard shortcuts that work even when Teams is not focused. When tr
 Set to empty array `[]` or omit from config to disable. See [Electron Accelerators](https://www.electronjs.org/docs/latest/api/accelerator) for key combinations and [Microsoft Teams Keyboard Shortcuts](https://support.microsoft.com/en-us/office/keyboard-shortcuts-for-microsoft-teams-2e8e2a70-e8d8-4a19-949b-4c36dd5292d2) for available Teams shortcuts.
 
 #### [tokenCache.js](tokenCache.js)
+
 Provides authentication token caching and management for improved login persistence.
 
 #### [mqttStatusMonitor.js](mqttStatusMonitor.js)
+
 Monitors Teams user status and sends updates to the main process via IPC for MQTT publishing to home automation systems. Uses a dual-layer detection strategy with MutationObserver for real-time DOM changes (debounced) and polling as a fallback. See the [MQTT module README](../../mqtt/README.md) for full documentation.
 
 **Configuration**: Requires `mqtt.enabled: true` in config
@@ -165,7 +188,9 @@ Monitors Teams user status and sends updates to the main process via IPC for MQT
 ## Architecture Patterns
 
 ### Initialization
+
 All tools follow a consistent initialization pattern:
+
 ```javascript
 function init(config, ipcRenderer) {
   if (!config.featureEnabled) {
@@ -179,10 +204,13 @@ module.exports = { init };
 ```
 
 ### Configuration-Driven
+
 Tools are conditionally loaded based on configuration settings passed from the main process.
 
 ### Logging Standards
+
 Tools use consistent logging patterns with tool-specific prefixes:
+
 - `[DISABLE_AUTOGAIN]` for audio gain control
 - `[CAMERA_RESOLUTION]` for camera resolution control
 - `[CAMERA_ASPECT_RATIO]` for camera aspect ratio fixes
@@ -190,7 +218,9 @@ Tools use consistent logging patterns with tool-specific prefixes:
 - `[TOKEN_CACHE]` for authentication caching
 
 ### Error Handling
+
 Tools implement defensive programming practices since the Teams DOM can change without notice:
+
 - Try-catch blocks around DOM operations
 - Graceful degradation when APIs are unavailable
 - Feature detection before attempting operations

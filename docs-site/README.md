@@ -23,10 +23,12 @@ npm run serve
 The documentation is automatically deployed to GitHub Pages when changes are pushed to the main branch.
 
 ### Automatic Deployment
+
 - **Production**: Pushes to `main` branch automatically deploy to GitHub Pages
 - **Testing**: The `docs-test-deploy.yml` workflow can be manually triggered for test deployments
 
 ### Manual Deployment Testing
+
 1. Go to GitHub Actions tab
 2. Select "Test Deploy Docusaurus (Development)" workflow
 3. Click "Run workflow"
@@ -36,12 +38,14 @@ The documentation is automatically deployed to GitHub Pages when changes are pus
 ## Development
 
 ### Adding New Documentation
+
 1. Create `.md` or `.mdx` files in the `docs/` directory
 2. Update `sidebars.ts` to include new pages in navigation
 3. Test locally with `npm run start`
 4. Commit and push changes
 
 ### Customization
+
 - **Theme**: Edit `src/css/custom.css` for styling changes
 - **Configuration**: Modify `docusaurus.config.ts` for site settings
 - **Navigation**: Update `sidebars.ts` for sidebar structure
@@ -63,6 +67,7 @@ docs-site/
 ## GitHub Pages Configuration
 
 The site is configured to deploy to GitHub Pages with:
+
 - **URL**: `https://ismaelmartinez.github.io/teams-for-linux/`
 - **Source**: GitHub Actions deployment
 - **Base URL**: `/teams-for-linux/`
@@ -80,6 +85,7 @@ The site is configured to deploy to GitHub Pages with:
 ## Performance
 
 The site is optimized for:
+
 - Fast loading times
 - Mobile responsiveness
 - SEO-friendly structure

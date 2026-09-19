@@ -14,7 +14,10 @@ export default [
   },
   { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
   { files: ["**/*.mjs"], languageOptions: { sourceType: "module" } },
-  { files: ["testing/spikes/**/*.js"], languageOptions: { sourceType: "module" } },
+  {
+    files: ["testing/spikes/**/*.js"],
+    languageOptions: { sourceType: "module" },
+  },
   // Playwright configs and specs use ESM import syntax.
   {
     files: ["playwright*.config.js", "tests/e2e/**/*.js"],

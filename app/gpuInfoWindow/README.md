@@ -9,6 +9,7 @@ Displays `chrome://gpu` information in a separate window for debugging graphics 
 ## Implementation
 
 Simple window wrapper following the same pattern as `DocumentationWindow`:
+
 - Reuses existing window if already open
 - Sandboxed and secure (no Node.js access)
 - Auto-cleanup on close
@@ -18,11 +19,13 @@ Simple window wrapper following the same pattern as `DocumentationWindow`:
 If you want to add more debug windows, these Chrome internal pages might be useful:
 
 ### For Teams-Specific Debugging
+
 - `chrome://webrtc-internals` - WebRTC call diagnostics (⚠️ may not work in Electron)
 - `chrome://media-internals` - Audio/video playback debugging
 - `chrome://net-internals` - Network and DNS debugging
 
 ### General Debugging
+
 - `chrome://version` - Version information
 - `chrome://process-internals` - Process monitoring
 - `chrome://tracing` - Performance profiling

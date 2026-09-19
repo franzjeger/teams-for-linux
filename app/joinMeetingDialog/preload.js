@@ -1,13 +1,13 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld('joinMeetingApi', {
+contextBridge.exposeInMainWorld("joinMeetingApi", {
   onInit: (callback) => {
-    ipcRenderer.on('init-dialog', (_event, data) => callback(data));
+    ipcRenderer.on("init-dialog", (_event, data) => callback(data));
   },
   submit: (url) => {
-    ipcRenderer.send('join-meeting-submit', url);
+    ipcRenderer.send("join-meeting-submit", url);
   },
   cancel: () => {
-    ipcRenderer.send('join-meeting-cancel');
+    ipcRenderer.send("join-meeting-cancel");
   },
 });

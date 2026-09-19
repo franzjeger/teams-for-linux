@@ -2,6 +2,7 @@
 
 > [!NOTE]
 > **This is a quick reference for GitHub Copilot.** For comprehensive developer documentation including architecture, code standards, testing strategy, and detailed guidelines:
+>
 > - **Local Documentation**: See markdown files in `docs-site/docs/` directory (these are the source files)
 > - **Web Documentation**: [Teams for Linux Documentation Site](https://ismaelmartinez.github.io/teams-for-linux/) (for human reference)
 > - **Development Guide**: `docs-site/docs/development/contributing.md` ([web](https://ismaelmartinez.github.io/teams-for-linux/development/contributing))
@@ -49,7 +50,12 @@ npm run dist:linux    # Build Linux packages (AppImage, deb, rpm, snap)
 
 ```javascript
 // REQUIRED in app/browser/preload.js
-if (module.name === "settings" || module.name === "theme" || module.name === "trayIconRenderer" || module.name === "mqttStatusMonitor") {
+if (
+  module.name === "settings" ||
+  module.name === "theme" ||
+  module.name === "trayIconRenderer" ||
+  module.name === "mqttStatusMonitor"
+) {
   moduleInstance.init(config, ipcRenderer);
 }
 ```
@@ -74,6 +80,7 @@ graph TD
 ```
 
 **For detailed architecture documentation**, see:
+
 - Architecture Overview: `docs-site/docs/development/contributing.md` (Architecture Overview section)
 - IPC API Documentation: `docs-site/docs/development/ipc-api.md`
 - Module-specific READMEs in `app/` subdirectories
@@ -131,6 +138,7 @@ For testing strategy details, see `docs-site/docs/development/contributing.md` (
 ### Documentation Platform
 
 The project uses **Docusaurus** for documentation:
+
 - **Source Files**: All documentation is in `docs-site/docs/` directory
 - **Local Development**: `cd docs-site && npm run start`
 - **Deployment**: Automated via GitHub Actions to GitHub Pages
@@ -147,12 +155,14 @@ The project uses **Docusaurus** for documentation:
 ## Additional Resources
 
 **Local documentation files:**
+
 - **Full Contributing Guide**: `docs-site/docs/development/contributing.md`
 - **Configuration Reference**: `docs-site/docs/configuration.md`
 - **Troubleshooting**: `docs-site/docs/troubleshooting.md`
 - **IPC API**: `docs-site/docs/development/ipc-api.md`
 
 **Community:**
+
 - **Matrix Space**: [#teams-for-linux-space:matrix.org](https://matrix.to/#/#teams-for-linux-space:matrix.org)
 - **Documentation Site**: https://ismaelmartinez.github.io/teams-for-linux/ (web version for humans)
 

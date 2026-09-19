@@ -1,6 +1,6 @@
-const { BrowserWindow } = require('electron');
-const path = require('node:path');
-const { moveWindow } = require('../utils/windowPositioner');
+const { BrowserWindow } = require("electron");
+const path = require("node:path");
+const { moveWindow } = require("../utils/windowPositioner");
 
 class NotificationToast {
   #window;
@@ -25,19 +25,19 @@ class NotificationToast {
       skipTaskbar: true,
       transparent: true,
       webPreferences: {
-        preload: path.join(__dirname, 'notificationToastPreload.js'),
+        preload: path.join(__dirname, "notificationToastPreload.js"),
         contextIsolation: true,
         nodeIntegration: false,
       },
     });
 
-    this.#window.loadFile(path.join(__dirname, 'notificationToast.html'));
+    this.#window.loadFile(path.join(__dirname, "notificationToast.html"));
 
-    this.#window.webContents.once('did-finish-load', () => {
-      this.#window.webContents.send('notification-toast-init', data);
+    this.#window.webContents.once("did-finish-load", () => {
+      this.#window.webContents.send("notification-toast-init", data);
     });
 
-    this.#window.on('closed', () => {
+    this.#window.on("closed", () => {
       this.#clearAutoClose();
     });
   }
@@ -51,7 +51,7 @@ class NotificationToast {
       return;
     }
 
-    moveWindow(this.#window, 'bottomRight');
+    moveWindow(this.#window, "bottomRight");
     this.#window.show();
 
     this.#autoCloseTimer = setTimeout(() => {
@@ -75,5 +75,3 @@ class NotificationToast {
 }
 
 module.exports = NotificationToast;
-
-

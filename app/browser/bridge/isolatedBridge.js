@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Isolated-World Bridge
@@ -164,8 +164,13 @@ class IsolatedBridge {
       // Unrelated postMessage traffic is normal and must not be noisy. Only
       // messages that claimed to be ours but failed a later check are worth
       // reporting, and never with the payload attached.
-      if (result.reason !== "session id mismatch" && result.reason !== "not a plain object") {
-        console.warn("[BRIDGE] Rejected inbound message", { reason: result.reason });
+      if (
+        result.reason !== "session id mismatch" &&
+        result.reason !== "not a plain object"
+      ) {
+        console.warn("[BRIDGE] Rejected inbound message", {
+          reason: result.reason,
+        });
       }
       return;
     }
@@ -196,7 +201,9 @@ class IsolatedBridge {
     // An id is only ever valid for the channel it was issued on, so a response
     // cannot be redirected to a different capability's handler.
     if (pending.channel !== channel) {
-      console.warn("[BRIDGE] Response channel does not match request", { channel });
+      console.warn("[BRIDGE] Response channel does not match request", {
+        channel,
+      });
       return;
     }
 

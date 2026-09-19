@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Bridge Protocol
@@ -149,7 +149,9 @@ function validateInbound(message, options) {
   }
 
   const channels =
-    acceptedChannels instanceof Set ? acceptedChannels : new Set(acceptedChannels ?? []);
+    acceptedChannels instanceof Set
+      ? acceptedChannels
+      : new Set(acceptedChannels ?? []);
   if (typeof message.channel !== "string" || !channels.has(message.channel)) {
     return { ok: false, reason: "channel not accepted" };
   }
@@ -206,7 +208,11 @@ function validateInbound(message, options) {
 function isSameWindowEvent(event, { expectedSource, expectedOrigin }) {
   if (!event || event.source !== expectedSource) return false;
   // A sandboxed or data: document reports "null"; never treat that as our page.
-  if (typeof event.origin !== "string" || event.origin === "" || event.origin === "null") {
+  if (
+    typeof event.origin !== "string" ||
+    event.origin === "" ||
+    event.origin === "null"
+  ) {
     return false;
   }
   return event.origin === expectedOrigin;

@@ -18,129 +18,129 @@ This document lists all IPC (Inter-Process Communication) channels registered in
 
 ## Authentication
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
+| Channel          | Type             | Description                                                       | Location                                                                                                               |
+| ---------------- | ---------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `passkey-create` | Request/Response | Request a new WebAuthn credential from the local passkey provider | [`app/passkey/index.js:167`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/passkey/index.js#L167) |
-| `passkey-get` | Request/Response | Request a WebAuthn assertion from the local passkey provider | [`app/passkey/index.js:162`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/passkey/index.js#L162) |
-| `submitForm` | Event | Handle form submission for SSO/authentication workflows | [`app/login/index.js:26`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/login/index.js#L26) |
+| `passkey-get`    | Request/Response | Request a WebAuthn assertion from the local passkey provider      | [`app/passkey/index.js:162`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/passkey/index.js#L162) |
+| `submitForm`     | Event            | Handle form submission for SSO/authentication workflows           | [`app/login/index.js:26`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/login/index.js#L26)       |
 
 ## Connection Management
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
+| Channel         | Type  | Description                                                    | Location                                                                                                                                 |
+| --------------- | ----- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `offline-retry` | Event | Retry connection when user clicks retry button on offline page | [`app/connectionManager/index.js:42`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/connectionManager/index.js#L42) |
 
 ## Core Application
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `config-file-changed` | Event | Restart application when configuration file changes | [`app/index.js:194`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L194) |
-| `get-app-version` | Request/Response | Get application version number | [`app/index.js:226`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L226) |
-| `get-config` | Request/Response | Get current application configuration | [`app/index.js:196`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L196) |
-| `get-navigation-state` | Request/Response | Get current navigation state (can go back/forward) | [`app/index.js:252`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L252) |
-| `navigate-back` | Event | Navigate back in browser history | [`app/index.js:231`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L231) |
-| `navigate-forward` | Event | Navigate forward in browser history | [`app/index.js:240`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L240) |
-| `set-badge-count` | Request/Response | Set application badge count (dock/taskbar notification) | [`app/index.js:224`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L224) |
-| `user-status-changed` | Request/Response | Handle user status changes from Teams (e.g., Available, Busy, Away) | [`app/index.js:222`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L222) |
+| Channel                | Type             | Description                                                         | Location                                                                                               |
+| ---------------------- | ---------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `config-file-changed`  | Event            | Restart application when configuration file changes                 | [`app/index.js:194`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L194) |
+| `get-app-version`      | Request/Response | Get application version number                                      | [`app/index.js:226`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L226) |
+| `get-config`           | Request/Response | Get current application configuration                               | [`app/index.js:196`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L196) |
+| `get-navigation-state` | Request/Response | Get current navigation state (can go back/forward)                  | [`app/index.js:252`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L252) |
+| `navigate-back`        | Event            | Navigate back in browser history                                    | [`app/index.js:231`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L231) |
+| `navigate-forward`     | Event            | Navigate forward in browser history                                 | [`app/index.js:240`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L240) |
+| `set-badge-count`      | Request/Response | Set application badge count (dock/taskbar notification)             | [`app/index.js:224`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L224) |
+| `user-status-changed`  | Request/Response | Handle user status changes from Teams (e.g., Available, Busy, Away) | [`app/index.js:222`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/index.js#L222) |
 
 ## Custom Background
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
+| Channel              | Type             | Description                                             | Location                                                                                                                               |
+| -------------------- | ---------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `get-custom-bg-list` | Request/Response | Get list of custom background images for Teams meetings | [`app/customBackground/index.js:14`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/customBackground/index.js#L14) |
 
 ## Idle Monitoring
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
+| Channel                 | Type             | Description                                       | Location                                                                                                           |
+| ----------------------- | ---------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `get-system-idle-state` | Request/Response | Get system idle state to sync with Teams presence | [`app/idle/monitor.js:29`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/idle/monitor.js#L29) |
 
 ## Incoming Calls
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `incoming-call-action` | Event | Handle incoming call actions (accept/decline) | [`app/incomingCallToast/index.js:27`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/incomingCallToast/index.js#L27) |
+| Channel                     | Type           | Description                                              | Location                                                                                                                                 |
+| --------------------------- | -------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `incoming-call-action`      | Event          | Handle incoming call actions (accept/decline)            | [`app/incomingCallToast/index.js:27`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/incomingCallToast/index.js#L27) |
 | `incoming-call-toast-ready` | One-Time Event | Signal from toast window that it's ready to be displayed | [`app/incomingCallToast/index.js:37`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/incomingCallToast/index.js#L37) |
 
 ## Main Window
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `call-connected` | Request/Response | Notify when a call is connected | [`app/mainAppWindow/browserWindowManager.js:129`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mainAppWindow/browserWindowManager.js#L129) |
-| `call-disconnected` | Request/Response | Notify when a call is disconnected | [`app/mainAppWindow/browserWindowManager.js:131`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mainAppWindow/browserWindowManager.js#L131) |
-| `select-source` | Event | Handle screen sharing source selection from user | [`app/mainAppWindow/browserWindowManager.js:114`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mainAppWindow/browserWindowManager.js#L114) |
+| Channel             | Type             | Description                                      | Location                                                                                                                                                         |
+| ------------------- | ---------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `call-connected`    | Request/Response | Notify when a call is connected                  | [`app/mainAppWindow/browserWindowManager.js:129`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mainAppWindow/browserWindowManager.js#L129) |
+| `call-disconnected` | Request/Response | Notify when a call is disconnected               | [`app/mainAppWindow/browserWindowManager.js:131`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mainAppWindow/browserWindowManager.js#L131) |
+| `select-source`     | Event            | Handle screen sharing source selection from user | [`app/mainAppWindow/browserWindowManager.js:114`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mainAppWindow/browserWindowManager.js#L114) |
 
 ## Menus & Tray
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `get-teams-settings` | One-Time Event | Receive Teams settings from renderer to save to file | [`app/menus/index.js:222`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/menus/index.js#L222) |
-| `set-teams-settings` | One-Time Event | Acknowledge settings restoration completion from renderer | [`app/menus/index.js:228`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/menus/index.js#L228) |
-| `tray-update` | Event | Update tray icon based on Teams status (notifications, badge count) | [`app/menus/tray.js:20`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/menus/tray.js#L20) |
+| Channel              | Type           | Description                                                         | Location                                                                                                           |
+| -------------------- | -------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `get-teams-settings` | One-Time Event | Receive Teams settings from renderer to save to file                | [`app/menus/index.js:222`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/menus/index.js#L222) |
+| `set-teams-settings` | One-Time Event | Acknowledge settings restoration completion from renderer           | [`app/menus/index.js:228`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/menus/index.js#L228) |
+| `tray-update`        | Event          | Update tray icon based on Teams status (notifications, badge count) | [`app/menus/tray.js:20`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/menus/tray.js#L20)     |
 
 ## Microsoft Graph API
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `graph-api-create-calendar-event` | Request/Response | Create a new calendar event | [`app/graphApi/ipcHandlers.js:47`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L47) |
-| `graph-api-get-calendar-events` | Request/Response | Get calendar events with optional OData query options | [`app/graphApi/ipcHandlers.js:25`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L25) |
-| `graph-api-get-calendar-view` | Request/Response | Get calendar view for a specific time range | [`app/graphApi/ipcHandlers.js:36`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L36) |
-| `graph-api-get-mail-messages` | Request/Response | Get mail messages with optional OData query options | [`app/graphApi/ipcHandlers.js:58`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L58) |
-| `graph-api-get-user-profile` | Request/Response | Get current user profile from Microsoft Graph API | [`app/graphApi/ipcHandlers.js:14`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L14) |
-| `graph-api-search-people` | Request/Response | Search people using People API (for Quick Chat feature) | [`app/graphApi/ipcHandlers.js:69`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L69) |
-| `graph-api-send-chat-message` | Request/Response | Send a chat message to a user via Graph API | [`app/graphApi/ipcHandlers.js:80`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L80) |
+| Channel                           | Type             | Description                                             | Location                                                                                                                           |
+| --------------------------------- | ---------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `graph-api-create-calendar-event` | Request/Response | Create a new calendar event                             | [`app/graphApi/ipcHandlers.js:47`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L47) |
+| `graph-api-get-calendar-events`   | Request/Response | Get calendar events with optional OData query options   | [`app/graphApi/ipcHandlers.js:25`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L25) |
+| `graph-api-get-calendar-view`     | Request/Response | Get calendar view for a specific time range             | [`app/graphApi/ipcHandlers.js:36`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L36) |
+| `graph-api-get-mail-messages`     | Request/Response | Get mail messages with optional OData query options     | [`app/graphApi/ipcHandlers.js:58`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L58) |
+| `graph-api-get-user-profile`      | Request/Response | Get current user profile from Microsoft Graph API       | [`app/graphApi/ipcHandlers.js:14`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L14) |
+| `graph-api-search-people`         | Request/Response | Search people using People API (for Quick Chat feature) | [`app/graphApi/ipcHandlers.js:69`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L69) |
+| `graph-api-send-chat-message`     | Request/Response | Send a chat message to a user via Graph API             | [`app/graphApi/ipcHandlers.js:80`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/graphApi/ipcHandlers.js#L80) |
 
 ## Notifications
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
+| Channel                   | Type             | Description                                          | Location                                                                                                                             |
+| ------------------------- | ---------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `play-notification-sound` | Request/Response | Play notification sound for Teams messages and calls | [`app/notifications/service.js:36`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notifications/service.js#L36) |
-| `show-notification` | Request/Response | Show system notification for Teams activity | [`app/notifications/service.js:38`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notifications/service.js#L38) |
+| `show-notification`       | Request/Response | Show system notification for Teams activity          | [`app/notifications/service.js:38`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notifications/service.js#L38) |
 
 ## Notifications (Custom)
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `notification-show-toast` | Event | Display custom in-app toast notification in bottom-right corner | [`app/notificationSystem/index.js:17`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notificationSystem/index.js#L17) |
-| `notification-toast-click` | Event | Handle toast clicks - close the window and focus main window | [`app/notificationSystem/index.js:19`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notificationSystem/index.js#L19) |
+| Channel                    | Type  | Description                                                     | Location                                                                                                                                   |
+| -------------------------- | ----- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `notification-show-toast`  | Event | Display custom in-app toast notification in bottom-right corner | [`app/notificationSystem/index.js:17`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notificationSystem/index.js#L17) |
+| `notification-toast-click` | Event | Handle toast clicks - close the window and focus main window    | [`app/notificationSystem/index.js:19`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/notificationSystem/index.js#L19) |
 
 ## Other
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `camera-state-changed` | Event | Publish MQTT status when camera state changes | [`app/mqtt/mediaStatusService.js:26`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L26) |
-| `join-meeting-cancel` | Event | No description available | [`app/joinMeetingDialog/index.js:77`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/joinMeetingDialog/index.js#L77) |
-| `join-meeting-submit` | Event | No description available | [`app/joinMeetingDialog/index.js:76`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/joinMeetingDialog/index.js#L76) |
-| `microphone-state-changed` | Event | Publish MQTT status when microphone state changes | [`app/mqtt/mediaStatusService.js:28`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L28) |
-| `quick-chat:hide` | Event | Hide the Quick Chat modal | [`app/quickChat/index.js:33`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/quickChat/index.js#L33) |
-| `quick-chat:show` | Event | Show the Quick Chat modal | [`app/quickChat/index.js:30`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/quickChat/index.js#L30) |
-| `screen-sharing-started` | Event | Publish MQTT status when screen sharing state changes | [`app/mqtt/mediaStatusService.js:31`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L31) |
-| `screen-sharing-stopped` | Event | No description available | [`app/mqtt/mediaStatusService.js:32`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L32) |
+| Channel                    | Type  | Description                                           | Location                                                                                                                                 |
+| -------------------------- | ----- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `camera-state-changed`     | Event | Publish MQTT status when camera state changes         | [`app/mqtt/mediaStatusService.js:26`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L26) |
+| `join-meeting-cancel`      | Event | No description available                              | [`app/joinMeetingDialog/index.js:77`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/joinMeetingDialog/index.js#L77) |
+| `join-meeting-submit`      | Event | No description available                              | [`app/joinMeetingDialog/index.js:76`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/joinMeetingDialog/index.js#L76) |
+| `microphone-state-changed` | Event | Publish MQTT status when microphone state changes     | [`app/mqtt/mediaStatusService.js:28`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L28) |
+| `quick-chat:hide`          | Event | Hide the Quick Chat modal                             | [`app/quickChat/index.js:33`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/quickChat/index.js#L33)                 |
+| `quick-chat:show`          | Event | Show the Quick Chat modal                             | [`app/quickChat/index.js:30`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/quickChat/index.js#L30)                 |
+| `screen-sharing-started`   | Event | Publish MQTT status when screen sharing state changes | [`app/mqtt/mediaStatusService.js:31`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L31) |
+| `screen-sharing-stopped`   | Event | No description available                              | [`app/mqtt/mediaStatusService.js:32`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/mediaStatusService.js#L32) |
 
 ## Partitions & Zoom
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `get-zoom-level` | Request/Response | Get current zoom level for a partition | [`app/partitions/manager.js:12`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/partitions/manager.js#L12) |
-| `save-zoom-level` | Request/Response | Save zoom level for a partition | [`app/partitions/manager.js:14`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/partitions/manager.js#L14) |
+| Channel           | Type             | Description                            | Location                                                                                                                       |
+| ----------------- | ---------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `get-zoom-level`  | Request/Response | Get current zoom level for a partition | [`app/partitions/manager.js:12`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/partitions/manager.js#L12) |
+| `save-zoom-level` | Request/Response | Save zoom level for a partition        | [`app/partitions/manager.js:14`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/partitions/manager.js#L14) |
 
 ## Screen Sharing
 
-| Channel | Type | Description | Location |
-|---------|------|-------------|----------|
-| `cancel-desktop-media` | Event | Cancel desktop media selection dialog | [`app/screenSharing/service.js:15`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L15) |
-| `choose-desktop-media` | Request/Response | Select desktop media source for screen sharing | [`app/screenSharing/service.js:13`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L13) |
-| `close-view` | One-Time Event | Close the stream selector view without selection | [`app/screenSharing/index.js:64`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/index.js#L64) |
-| `desktop-capturer-get-sources` | Request/Response | Get available desktop capturer sources (screens/windows) for sharing | [`app/screenSharing/service.js:11`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L11) |
-| `get-screen-share-screen` | Request/Response | Get screen share screen details | [`app/screenSharing/service.js:25`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L25) |
-| `get-screen-share-stream` | Request/Response | Get screen share stream for thumbnail preview | [`app/screenSharing/service.js:23`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L23) |
-| `get-screen-sharing-status` | Request/Response | Get current screen sharing status | [`app/screenSharing/service.js:21`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L21) |
-| `resize-preview-window` | Event | Resize screen sharing preview window | [`app/screenSharing/service.js:27`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L27) |
-| `screen-sharing-started` | Event | Notify when screen sharing session starts | [`app/screenSharing/service.js:17`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L17) |
-| `screen-sharing-stopped` | Event | Notify when screen sharing session stops | [`app/screenSharing/service.js:19`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L19) |
-| `selected-source` | One-Time Event | Receive user's screen sharing source selection from picker UI | [`app/screenSharing/index.js:62`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/index.js#L62) |
-| `source-selected` | One-Time Event | Receive selected screen sharing source from native picker window | [`app/screenSharing/service.js:211`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L211) |
-| `stop-screen-sharing-from-thumbnail` | Event | Stop screen sharing from thumbnail preview | [`app/screenSharing/service.js:29`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L29) |
+| Channel                              | Type             | Description                                                          | Location                                                                                                                               |
+| ------------------------------------ | ---------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `cancel-desktop-media`               | Event            | Cancel desktop media selection dialog                                | [`app/screenSharing/service.js:15`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L15)   |
+| `choose-desktop-media`               | Request/Response | Select desktop media source for screen sharing                       | [`app/screenSharing/service.js:13`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L13)   |
+| `close-view`                         | One-Time Event   | Close the stream selector view without selection                     | [`app/screenSharing/index.js:64`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/index.js#L64)       |
+| `desktop-capturer-get-sources`       | Request/Response | Get available desktop capturer sources (screens/windows) for sharing | [`app/screenSharing/service.js:11`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L11)   |
+| `get-screen-share-screen`            | Request/Response | Get screen share screen details                                      | [`app/screenSharing/service.js:25`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L25)   |
+| `get-screen-share-stream`            | Request/Response | Get screen share stream for thumbnail preview                        | [`app/screenSharing/service.js:23`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L23)   |
+| `get-screen-sharing-status`          | Request/Response | Get current screen sharing status                                    | [`app/screenSharing/service.js:21`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L21)   |
+| `resize-preview-window`              | Event            | Resize screen sharing preview window                                 | [`app/screenSharing/service.js:27`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L27)   |
+| `screen-sharing-started`             | Event            | Notify when screen sharing session starts                            | [`app/screenSharing/service.js:17`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L17)   |
+| `screen-sharing-stopped`             | Event            | Notify when screen sharing session stops                             | [`app/screenSharing/service.js:19`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L19)   |
+| `selected-source`                    | One-Time Event   | Receive user's screen sharing source selection from picker UI        | [`app/screenSharing/index.js:62`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/index.js#L62)       |
+| `source-selected`                    | One-Time Event   | Receive selected screen sharing source from native picker window     | [`app/screenSharing/service.js:211`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L211) |
+| `stop-screen-sharing-from-thumbnail` | Event            | Stop screen sharing from thumbnail preview                           | [`app/screenSharing/service.js:29`](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/screenSharing/service.js#L29)   |
 
 ---
 
@@ -160,4 +160,4 @@ When adding a new IPC channel:
 
 ---
 
-*Generated by `scripts/generateIpcDocs.js`*
+_Generated by `scripts/generateIpcDocs.js`_

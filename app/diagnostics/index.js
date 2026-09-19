@@ -70,7 +70,7 @@ function initializeCrashReporter(config) {
 
   if (settings.uploadToServer === true && submitURL === "") {
     console.warn(
-      "[DIAGNOSTICS] Crash upload requested without submitURL; keeping dumps local"
+      "[DIAGNOSTICS] Crash upload requested without submitURL; keeping dumps local",
     );
   }
 
@@ -154,11 +154,19 @@ function listCrashDumps() {
       .filter((name) => name.endsWith(".dmp"))
       .map((name) => {
         const stats = fs.statSync(path.join(dir, name));
-        return { name, sizeBytes: stats.size, modified: stats.mtime.toISOString() };
+        return {
+          name,
+          sizeBytes: stats.size,
+          modified: stats.mtime.toISOString(),
+        };
       })
       .sort((a, b) => b.modified.localeCompare(a.modified));
 
-    return { directory: dir, count: entries.length, recent: entries.slice(0, 10) };
+    return {
+      directory: dir,
+      count: entries.length,
+      recent: entries.slice(0, 10),
+    };
   } catch (error) {
     return { error: error.message };
   }
@@ -258,7 +266,7 @@ async function saveDiagnosticsBundle(window, config, timestamp) {
   const stamp = timestamp.replace(/[:.]/g, "-");
   const defaultPath = path.join(
     app.getPath("downloads"),
-    `teams-for-linux-diagnostics-${stamp}.json`
+    `teams-for-linux-diagnostics-${stamp}.json`,
   );
 
   const { canceled, filePath } = await dialog.showSaveDialog(window, {

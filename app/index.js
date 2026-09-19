@@ -12,8 +12,14 @@ const { MQTTClient } = require("./mqtt");
 const MQTTMediaStatusService = require("./mqtt/mediaStatusService");
 const GraphApiClient = require("./graphApi");
 const { registerGraphApiHandlers } = require("./graphApi/ipcHandlers");
-const { validateIpcChannel, allowedChannels } = require("./security/ipcValidator");
-const { register: registerGlobalShortcuts, sendKeyboardEventToWindow } = require("./globalShortcuts");
+const {
+  validateIpcChannel,
+  allowedChannels,
+} = require("./security/ipcValidator");
+const {
+  register: registerGlobalShortcuts,
+  sendKeyboardEventToWindow,
+} = require("./globalShortcuts");
 const CommandLineManager = require("./startup/commandLine");
 const NotificationService = require("./notifications/service");
 const CustomNotificationManager = require("./notificationSystem");
@@ -28,16 +34,17 @@ const isMac = os.platform() === "darwin";
 const { NETWORK_ERROR_PATTERNS } = require("./config/defaults");
 
 function isNetworkError(message) {
-  if (typeof message !== 'string') return false;
-  if (NETWORK_ERROR_PATTERNS.some(pattern => message.includes(pattern))) return true;
+  if (typeof message !== "string") return false;
+  if (NETWORK_ERROR_PATTERNS.some((pattern) => message.includes(pattern)))
+    return true;
   // "Object has been destroyed" errors can occur when the window is destroyed
   // during network-triggered operations (e.g., reload after network recovery).
   // These are transient and should not terminate the app.
-  if (message.includes('Object has been destroyed')) return true;
+  if (message.includes("Object has been destroyed")) return true;
   // "Script failed to execute" occurs when executeJavaScript runs on a page where
   // APIs are unavailable (e.g., Chrome error pages after ERR_NAME_NOT_RESOLVED).
   // This is a symptom of network failure, not a fatal error.
-  if (message.includes('Script failed to execute')) return true;
+  if (message.includes("Script failed to execute")) return true;
   return false;
 }
 
@@ -59,25 +66,31 @@ function terminateAfterFatalError(code = 1) {
 }
 
 // Top-level error handlers for crash diagnostics
-process.on('uncaughtException', (error) => {
+process.on("uncaughtException", (error) => {
   const message = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
   if (isNetworkError(message)) {
-    console.error('[ERROR] Network-related uncaught exception (not terminating):', { message });
+    console.error(
+      "[ERROR] Network-related uncaught exception (not terminating):",
+      { message },
+    );
     return;
   }
-  console.error('[FATAL] Uncaught exception:', { message, stack });
+  console.error("[FATAL] Uncaught exception:", { message, stack });
   terminateAfterFatalError(1);
 });
 
-process.on('unhandledRejection', (reason) => {
+process.on("unhandledRejection", (reason) => {
   const message = reason instanceof Error ? reason.message : String(reason);
   const stack = reason instanceof Error ? reason.stack : undefined;
   if (isNetworkError(message)) {
-    console.error('[ERROR] Network-related unhandled rejection (not terminating):', { message });
+    console.error(
+      "[ERROR] Network-related unhandled rejection (not terminating):",
+      { message },
+    );
     return;
   }
-  console.error('[FATAL] Unhandled promise rejection:', { message, stack });
+  console.error("[FATAL] Unhandled promise rejection:", { message, stack });
   terminateAfterFatalError(1);
 });
 
@@ -93,7 +106,7 @@ CommandLineManager.addSwitchesBeforeConfigLoad();
 const { AppConfiguration } = require("./appConfiguration");
 const appConfig = new AppConfiguration(
   app.getPath("userData"),
-  app.getVersion()
+  app.getVersion(),
 );
 
 const config = appConfig.startupConfig;
@@ -127,7 +140,7 @@ const notificationService = new NotificationService(
   player,
   config,
   mainAppWindow,
-  getUserStatus
+  getUserStatus,
 );
 
 // Initialize screen sharing service
@@ -140,7 +153,10 @@ const partitionsManager = new PartitionsManager(appConfig.settingsStore);
 const idleMonitor = new IdleMonitor(config, getUserStatus);
 
 // Initialize custom notification manager for toast notifications
-const customNotificationManager = new CustomNotificationManager(config, mainAppWindow);
+const customNotificationManager = new CustomNotificationManager(
+  config,
+  mainAppWindow,
+);
 
 if (isMac) {
   requestMediaAccess();
@@ -173,8 +189,12 @@ if (gotTheLock) {
   ipcMain.handle = (channel, handler) => {
     return originalIpcHandle(channel, (event, ...args) => {
       if (!validateIpcChannel(channel, args.length > 0 ? args[0] : null)) {
-        console.error(`[IPC Security] Rejected handle request for channel: ${channel}`);
-        return Promise.reject(new Error(`Unauthorized IPC channel: ${channel}`));
+        console.error(
+          `[IPC Security] Rejected handle request for channel: ${channel}`,
+        );
+        return Promise.reject(
+          new Error(`Unauthorized IPC channel: ${channel}`),
+        );
       }
       return handler(event, ...args);
     });
@@ -195,7 +215,8 @@ if (gotTheLock) {
   // Get current application configuration
   ipcMain.handle("get-config", async () => {
     // Return sanitized config - strip sensitive fields to prevent leaking secrets via IPC
-    const { clientCertPassword, ssoBasicAuthPasswordCommand, ...safeConfig } = config;
+    const { clientCertPassword, ssoBasicAuthPasswordCommand, ...safeConfig } =
+      config;
     if (safeConfig.mqtt) {
       const { password, ...safeMqtt } = safeConfig.mqtt;
       safeConfig.mqtt = safeMqtt;
@@ -302,7 +323,7 @@ function onRenderProcessGone(event, webContents, details) {
 
   const now = Date.now();
   rendererRecoveryAttempts = rendererRecoveryAttempts.filter(
-    (timestamp) => now - timestamp < RENDERER_RECOVERY_WINDOW_MS
+    (timestamp) => now - timestamp < RENDERER_RECOVERY_WINDOW_MS,
   );
 
   const window = mainAppWindow.getWindow();
@@ -318,7 +339,9 @@ function onRenderProcessGone(event, webContents, details) {
       window.webContents.reload();
       return;
     } catch (error) {
-      console.error("[CRASH] Renderer reload failed", { message: error.message });
+      console.error("[CRASH] Renderer reload failed", {
+        message: error.message,
+      });
     }
   }
 
@@ -354,7 +377,9 @@ function handleShortcutCommand({ action, shortcut }) {
     sendKeyboardEventToWindow(window, shortcut);
     console.info(`[MQTT] Executed command '${action}' -> ${shortcut}`);
   } else {
-    console.warn(`[MQTT] Cannot execute command '${action}': window not available`);
+    console.warn(
+      `[MQTT] Cannot execute command '${action}': window not available`,
+    );
   }
 }
 
@@ -363,47 +388,56 @@ function initializeMqtt() {
 
   async function handleGetCalendarCommand({ startDate, endDate }) {
     if (!startDate || !endDate) {
-      console.error('[MQTT] get-calendar requires startDate and endDate');
+      console.error("[MQTT] get-calendar requires startDate and endDate");
       return;
     }
 
-    if (Number.isNaN(Date.parse(startDate)) || Number.isNaN(Date.parse(endDate))) {
-      console.error('[MQTT] get-calendar requires startDate and endDate in valid ISO 8601 format');
+    if (
+      Number.isNaN(Date.parse(startDate)) ||
+      Number.isNaN(Date.parse(endDate))
+    ) {
+      console.error(
+        "[MQTT] get-calendar requires startDate and endDate in valid ISO 8601 format",
+      );
       return;
     }
 
     if (!graphApiClient) {
-      console.error('[MQTT] get-calendar failed: Graph API client not initialized');
+      console.error(
+        "[MQTT] get-calendar failed: Graph API client not initialized",
+      );
       return;
     }
 
-    console.info(`[MQTT] Fetching calendar events from ${startDate} to ${endDate}`);
+    console.info(
+      `[MQTT] Fetching calendar events from ${startDate} to ${endDate}`,
+    );
 
     try {
       const result = await graphApiClient.getCalendarView(startDate, endDate);
 
       if (result.success) {
-        await mqttClient.publishToTopic('calendar', result);
-        console.info('[MQTT] Calendar data published to teams/calendar topic');
+        await mqttClient.publishToTopic("calendar", result);
+        console.info("[MQTT] Calendar data published to teams/calendar topic");
       } else {
-        console.error('[MQTT] Failed to get calendar:', result.error);
+        console.error("[MQTT] Failed to get calendar:", result.error);
       }
     } catch (error) {
-      console.error('[MQTT] Error fetching calendar:', error);
+      console.error("[MQTT] Error fetching calendar:", error);
     }
   }
 
   async function handleMqttCommand(command) {
     const { action } = command;
 
-    if (action === 'get-calendar') {
+    if (action === "get-calendar") {
       await handleGetCalendarCommand(command);
     } else {
       handleShortcutCommand(command);
     }
   }
 
-  mqttClient.on('command', handleMqttCommand);
+  mqttClient.on("command", handleMqttCommand);
   mqttClient.initialize();
 
   mqttMediaStatusService = new MQTTMediaStatusService(mqttClient, config);
@@ -415,7 +449,7 @@ function showConfigurationDialogs() {
     dialog.showMessageBox({
       title: "Configuration Error",
       icon: nativeImage.createFromPath(
-        path.join(config.appPath, "assets/icons/setting-error.256x256.png")
+        path.join(config.appPath, "assets/icons/setting-error.256x256.png"),
       ),
       message: `Error in config file '${config.error}'.\n Loading default configuration`,
     });
@@ -424,7 +458,7 @@ function showConfigurationDialogs() {
     dialog.showMessageBox({
       title: "Configuration Warning",
       icon: nativeImage.createFromPath(
-        path.join(config.appPath, "assets/icons/alert-diamond.256x256.png")
+        path.join(config.appPath, "assets/icons/alert-diamond.256x256.png"),
       ),
       message: config.warnings.join("\n\n"),
     });
@@ -433,12 +467,12 @@ function showConfigurationDialogs() {
 
 function loadMenuToggleSettings() {
   const menuToggleSettings = [
-    'disableNotifications',
-    'disableNotificationSound',
-    'disableNotificationSoundIfNotAvailable',
-    'disableNotificationWindowFlash',
-    'disableBadgeCount',
-    'defaultNotificationUrgency'
+    "disableNotifications",
+    "disableNotificationSound",
+    "disableNotificationSoundIfNotAvailable",
+    "disableNotificationWindowFlash",
+    "disableBadgeCount",
+    "defaultNotificationUrgency",
   ];
 
   for (const setting of menuToggleSettings) {
@@ -457,7 +491,9 @@ function initializeGraphApiClient() {
     graphApiClient.initialize(mainWindow);
     console.debug("[GRAPH_API] Graph API client initialized with main window");
   } else {
-    console.warn("[GRAPH_API] Main window not available, Graph API client not fully initialized");
+    console.warn(
+      "[GRAPH_API] Main window not available, Graph API client not fully initialized",
+    );
   }
 }
 
@@ -475,9 +511,13 @@ function initializeQuickChat() {
       quickChatManager.toggle();
     });
     if (registered) {
-      console.info('[QuickChat] Global keyboard shortcut registered (works even when app is not focused)');
+      console.info(
+        "[QuickChat] Global keyboard shortcut registered (works even when app is not focused)",
+      );
     } else {
-      console.info('[QuickChat] Global shortcut not available; keyboard shortcut works via application menu when app is focused');
+      console.info(
+        "[QuickChat] Global shortcut not available; keyboard shortcut works via application menu when app is focused",
+      );
     }
   }
 }
@@ -524,7 +564,11 @@ async function handleAppReady() {
 
     const customBackground = new CustomBackground(app, config);
     customBackground.initialize();
-    await mainAppWindow.onAppReady(appConfig, customBackground, screenSharingService);
+    await mainAppWindow.onAppReady(
+      appConfig,
+      customBackground,
+      screenSharingService,
+    );
 
     initializeGraphApiClient();
     registerGraphApiHandlers(ipcMain, graphApiClient);
@@ -532,15 +576,25 @@ async function handleAppReady() {
     registerGlobalShortcuts(config, mainAppWindow, app);
     initializeAutoUpdater();
 
-    console.info('[IPC Security] Channel allowlisting enabled');
+    console.info("[IPC Security] Channel allowlisting enabled");
     console.info(`[IPC Security] ${allowedChannels.size} channels allowlisted`);
   } catch (error) {
-    console.error('[STARTUP] Fatal error during app initialization:', { message: error.message, stack: error.stack });
+    console.error("[STARTUP] Fatal error during app initialization:", {
+      message: error.message,
+      stack: error.stack,
+    });
     app.quit();
   }
 }
 
-function handleCertificateError(event, webContents, url, error, certificate, callback) {
+function handleCertificateError(
+  event,
+  webContents,
+  url,
+  error,
+  certificate,
+  callback,
+) {
   certificateModule.onAppCertificateError({
     event,
     webContents,
@@ -558,11 +612,11 @@ async function requestMediaAccess() {
       .askForMediaAccess(permission)
       .catch((err) => {
         console.error(
-          `Error while requesting access for "${permission}": ${err}`
+          `Error while requesting access for "${permission}": ${err}`,
         );
       });
     console.debug(
-      `mac permission ${permission} asked current status ${status}`
+      `mac permission ${permission} asked current status ${status}`,
     );
   }
 }
@@ -575,7 +629,7 @@ async function userStatusChangedHandler(_event, options) {
     try {
       await mqttClient.publishStatus(userStatus);
     } catch (error) {
-      console.error('[MQTT] Failed to publish status:', error);
+      console.error("[MQTT] Failed to publish status:", error);
     }
   }
 }

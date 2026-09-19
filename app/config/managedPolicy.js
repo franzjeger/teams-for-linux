@@ -28,9 +28,7 @@ const POLICY_KEY = "managedPolicy";
 const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 function isPlainObject(value) {
-  return (
-    typeof value === "object" && value !== null && !Array.isArray(value)
-  );
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
@@ -97,7 +95,7 @@ function buildPolicy(systemConfig) {
   const lockAll = policy.lockAll === true;
   const declared = Array.isArray(policy.lockedSettings)
     ? policy.lockedSettings.filter(
-        (entry) => typeof entry === "string" && entry.length > 0
+        (entry) => typeof entry === "string" && entry.length > 0,
       )
     : [];
 
@@ -170,7 +168,10 @@ function enforcePolicy(config, policy) {
     if (!policyValue.found) continue;
 
     const currentValue = getPath(config, setting);
-    if (currentValue.found && deepEquals(currentValue.value, policyValue.value)) {
+    if (
+      currentValue.found &&
+      deepEquals(currentValue.value, policyValue.value)
+    ) {
       continue;
     }
 
@@ -204,7 +205,7 @@ function deepEquals(a, b) {
     const bKeys = Object.keys(b);
     if (aKeys.length !== bKeys.length) return false;
     return aKeys.every(
-      (key) => Object.hasOwn(b, key) && deepEquals(a[key], b[key])
+      (key) => Object.hasOwn(b, key) && deepEquals(a[key], b[key]),
     );
   }
 

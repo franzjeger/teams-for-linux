@@ -12,15 +12,20 @@ class CommandLineManager {
     app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 
     if (app.commandLine.hasSwitch("disable-features")) {
-      const disabledFeatures = app.commandLine.getSwitchValue("disable-features").split(",");
+      const disabledFeatures = app.commandLine
+        .getSwitchValue("disable-features")
+        .split(",");
       if (!disabledFeatures.includes("HardwareMediaKeyHandling")) {
         console.warn(
           "disable-features switch already set without HardwareMediaKeyHandling. " +
-          "Teams media controls may conflict with system media key handling."
+            "Teams media controls may conflict with system media key handling.",
         );
       }
     } else {
-      app.commandLine.appendSwitch("disable-features", "HardwareMediaKeyHandling");
+      app.commandLine.appendSwitch(
+        "disable-features",
+        "HardwareMediaKeyHandling",
+      );
     }
   }
 
@@ -43,7 +48,7 @@ class CommandLineManager {
     // Authentication server whitelist for SSO
     app.commandLine.appendSwitch(
       "auth-server-whitelist",
-      config.authServerWhitelist
+      config.authServerWhitelist,
     );
 
     // GPU acceleration settings
@@ -66,12 +71,14 @@ class CommandLineManager {
   static #configureWayland(config) {
     // 1. PipeWire is always required for screen sharing on Wayland
     if (app.commandLine.hasSwitch("enable-features")) {
-      const features = app.commandLine.getSwitchValue("enable-features").split(",");
+      const features = app.commandLine
+        .getSwitchValue("enable-features")
+        .split(",");
       if (!features.includes("WebRTCPipeWireCapturer")) {
         console.warn(
           "enable-features switch already set without WebRTCPipeWireCapturer. " +
-          "Screen sharing on Wayland may not work correctly. " +
-          "Please add WebRTCPipeWireCapturer to your enable-features list."
+            "Screen sharing on Wayland may not work correctly. " +
+            "Please add WebRTCPipeWireCapturer to your enable-features list.",
         );
       }
     } else {
@@ -82,18 +89,24 @@ class CommandLineManager {
     // Detect XWayland: ozone-platform=x11 forces X11 rendering on a Wayland session.
     // The runtime check is needed because the same config file is used for both
     // native Wayland and XWayland sessions.
-    const isXWayland = app.commandLine.getSwitchValue("ozone-platform") === "x11";
-    const xwaylandOptimizations = isXWayland && config.wayland?.xwaylandOptimizations;
+    const isXWayland =
+      app.commandLine.getSwitchValue("ozone-platform") === "x11";
+    const xwaylandOptimizations =
+      isXWayland && config.wayland?.xwaylandOptimizations;
 
     if (xwaylandOptimizations) {
-      console.info("[Wayland] XWayland optimizations enabled (wayland.xwaylandOptimizations)");
+      console.info(
+        "[Wayland] XWayland optimizations enabled (wayland.xwaylandOptimizations)",
+      );
     }
 
     // 2. GPU handling: respect explicit user setting, otherwise auto-configure.
     //    Native Wayland auto-disables GPU to prevent blank windows.
     //    XWayland with optimizations keeps GPU enabled for camera support (#2169).
     if (config.disableGpuExplicitlySet) {
-      console.info(`[Wayland] Respecting user's disableGpu setting: ${config.disableGpu}`);
+      console.info(
+        `[Wayland] Respecting user's disableGpu setting: ${config.disableGpu}`,
+      );
     } else if (xwaylandOptimizations) {
       console.info("[Wayland] XWayland mode: keeping GPU enabled");
     } else {
@@ -115,12 +128,13 @@ class CommandLineManager {
           console.debug(`Adding electron CLI flag '${flag}'`);
           app.commandLine.appendSwitch(flag);
         } else if (Array.isArray(flag) && typeof flag[0] === "string") {
-          const hasValidValue = flag[1] !== undefined &&
-                                 typeof flag[1] !== "object" &&
-                                 typeof flag[1] !== "function";
+          const hasValidValue =
+            flag[1] !== undefined &&
+            typeof flag[1] !== "object" &&
+            typeof flag[1] !== "function";
           if (hasValidValue) {
             console.debug(
-              `Adding electron CLI flag '${flag[0]}' with value '${flag[1]}'`
+              `Adding electron CLI flag '${flag[0]}' with value '${flag[1]}'`,
             );
             app.commandLine.appendSwitch(flag[0], flag[1]);
           } else {

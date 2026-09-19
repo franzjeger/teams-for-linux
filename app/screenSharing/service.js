@@ -8,25 +8,55 @@ class ScreenSharingService {
 
   initialize() {
     // Get available desktop capturer sources (screens/windows) for sharing
-    ipcMain.handle("desktop-capturer-get-sources", this.#handleGetDesktopCapturerSources.bind(this));
+    ipcMain.handle(
+      "desktop-capturer-get-sources",
+      this.#handleGetDesktopCapturerSources.bind(this),
+    );
     // Select desktop media source for screen sharing
-    ipcMain.handle("choose-desktop-media", this.#handleChooseDesktopMedia.bind(this));
+    ipcMain.handle(
+      "choose-desktop-media",
+      this.#handleChooseDesktopMedia.bind(this),
+    );
     // Cancel desktop media selection dialog
-    ipcMain.on("cancel-desktop-media", this.#handleCancelDesktopMedia.bind(this));
+    ipcMain.on(
+      "cancel-desktop-media",
+      this.#handleCancelDesktopMedia.bind(this),
+    );
     // Notify when screen sharing session starts
-    ipcMain.on("screen-sharing-started", this.#handleScreenSharingStarted.bind(this));
+    ipcMain.on(
+      "screen-sharing-started",
+      this.#handleScreenSharingStarted.bind(this),
+    );
     // Notify when screen sharing session stops
-    ipcMain.on("screen-sharing-stopped", this.#handleScreenSharingStopped.bind(this));
+    ipcMain.on(
+      "screen-sharing-stopped",
+      this.#handleScreenSharingStopped.bind(this),
+    );
     // Get current screen sharing status
-    ipcMain.handle("get-screen-sharing-status", this.#handleGetScreenSharingStatus.bind(this));
+    ipcMain.handle(
+      "get-screen-sharing-status",
+      this.#handleGetScreenSharingStatus.bind(this),
+    );
     // Get screen share stream for thumbnail preview
-    ipcMain.handle("get-screen-share-stream", this.#handleGetScreenShareStream.bind(this));
+    ipcMain.handle(
+      "get-screen-share-stream",
+      this.#handleGetScreenShareStream.bind(this),
+    );
     // Get screen share screen details
-    ipcMain.handle("get-screen-share-screen", this.#handleGetScreenShareScreen.bind(this));
+    ipcMain.handle(
+      "get-screen-share-screen",
+      this.#handleGetScreenShareScreen.bind(this),
+    );
     // Resize screen sharing preview window
-    ipcMain.on("resize-preview-window", this.#handleResizePreviewWindow.bind(this));
+    ipcMain.on(
+      "resize-preview-window",
+      this.#handleResizePreviewWindow.bind(this),
+    );
     // Stop screen sharing from thumbnail preview
-    ipcMain.on("stop-screen-sharing-from-thumbnail", this.#handleStopScreenSharingFromThumbnail.bind(this));
+    ipcMain.on(
+      "stop-screen-sharing-from-thumbnail",
+      this.#handleStopScreenSharingFromThumbnail.bind(this),
+    );
   }
 
   setSelectedSource(source) {
@@ -59,7 +89,7 @@ class ScreenSharingService {
       const sources = await desktopCapturer.getSources(opts);
 
       // Convert NativeImage thumbnails to data URLs for IPC serialization
-      return sources.map(source => {
+      return sources.map((source) => {
         let thumbnailDataUrl = null;
         let appIconDataUrl = null;
 
@@ -68,7 +98,10 @@ class ScreenSharingService {
             thumbnailDataUrl = source.thumbnail.toDataURL();
           }
         } catch (err) {
-          console.error(`[SCREEN_SHARE] Error converting thumbnail for ${source.id}:`, err);
+          console.error(
+            `[SCREEN_SHARE] Error converting thumbnail for ${source.id}:`,
+            err,
+          );
         }
 
         try {
@@ -76,7 +109,10 @@ class ScreenSharingService {
             appIconDataUrl = source.appIcon.toDataURL();
           }
         } catch (err) {
-          console.error(`[SCREEN_SHARE] Error converting appIcon for ${source.id}:`, err);
+          console.error(
+            `[SCREEN_SHARE] Error converting appIcon for ${source.id}:`,
+            err,
+          );
         }
 
         return {
@@ -84,11 +120,14 @@ class ScreenSharingService {
           name: source.name,
           display_id: source.display_id,
           thumbnailDataUrl,
-          appIconDataUrl
+          appIconDataUrl,
         };
       });
     } catch (error) {
-      console.error("[SCREEN_SHARE] Failed to get desktop capturer sources:", error.message);
+      console.error(
+        "[SCREEN_SHARE] Failed to get desktop capturer sources:",
+        error.message,
+      );
       return [];
     }
   }
@@ -103,7 +142,10 @@ class ScreenSharingService {
       const chosen = await this.#showScreenPicker(sources);
       return chosen ? chosen.id : null;
     } catch (error) {
-      console.error("[SCREEN_SHARE] Failed to get desktop media sources:", error.message);
+      console.error(
+        "[SCREEN_SHARE] Failed to get desktop media sources:",
+        error.message,
+      );
       return null;
     }
   }
@@ -117,7 +159,8 @@ class ScreenSharingService {
   #handleScreenSharingStarted(_event, sourceId) {
     // Only update if we received a valid source ID format (screen:x:y or window:x:y)
     if (sourceId) {
-      const isValidFormat = sourceId.startsWith('screen:') || sourceId.startsWith('window:');
+      const isValidFormat =
+        sourceId.startsWith("screen:") || sourceId.startsWith("window:");
       if (isValidFormat) {
         this.#selectedScreenShareSource = sourceId;
       }
@@ -194,7 +237,9 @@ class ScreenSharingService {
         },
       });
 
-      this.#picker.loadFile(path.join(__dirname, "..", "screenPicker", "index.html"));
+      this.#picker.loadFile(
+        path.join(__dirname, "..", "screenPicker", "index.html"),
+      );
 
       this.#picker.webContents.on("did-finish-load", () => {
         this.#picker.webContents.send("sources-list", sources);

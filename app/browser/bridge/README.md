@@ -32,11 +32,11 @@ Teams page
 
 ## Files
 
-| File | World | Purpose |
-|---|---|---|
-| `protocol.js` | neither | Message format and validation. No Electron or DOM, so the security decisions are directly unit testable. |
-| `isolatedBridge.js` | isolated | Owns `ipcRenderer`, injects the agent, correlates requests with responses. |
-| `mainWorldAgent.js` | page | Agent runtime. Its source is stringified and injected; it is never `require`d by the preload. |
+| File                | World    | Purpose                                                                                                  |
+| ------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `protocol.js`       | neither  | Message format and validation. No Electron or DOM, so the security decisions are directly unit testable. |
+| `isolatedBridge.js` | isolated | Owns `ipcRenderer`, injects the agent, correlates requests with responses.                               |
+| `mainWorldAgent.js` | page     | Agent runtime. Its source is stringified and injected; it is never `require`d by the preload.            |
 
 ## What the session id is not
 

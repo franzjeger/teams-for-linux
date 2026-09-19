@@ -1,37 +1,37 @@
-const { _electron: electron } = require('playwright');
-const path = require('node:path');
+const { _electron: electron } = require("playwright");
+const path = require("node:path");
 
-const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
+const PROJECT_ROOT = path.resolve(__dirname, "..", "..", "..");
 
 /**
  * Launch the Electron app with a persisted session directory.
  * The app should load already authenticated (no login required).
  */
 async function launchAuthenticatedApp(sessionDir, extraArgs = []) {
-  const args = [path.join(PROJECT_ROOT, 'app/index.js')];
+  const args = [path.join(PROJECT_ROOT, "app/index.js")];
 
-  if (process.env.CI && process.env.DOCKER_TEST !== 'true') {
-    args.push('--no-sandbox');
+  if (process.env.CI && process.env.DOCKER_TEST !== "true") {
+    args.push("--no-sandbox");
   }
 
   // Docker containers need extra Electron/Chromium flags for headless rendering
-  if (process.env.DOCKER_TEST === 'true') {
+  if (process.env.DOCKER_TEST === "true") {
     args.push(
-      '--no-sandbox',
-      '--disable-gpu',
-      '--disable-gpu-compositing',
-      '--disable-dev-shm-usage',
-      '--disable-features=SpareRendererForSitePerProcess,BackForwardCache',
-      '--renderer-process-limit=1',
-      '--js-flags=--max-old-space-size=4096',
+      "--no-sandbox",
+      "--disable-gpu",
+      "--disable-gpu-compositing",
+      "--disable-dev-shm-usage",
+      "--disable-features=SpareRendererForSitePerProcess,BackForwardCache",
+      "--renderer-process-limit=1",
+      "--js-flags=--max-old-space-size=4096",
       // Match entrypoint.sh: plaintext cookie storage so sessions persist
       // across different D-Bus sessions in Docker
-      '--password-store=basic',
+      "--password-store=basic",
     );
 
     // Wayland needs ozone-platform flag; XWayland uses X11 protocol
-    if (process.env.DISPLAY_SERVER === 'wayland') {
-      args.push('--ozone-platform=wayland');
+    if (process.env.DISPLAY_SERVER === "wayland") {
+      args.push("--ozone-platform=wayland");
     }
   }
 
@@ -43,13 +43,13 @@ async function launchAuthenticatedApp(sessionDir, extraArgs = []) {
   const launchEnv = {
     ...process.env,
     E2E_USER_DATA_DIR: sessionDir,
-    E2E_TESTING: 'true',
+    E2E_TESTING: "true",
   };
 
   // Software rendering in Docker (no GPU)
-  if (process.env.DOCKER_TEST === 'true') {
-    launchEnv.LIBGL_ALWAYS_SOFTWARE = '1';
-    launchEnv.MESA_GL_VERSION_OVERRIDE = '3.3';
+  if (process.env.DOCKER_TEST === "true") {
+    launchEnv.LIBGL_ALWAYS_SOFTWARE = "1";
+    launchEnv.MESA_GL_VERSION_OVERRIDE = "3.3";
   }
 
   const electronApp = await electron.launch({
@@ -66,13 +66,13 @@ async function launchAuthenticatedApp(sessionDir, extraArgs = []) {
  * Returns the Page object for the main window.
  */
 async function waitForTeamsWindow(electronApp) {
-  const isDocker = process.env.DOCKER_TEST === 'true';
+  const isDocker = process.env.DOCKER_TEST === "true";
   await electronApp.firstWindow({ timeout: isDocker ? 60000 : 30000 });
 
   const teamsHostnames = new Set([
-    'teams.cloud.microsoft',
-    'teams.microsoft.com',
-    'teams.live.com',
+    "teams.cloud.microsoft",
+    "teams.microsoft.com",
+    "teams.live.com",
   ]);
 
   // Poll for the Teams window instead of a fixed delay. The app may create
@@ -82,7 +82,7 @@ async function waitForTeamsWindow(electronApp) {
   const pollEnd = Date.now() + timeout;
   while (Date.now() < pollEnd) {
     const windows = electronApp.windows();
-    const mainWindow = windows.find(w => {
+    const mainWindow = windows.find((w) => {
       try {
         const hostname = new URL(w.url()).hostname;
         return teamsHostnames.has(hostname);
@@ -94,7 +94,7 @@ async function waitForTeamsWindow(electronApp) {
     if (mainWindow) {
       return mainWindow;
     }
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   return null;
@@ -116,8 +116,10 @@ async function waitForPreloadReady(page, timeoutMs = 30000) {
       .evaluate(() => {
         // The Notification override is installed synchronously by the preload,
         // before Teams itself loads, so it is the earliest reliable signal.
-        return typeof window.Notification === 'function' &&
-          window.Notification.name === 'CustomNotification';
+        return (
+          typeof window.Notification === "function" &&
+          window.Notification.name === "CustomNotification"
+        );
       })
       .catch(() => false);
 
@@ -137,13 +139,13 @@ async function closeApp(electronApp) {
     await Promise.race([
       electronApp.close(),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Close timeout')), 5000)
+        setTimeout(() => reject(new Error("Close timeout")), 5000),
       ),
     ]);
   } catch {
     try {
       const pid = electronApp.process()?.pid;
-      if (pid) process.kill(pid, 'SIGKILL');
+      if (pid) process.kill(pid, "SIGKILL");
     } catch {
       // ignore
     }

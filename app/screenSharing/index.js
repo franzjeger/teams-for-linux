@@ -25,7 +25,9 @@ class StreamSelector {
   show(callback) {
     // Guard: prevent opening multiple views
     if (this.#view) {
-      console.warn('[StreamSelector] View already open, ignoring duplicate show() call');
+      console.warn(
+        "[StreamSelector] View already open, ignoring duplicate show() call",
+      );
       return;
     }
 

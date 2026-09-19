@@ -14,18 +14,16 @@ exports.onAppCertificateError = function onAppCertificateError(arg) {
   if (arg.error === "net::ERR_CERT_AUTHORITY_INVALID") {
     let unknownIssuerCert = getCertIssuer(arg.certificate);
     const fingerprints = arg.config.customCACertsFingerprints || [];
-    if (
-      fingerprints.includes(
-        unknownIssuerCert.fingerprint
-      )
-    ) {
+    if (fingerprints.includes(unknownIssuerCert.fingerprint)) {
       arg.event.preventDefault();
       arg.callback(true);
     } else {
-      console.error("[CERT] Certificate authority not in allowlist for request");
+      console.error(
+        "[CERT] Certificate authority not in allowlist for request",
+      );
       console.error(
         "[CERT] To trust this certificate, add the following fingerprint to customCACertsFingerprints in config: " +
-          unknownIssuerCert.fingerprint
+          unknownIssuerCert.fingerprint,
       );
       arg.callback(false);
     }

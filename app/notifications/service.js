@@ -33,9 +33,15 @@ class NotificationService {
 
   initialize() {
     // Play notification sound for Teams messages and calls
-    ipcMain.handle("play-notification-sound", this.#handlePlayNotificationSound.bind(this));
+    ipcMain.handle(
+      "play-notification-sound",
+      this.#handlePlayNotificationSound.bind(this),
+    );
     // Show system notification for Teams activity
-    ipcMain.handle("show-notification", this.#handleShowNotification.bind(this));
+    ipcMain.handle(
+      "show-notification",
+      this.#handleShowNotification.bind(this),
+    );
   }
 
   async #handleShowNotification(_event, options) {
@@ -55,7 +61,7 @@ class NotificationService {
       type: options.type,
       urgency: this.#config.defaultNotificationUrgency,
       timestamp: new Date().toISOString(),
-      suggestion: "Monitor totalTimeMs for notification display delays"
+      suggestion: "Monitor totalTimeMs for notification display delays",
     });
 
     try {
@@ -94,22 +100,25 @@ class NotificationService {
         title: options.title,
         totalTimeMs: totalTime,
         urgency: this.#config.defaultNotificationUrgency,
-        performanceNote: totalTime > 500 ? "Slow notification display detected" : "Normal notification speed"
+        performanceNote:
+          totalTime > 500
+            ? "Slow notification display detected"
+            : "Normal notification speed",
       });
-
     } catch (error) {
       console.error("[TRAY_DIAG] Failed to show native notification", {
         error: error.message,
         title: options.title,
         elapsedMs: Date.now() - startTime,
-        suggestion: "Check if notification permissions are granted or icon data is valid"
+        suggestion:
+          "Check if notification permissions are granted or icon data is valid",
       });
     }
   }
 
   async #playNotificationSound(options) {
     console.debug(
-      `Notification => Type: ${options.type}, Audio: ${options.audio}, Title: ${options.title}, Body: ${options.body}`
+      `Notification => Type: ${options.type}, Audio: ${options.audio}, Title: ${options.title}, Body: ${options.body}`,
     );
 
     // Player failed to load or notification sound disabled in config

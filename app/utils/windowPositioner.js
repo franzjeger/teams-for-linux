@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-const { screen } = require('electron');
+const { screen } = require("electron");
 
 const POSITIONS = {
   topRight: (workArea, bounds) => ({

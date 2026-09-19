@@ -39,7 +39,7 @@ function applyCameraAspectRatioPatch() {
     const nativeAspectRatio = width / height;
 
     console.debug(
-      `[CAMERA_ASPECT_RATIO] Track dimensions: ${width}x${height}, aspect ratio: ${nativeAspectRatio.toFixed(2)}`
+      `[CAMERA_ASPECT_RATIO] Track dimensions: ${width}x${height}, aspect ratio: ${nativeAspectRatio.toFixed(2)}`,
     );
 
     try {
@@ -54,12 +54,12 @@ function applyCameraAspectRatioPatch() {
       await track.applyConstraints(constraints);
       console.debug(
         "[CAMERA_ASPECT_RATIO] Applied aspect ratio constraint:",
-        nativeAspectRatio.toFixed(2)
+        nativeAspectRatio.toFixed(2),
       );
     } catch (error) {
       console.warn(
         "[CAMERA_ASPECT_RATIO] Failed to apply constraints:",
-        error.message
+        error.message,
       );
 
       // If exact aspectRatio fails, try with ideal
@@ -69,12 +69,12 @@ function applyCameraAspectRatioPatch() {
         });
         console.debug(
           "[CAMERA_ASPECT_RATIO] Applied ideal aspect ratio:",
-          nativeAspectRatio.toFixed(2)
+          nativeAspectRatio.toFixed(2),
         );
       } catch (fallbackError) {
         console.error(
           "[CAMERA_ASPECT_RATIO] Fallback constraint failed:",
-          fallbackError.message
+          fallbackError.message,
         );
       }
     }
@@ -90,7 +90,7 @@ function applyCameraAspectRatioPatch() {
       if (!activeVideoTracks.has(track)) {
         activeVideoTracks.add(track);
         console.debug(
-          `[CAMERA_ASPECT_RATIO] Monitoring video track: ${track.label}`
+          `[CAMERA_ASPECT_RATIO] Monitoring video track: ${track.label}`,
         );
 
         // Apply initial fix
@@ -99,9 +99,7 @@ function applyCameraAspectRatioPatch() {
         // Clean up when track ends
         track.addEventListener("ended", () => {
           activeVideoTracks.delete(track);
-          console.debug(
-            `[CAMERA_ASPECT_RATIO] Track ended: ${track.label}`
-          );
+          console.debug(`[CAMERA_ASPECT_RATIO] Track ended: ${track.label}`);
         });
       }
     }
@@ -112,7 +110,7 @@ function applyCameraAspectRatioPatch() {
    */
   function interceptGetUserMedia() {
     const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(
-      navigator.mediaDevices
+      navigator.mediaDevices,
     );
 
     navigator.mediaDevices.getUserMedia = async function (constraints) {
@@ -123,7 +121,7 @@ function applyCameraAspectRatioPatch() {
         const videoTracks = stream.getVideoTracks();
         if (videoTracks.length > 0) {
           console.debug(
-            `[CAMERA_ASPECT_RATIO] Camera stream acquired, monitoring ${videoTracks.length} video track(s)`
+            `[CAMERA_ASPECT_RATIO] Camera stream acquired, monitoring ${videoTracks.length} video track(s)`,
           );
           monitorStream(stream);
         }
@@ -148,9 +146,12 @@ function applyCameraAspectRatioPatch() {
     const widthChange = Math.abs(currentSize.width - lastWindowSize.width);
     const heightChange = Math.abs(currentSize.height - lastWindowSize.height);
 
-    if (widthChange > SIGNIFICANT_RESIZE_THRESHOLD || heightChange > SIGNIFICANT_RESIZE_THRESHOLD) {
+    if (
+      widthChange > SIGNIFICANT_RESIZE_THRESHOLD ||
+      heightChange > SIGNIFICANT_RESIZE_THRESHOLD
+    ) {
       console.debug(
-        `[CAMERA_ASPECT_RATIO] Significant window size change detected: ${lastWindowSize.width}x${lastWindowSize.height} -> ${currentSize.width}x${currentSize.height}`
+        `[CAMERA_ASPECT_RATIO] Significant window size change detected: ${lastWindowSize.width}x${lastWindowSize.height} -> ${currentSize.width}x${currentSize.height}`,
       );
 
       // Re-fix all active video tracks
@@ -202,7 +203,7 @@ function init(config) {
   try {
     applyCameraAspectRatioPatch();
     console.info(
-      "[CAMERA_ASPECT_RATIO] Camera aspect ratio fix enabled - will maintain proper aspect ratio when moving between monitors"
+      "[CAMERA_ASPECT_RATIO] Camera aspect ratio fix enabled - will maintain proper aspect ratio when moving between monitors",
     );
   } catch (error) {
     console.error("[CAMERA_ASPECT_RATIO] Failed to initialize:", error);

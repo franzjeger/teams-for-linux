@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * WebAuthn Page-World Shim
@@ -43,7 +43,9 @@ function shimMain(config, injectedBridge) {
 
   const nativeGet = credentials.get.bind(credentials);
   const nativeCreate =
-    typeof credentials.create === "function" ? credentials.create.bind(credentials) : null;
+    typeof credentials.create === "function"
+      ? credentials.create.bind(credentials)
+      : null;
 
   // Read once. A page script that later swaps the global cannot redirect a
   // ceremony that is already wired to the real bridge.
@@ -74,7 +76,9 @@ function shimMain(config, injectedBridge) {
     if (value == null) return null;
     if (value instanceof ArrayBuffer) return Array.from(new Uint8Array(value));
     if (ArrayBuffer.isView(value)) {
-      return Array.from(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
+      return Array.from(
+        new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
+      );
     }
     if (Array.isArray(value)) return value;
     return null;
@@ -101,8 +105,8 @@ function shimMain(config, injectedBridge) {
         Object.entries(props).map(([key, value]) => [
           key,
           { value, enumerable: true, configurable: true, writable: false },
-        ])
-      )
+        ]),
+      ),
     );
 
   const shapeAs = (proto, ownProps) => {
@@ -114,7 +118,11 @@ function shimMain(config, injectedBridge) {
     // `id` and `type` from Credential, and the assertion response gets
     // `clientDataJSON` from AuthenticatorResponse. An unshadowed getter runs
     // against a foreign `this` and throws.
-    for (let level = proto; level && level !== Object.prototype; level = Object.getPrototypeOf(level)) {
+    for (
+      let level = proto;
+      level && level !== Object.prototype;
+      level = Object.getPrototypeOf(level)
+    ) {
       for (const key of Object.getOwnPropertyNames(level)) {
         if (key === "constructor" || Object.hasOwn(target, key)) continue;
         const descriptor = Object.getOwnPropertyDescriptor(level, key);
@@ -141,7 +149,12 @@ function shimMain(config, injectedBridge) {
     return target;
   };
 
-  const assertionResponse = ({ clientDataJSON, authenticatorData, signature, userHandle }) =>
+  const assertionResponse = ({
+    clientDataJSON,
+    authenticatorData,
+    signature,
+    userHandle,
+  }) =>
     shapeAs(globalThis.AuthenticatorAssertionResponse?.prototype, {
       clientDataJSON: toBuffer(clientDataJSON),
       authenticatorData: toBuffer(authenticatorData),
@@ -186,7 +199,7 @@ function shimMain(config, injectedBridge) {
       if (reply?.surfaceToPage && reply?.reason === "excluded") {
         throw new DOMException(
           "A credential matching an excluded descriptor already exists.",
-          "InvalidStateError"
+          "InvalidStateError",
         );
       }
       return FALLBACK;
@@ -198,8 +211,12 @@ function shimMain(config, injectedBridge) {
     const publicKey = options?.publicKey;
 
     // Conditional and silent mediation are autofill flows we cannot present.
-    if (!publicKey || (options?.mediation && options.mediation !== "optional" &&
-        options.mediation !== "required")) {
+    if (
+      !publicKey ||
+      (options?.mediation &&
+        options.mediation !== "optional" &&
+        options.mediation !== "required")
+    ) {
       return nativeGet(options);
     }
 

@@ -12,6 +12,7 @@ Phase 1 (documentation) complete. New features use nested patterns from day one.
 ## Executive Summary
 
 ### Current State
+
 Teams for Linux has **66 active configuration options** managed through a flat yargs-based configuration system. While functional, the current organization has several issues: related options are scattered across documentation categories, naming conventions are inconsistent, and conditional options add complexity.
 
 ### Key Findings
@@ -22,7 +23,7 @@ Teams for Linux has **66 active configuration options** managed through a flat y
    - Window behavior (7 options) scattered across Core, Advanced, and Screen Sharing sections
    - SSO options use inconsistent naming patterns
 
-3. **Conditional Options**: Some options are only relevant when other options are set to specific values:
+2. **Conditional Options**: Some options are only relevant when other options are set to specific values:
 
    **Current Conditional Dependencies:**
    - `customNotification.*` settings only apply when `notificationMethod: "custom"`
@@ -35,29 +36,33 @@ Teams for Linux has **66 active configuration options** managed through a flat y
 
    **Impact:** This pattern creates complexity where not all implementations need all options. Future Phase 2 work should include validation to warn users when dependent options are set without their parent enabled.
 
-4. **Structural Inconsistency**: Mix of flat options and nested objects without clear pattern:
+3. **Structural Inconsistency**: Mix of flat options and nested objects without clear pattern:
    - Good: `mqtt`, `cacheManagement`, `screenSharing`, `media`, `auth`, `customNotification`, `graphApi` (nested)
    - Bad: `customBGServiceBaseUrl`, `customBGServiceConfigFetchInterval` (should be nested)
 
-5. **Naming Issues**: Mix of negative (`disableNotifications`) and positive (`trayIconEnabled`) naming, plus some overly verbose names.
+4. **Naming Issues**: Mix of negative (`disableNotifications`) and positive (`trayIconEnabled`) naming, plus some overly verbose names.
 
 ### Approach Decision
+
 **Incremental Migration** (Phases 2-3 deferred):
 
 **Phase 1 (v2.x)**: Documentation reorganization + deprecation warnings - ✅ **COMPLETE**
 **Phases 2-3**: ⏸️ **DEFERRED** - Nested structure will happen incrementally as modules are refactored
-  - No comprehensive auto-migration tooling will be built
-  - New features will use nested patterns from day one (e.g., `mqtt`, `graphApi`, `customNotification`)
-  - Existing flat options will migrate opportunistically when those modules are refactored
-  - Gradual evolution preferred over coordinated migration effort
+
+- No comprehensive auto-migration tooling will be built
+- New features will use nested patterns from day one (e.g., `mqtt`, `graphApi`, `customNotification`)
+- Existing flat options will migrate opportunistically when those modules are refactored
+- Gradual evolution preferred over coordinated migration effort
 
 ### Expected Benefits
+
 - **Discoverability**: Better documentation grouping helps users find related options
 - **Maintainability**: Nested structure reduces config sprawl
 - **Consistency**: Standardized naming and organization patterns
 - **Future-proofing**: Clear pattern for adding new features
 
 ### Risk Level
+
 **Low**: Phase 1 (docs + MQTT) has zero breaking changes. Phases 2-3 use deprecation warnings and auto-migration to minimize disruption.
 
 ---
@@ -67,6 +72,7 @@ Teams for Linux has **66 active configuration options** managed through a flat y
 ### Configuration Architecture
 
 #### Current Implementation
+
 The configuration system uses a layered approach:
 
 ```
@@ -75,17 +81,20 @@ System Config → User Config → CLI Args → Defaults
 ```
 
 **Files Involved:**
+
 - `app/config/index.js` - Main config loader with yargs
 - `app/appConfiguration/index.js` - AppConfiguration wrapper class
 - User/system config.json files
 
 **Good Aspects:**
+
 - Hierarchical config merging works well
 - Environment variable support via yargs
 - Clear precedence order
 - Immutable config pattern via AppConfiguration class
 
 **Problem Areas:**
+
 - All 66 active options defined in single ~535-line yargs config block
 - No programmatic grouping (only documentation grouping)
 - Mixed patterns (flat vs nested) without clear logic
@@ -95,38 +104,76 @@ System Config → User Config → CLI Args → Defaults
 #### By Current Documentation Category
 
 **Core Application Settings (7 options)**
+
 ```javascript
-url, appTitle, partition, closeAppOnCross, minimized, frame, menubar, webDebug
+(url,
+  appTitle,
+  partition,
+  closeAppOnCross,
+  minimized,
+  frame,
+  menubar,
+  webDebug);
 ```
 
 **Authentication & Security (8 options)**
+
 ```javascript
-authServerWhitelist, clientCertPath, clientCertPassword, customCACertsFingerprints,
-ssoBasicAuthUser, ssoBasicAuthPasswordCommand, ssoInTuneEnabled, ssoInTuneAuthUser,
-proxyServer
+(authServerWhitelist,
+  clientCertPath,
+  clientCertPassword,
+  customCACertsFingerprints,
+  ssoBasicAuthUser,
+  ssoBasicAuthPasswordCommand,
+  ssoInTuneEnabled,
+  ssoInTuneAuthUser,
+  proxyServer);
 ```
 
 **Notifications & UI (10 options)**
+
 ```javascript
-disableNotifications, disableNotificationSound, disableNotificationSoundIfNotAvailable,
-disableNotificationWindowFlash, notificationMethod, defaultNotificationUrgency,
-enableIncomingCallToast, customCSSName, customCSSLocation, followSystemTheme
+(disableNotifications,
+  disableNotificationSound,
+  disableNotificationSoundIfNotAvailable,
+  disableNotificationWindowFlash,
+  notificationMethod,
+  defaultNotificationUrgency,
+  enableIncomingCallToast,
+  customCSSName,
+  customCSSLocation,
+  followSystemTheme);
 ```
 
 **Screen Sharing & Media (7 options)**
+
 ```javascript
-disableAutogain, screenSharingThumbnail, screenLockInhibitionMethod, videoMenu,
-isCustomBackgroundEnabled, customBGServiceBaseUrl, customBGServiceConfigFetchInterval
+(disableAutogain,
+  screenSharingThumbnail,
+  screenLockInhibitionMethod,
+  videoMenu,
+  isCustomBackgroundEnabled,
+  customBGServiceBaseUrl,
+  customBGServiceConfigFetchInterval);
 ```
 
 **System Integration (10 options)**
+
 ```javascript
-trayIconEnabled, appIcon, appIconType, useMutationTitleLogic, awayOnSystemIdle,
-appIdleTimeout, appIdleTimeoutCheckInterval, appActiveCheckInterval,
-disableGlobalShortcuts, globalShortcuts
+(trayIconEnabled,
+  appIcon,
+  appIconType,
+  useMutationTitleLogic,
+  awayOnSystemIdle,
+  appIdleTimeout,
+  appIdleTimeoutCheckInterval,
+  appActiveCheckInterval,
+  disableGlobalShortcuts,
+  globalShortcuts);
 ```
 
 **Advanced Options (15 options)**
+
 ```javascript
 electronCLIFlags, chromeUserAgent, emulateWinChromiumPlatform, disableGpu,
 clearStorageData, watchConfigFile, class, defaultURLHandler, spellCheckerLanguages,
@@ -135,18 +182,20 @@ disableTimestampOnCopy, cacheManagement
 ```
 
 **~~Undocumented~~ ✅ DOCUMENTED**
+
 ```javascript
-mqtt  // Now documented in PR #1939
+mqtt; // Now documented in PR #1939
 ```
 
 **~~Deprecated~~ ✅ REMOVED**
+
 ```javascript
 // contextIsolation, sandbox - REMOVED from configuration
 ```
 
 **Total Active Options: 66**
 
-*Count breakdown: 7 (Core) + 8 (Auth & Security) + 10 (Notifications & UI) + 7 (Screen Sharing & Media) + 10 (System Integration) + 15 (Advanced) + 1 (MQTT) + 2 (customNotification, graphApi) + 6 (from examples: incomingCallCommand, incomingCallCommandArgs, disableBadgeCount, alwaysOnTop, class, disableTimestampOnCopy) = 66 total*
+_Count breakdown: 7 (Core) + 8 (Auth & Security) + 10 (Notifications & UI) + 7 (Screen Sharing & Media) + 10 (System Integration) + 15 (Advanced) + 1 (MQTT) + 2 (customNotification, graphApi) + 6 (from examples: incomingCallCommand, incomingCallCommandArgs, disableBadgeCount, alwaysOnTop, class, disableTimestampOnCopy) = 66 total_
 
 ### Problem Analysis
 
@@ -155,6 +204,7 @@ mqtt  // Now documented in PR #1939
 **Case Study: Idle Detection**
 
 Four tightly coupled options currently in "System Integration":
+
 ```javascript
 awayOnSystemIdle: false,          // Enable feature
 appIdleTimeout: 300,              // Idle duration (seconds)
@@ -163,12 +213,14 @@ appActiveCheckInterval: 2,        // Poll interval to check if active again
 ```
 
 **Issues:**
+
 - Options only make sense together
 - `appIdleTimeout` has no effect if `awayOnSystemIdle` is false
 - Check intervals are implementation details, should be nested
 - Naming doesn't indicate they're related
 
 **Proposed Grouping:**
+
 ```javascript
 idleDetection: {
   enabled: false,           // Clearer than awayOnSystemIdle
@@ -183,6 +235,7 @@ idleDetection: {
 **Case Study: Notification System**
 
 Nine options across multiple categories:
+
 ```javascript
 // Currently in "Notifications & UI"
 disableNotifications: false,
@@ -199,12 +252,14 @@ incomingCallCommandArgs: [],
 ```
 
 **Issues:**
+
 - Last 2 are in examples section, not main options table
 - Mix of `disable*` and `enable*` naming
 - Incoming call toast vs command are related but separated
 - `disableNotificationSoundIfNotAvailable` is 39 characters long
 
 **Proposed Grouping:**
+
 ```javascript
 notifications: {
   enabled: true,                    // Replace disableNotifications
@@ -226,6 +281,7 @@ incomingCalls: {
 **Case Study: Custom Backgrounds**
 
 Three options in "Screen Sharing & Media" (wrong category):
+
 ```javascript
 isCustomBackgroundEnabled: false,
 customBGServiceBaseUrl: "http://localhost",
@@ -233,11 +289,13 @@ customBGServiceConfigFetchInterval: 0,
 ```
 
 **Issues:**
+
 - Not related to screen sharing (these are virtual backgrounds in calls)
 - Inconsistent naming: `isCustomBackgroundEnabled` vs `customBGService*`
 - Should be nested like `mqtt` and `cacheManagement`
 
 **Proposed Grouping:**
+
 ```javascript
 customBackground: {
   enabled: false,               // Replace isCustomBackgroundEnabled
@@ -249,31 +307,39 @@ customBackground: {
 #### Problem 2: Naming Inconsistencies
 
 **Negative vs Positive Naming:**
+
 ```javascript
 // Negative (9 options)
-disableNotifications, disableNotificationSound, disableNotificationSoundIfNotAvailable,
-disableNotificationWindowFlash, disableAutogain, disableGpu, disableGlobalShortcuts,
-disableTimestampOnCopy
+(disableNotifications,
+  disableNotificationSound,
+  disableNotificationSoundIfNotAvailable,
+  disableNotificationWindowFlash,
+  disableAutogain,
+  disableGpu,
+  disableGlobalShortcuts,
+  disableTimestampOnCopy);
 
 // Positive (3 options)
-trayIconEnabled, enableIncomingCallToast, isCustomBackgroundEnabled
+(trayIconEnabled, enableIncomingCallToast, isCustomBackgroundEnabled);
 
 // Mixed pattern creates cognitive overhead
 ```
 
 **Abbreviation Inconsistency:**
+
 ```javascript
 // SSO naming variations
-ssoInTuneEnabled           // camelCase with acronym
-ssoBasicAuthUser           // camelCase with acronym
-ssoBasicAuthPasswordCommand // Very long
+ssoInTuneEnabled; // camelCase with acronym
+ssoBasicAuthUser; // camelCase with acronym
+ssoBasicAuthPasswordCommand; // Very long
 
 // BG vs Background
-customBGServiceBaseUrl     // Abbreviation
-isCustomBackgroundEnabled  // Full word
+customBGServiceBaseUrl; // Abbreviation
+isCustomBackgroundEnabled; // Full word
 ```
 
 **Recommendation:**
+
 - Standardize on positive naming (`enabled` not `disable*`)
 - Use consistent abbreviations or always spell out
 - Nested structure reduces name length needs
@@ -281,6 +347,7 @@ isCustomBackgroundEnabled  // Full word
 #### Problem 3: Flat vs Nested Structure
 
 **Current Nested Options (Good):**
+
 ```javascript
 screenSharingThumbnail: {
   enabled: true,
@@ -318,6 +385,7 @@ msTeamsProtocols: {
 ```
 
 **Current Flat Options (Should Be Nested):**
+
 ```javascript
 // Custom background - should be object
 isCustomBackgroundEnabled: false,
@@ -358,6 +426,7 @@ defaultNotificationUrgency: "normal",
 ```
 
 **Criteria for Nesting:**
+
 - 3+ related options → should be nested
 - Options with common prefix → should be nested
 - Options that only matter when parent is enabled → should be nested
@@ -372,6 +441,7 @@ defaultNotificationUrgency: "normal",
 **Goal:** Improve discoverability without code changes
 
 **Changes:**
+
 1. [x] Add MQTT to configuration.md (completed in PR [#1939](https://github.com/IsmaelMartinez/teams-for-linux/pull/1939))
 2. [x] Remove deprecated options (completed - contextIsolation, sandbox removed)
 3. [ ] Reorganize documentation categories into logical groupings
@@ -380,30 +450,38 @@ defaultNotificationUrgency: "normal",
 
 ```markdown
 ### Application Core
+
 - url, appTitle, partition
 
 ### Window & UI Behavior
+
 - frame, menubar, minimized, closeAppOnCross, class, alwaysOnTop
 
 ### Theming & Appearance
+
 - customCSSName, customCSSLocation, followSystemTheme
 
 ### Tray Icon
+
 - trayIconEnabled, appIcon, appIconType, useMutationTitleLogic
 
 ### Notification System
+
 - disableNotifications, disableNotificationSound,
   disableNotificationSoundIfNotAvailable, disableNotificationWindowFlash,
   notificationMethod, defaultNotificationUrgency
 
 ### Incoming Call Handling
+
 - enableIncomingCallToast, incomingCallCommand, incomingCallCommandArgs
 
 ### Idle & Activity Detection
+
 - awayOnSystemIdle, appIdleTimeout, appIdleTimeoutCheckInterval,
   appActiveCheckInterval
 
 ### Authentication & SSO
+
 - **Basic Authentication**
   - authServerWhitelist, ssoBasicAuthUser, ssoBasicAuthPasswordCommand
 - **InTune SSO**
@@ -412,47 +490,60 @@ defaultNotificationUrgency: "normal",
   - clientCertPath, clientCertPassword, customCACertsFingerprints
 
 ### Network & Proxy
+
 - proxyServer
 
 ### Screen Sharing
+
 - screenSharingThumbnail, screenLockInhibitionMethod
 
 ### Media Settings
+
 - disableAutogain, videoMenu
 
 ### Virtual Backgrounds
+
 - isCustomBackgroundEnabled, customBGServiceBaseUrl,
   customBGServiceConfigFetchInterval
 
 ### URL & Protocol Handling
+
 - defaultURLHandler, meetupJoinRegEx, msTeamsProtocols,
   onNewWindowOpenMeetupJoinUrlInApp
 
 ### Keyboard Shortcuts
+
 - disableGlobalShortcuts, globalShortcuts
 
 ### MQTT Integration
+
 - mqtt configuration object (see [MQTT Integration Guide](https://ismaelmartinez.github.io/teams-for-linux/mqtt-integration))
 
 ### Performance & Hardware
+
 - disableGpu, electronCLIFlags
 
 ### Cache & Storage
+
 - cacheManagement, clearStorageData
 
 ### Development & Debug
+
 - webDebug, logConfig, watchConfigFile
 
 ### Advanced Platform Options
+
 - chromeUserAgent, emulateWinChromiumPlatform, spellCheckerLanguages,
   disableTimestampOnCopy
 
 ### Deprecated Options (Removed)
+
 - contextIsolation (removed from app/config/index.js)
 - sandbox (removed from app/config/index.js)
 ```
 
 **Deliverables:**
+
 - [ ] Updated docs-site/docs/configuration.md (reorganize categories)
 - [x] New MQTT configuration section with examples (completed in PR [#1939](https://github.com/IsmaelMartinez/teams-for-linux/pull/1939))
 - [x] Deprecated options removal (completed - removed from config)
@@ -474,6 +565,7 @@ defaultNotificationUrgency: "normal",
 
 **Area-by-Area Approach:**
 Phase 2 can be implemented incrementally by area, aligning with feature work:
+
 - **Notifications**: When notification refactoring happens, migrate to `notifications` object
 - **Window behavior**: Migrate to `window` object when window features are updated
 - **Authentication**: Migrate to `auth` object during SSO improvements
@@ -528,36 +620,42 @@ function migrateConfig(config) {
   // Notifications migration
   if (hasOldNotificationKeys(config)) {
     migrateNotifications(config);
-    migrations.push('notifications');
+    migrations.push("notifications");
   }
 
   // Window migration
   if (hasOldWindowKeys(config)) {
     migrateWindow(config);
-    migrations.push('window');
+    migrations.push("window");
   }
 
   // Authentication migration
   if (hasOldAuthKeys(config)) {
     migrateAuth(config);
-    migrations.push('auth');
+    migrations.push("auth");
   }
 
   // Log what was migrated (user feedback)
   if (migrations.length > 0) {
-    console.info(`[Config Migration] Auto-migrated: ${migrations.join(', ')}`);
-    console.info('[Config Migration] Your old config still works, but consider updating to new format');
-    console.info('[Config Migration] See: https://ismaelmartinez.github.io/teams-for-linux/configuration');
+    console.info(`[Config Migration] Auto-migrated: ${migrations.join(", ")}`);
+    console.info(
+      "[Config Migration] Your old config still works, but consider updating to new format",
+    );
+    console.info(
+      "[Config Migration] See: https://ismaelmartinez.github.io/teams-for-linux/configuration",
+    );
   }
 
   return config;
 }
 
 function hasOldNotificationKeys(config) {
-  return 'disableNotifications' in config ||
-         'disableNotificationSound' in config ||
-         'disableNotificationSoundIfNotAvailable' in config ||
-         'disableNotificationWindowFlash' in config;
+  return (
+    "disableNotifications" in config ||
+    "disableNotificationSound" in config ||
+    "disableNotificationSoundIfNotAvailable" in config ||
+    "disableNotificationWindowFlash" in config
+  );
 }
 
 function migrateNotifications(config) {
@@ -567,68 +665,77 @@ function migrateNotifications(config) {
       enabled: true,
       sound: { enabled: true, onlyWhenAvailable: false },
       windowFlash: true,
-      method: config.notificationMethod || 'web',
-      urgency: config.defaultNotificationUrgency || 'normal'
+      method: config.notificationMethod || "web",
+      urgency: config.defaultNotificationUrgency || "normal",
     };
   }
 
   // Map old keys to new structure
-  if ('disableNotifications' in config) {
+  if ("disableNotifications" in config) {
     config.notifications.enabled = !config.disableNotifications;
   }
 
-  if ('disableNotificationSound' in config) {
+  if ("disableNotificationSound" in config) {
     config.notifications.sound.enabled = !config.disableNotificationSound;
   }
 
-  if ('disableNotificationSoundIfNotAvailable' in config) {
-    config.notifications.sound.onlyWhenAvailable = config.disableNotificationSoundIfNotAvailable;
+  if ("disableNotificationSoundIfNotAvailable" in config) {
+    config.notifications.sound.onlyWhenAvailable =
+      config.disableNotificationSoundIfNotAvailable;
   }
 
-  if ('disableNotificationWindowFlash' in config) {
+  if ("disableNotificationWindowFlash" in config) {
     config.notifications.windowFlash = !config.disableNotificationWindowFlash;
   }
 }
 
 function hasOldWindowKeys(config) {
-  return 'frame' in config || 'menubar' in config || 'minimized' in config ||
-         'closeAppOnCross' in config || 'alwaysOnTop' in config;
+  return (
+    "frame" in config ||
+    "menubar" in config ||
+    "minimized" in config ||
+    "closeAppOnCross" in config ||
+    "alwaysOnTop" in config
+  );
 }
 
 function migrateWindow(config) {
   if (!config.window) {
     config.window = {
       frame: config.frame ?? true,
-      menubar: config.menubar || 'auto',
+      menubar: config.menubar || "auto",
       minimized: config.minimized || false,
       closeOnCross: config.closeAppOnCross || false,
       alwaysOnTop: config.alwaysOnTop || false,
-      class: config.class || null
+      class: config.class || null,
     };
   }
 }
 
 function hasOldAuthKeys(config) {
-  return 'ssoBasicAuthUser' in config || 'ssoInTuneEnabled' in config ||
-         'clientCertPath' in config;
+  return (
+    "ssoBasicAuthUser" in config ||
+    "ssoInTuneEnabled" in config ||
+    "clientCertPath" in config
+  );
 }
 
 function migrateAuth(config) {
   if (!config.auth) {
     config.auth = {
-      serverWhitelist: config.authServerWhitelist || '*',
+      serverWhitelist: config.authServerWhitelist || "*",
       basic: {
-        user: config.ssoBasicAuthUser || '',
-        passwordCommand: config.ssoBasicAuthPasswordCommand || ''
+        user: config.ssoBasicAuthUser || "",
+        passwordCommand: config.ssoBasicAuthPasswordCommand || "",
       },
       intune: {
         enabled: config.ssoInTuneEnabled || false,
-        user: config.ssoInTuneAuthUser || ''
+        user: config.ssoInTuneAuthUser || "",
       },
       certificate: {
-        path: config.clientCertPath || '',
-        password: config.clientCertPassword || ''
-      }
+        path: config.clientCertPath || "",
+        password: config.clientCertPassword || "",
+      },
     };
   }
 }
@@ -640,7 +747,7 @@ Then use it in `app/config/index.js`:
 
 ```javascript
 // app/config/index.js
-const { migrateConfig } = require('./migration');
+const { migrateConfig } = require("./migration");
 
 function argv(configPath, appVersion) {
   // ... existing config loading ...
@@ -657,11 +764,13 @@ function argv(configPath, appVersion) {
 **Cross-Platform Compatibility:**
 
 This approach works seamlessly across all installation methods:
+
 - **Vanilla**: Reads from `~/.config/teams-for-linux/config.json`
 - **Snap**: Reads from `~/snap/teams-for-linux/current/.config/teams-for-linux/config.json`
 - **Flatpak**: Reads from `~/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/teams-for-linux/config.json`
 
 The migration logic runs **in-memory by default** - it doesn't modify the user's `config.json` file. This means:
+
 - ✅ No write permission issues with snap/flatpak sandboxing
 - ✅ User's original config.json remains untouched
 - ✅ Migration happens transparently every time the app starts
@@ -675,8 +784,8 @@ To accelerate deprecation of old keys, the migration module can optionally offer
 ```javascript
 // app/config/migration.js - Extended version
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 function migrateConfig(config, configPath) {
   const migrations = [];
@@ -692,7 +801,7 @@ function migrateConfig(config, configPath) {
 }
 
 function shouldOfferAutoFix(configPath) {
-  const autoFixMarkerPath = path.join(configPath, '.config-auto-fix-offered');
+  const autoFixMarkerPath = path.join(configPath, ".config-auto-fix-offered");
 
   // Only offer once - create marker file after first prompt
   if (fs.existsSync(autoFixMarkerPath)) {
@@ -703,23 +812,24 @@ function shouldOfferAutoFix(configPath) {
 }
 
 function promptUserForAutoFix(config, configPath, migrations) {
-  const { dialog } = require('electron');
+  const { dialog } = require("electron");
 
   const result = dialog.showMessageBoxSync({
-    type: 'question',
-    title: 'Config Migration Available',
-    message: 'Your config.json uses old format',
-    detail: `Teams for Linux can automatically update your config.json to the new format.\n\n` +
-            `Areas to migrate: ${migrations.join(', ')}\n\n` +
-            `Your current config will be backed up to config.json.backup\n\n` +
-            `Choose "Update Now" to migrate automatically, or "Ask Me Later" to continue with in-memory migration.`,
-    buttons: ['Update Now', 'Ask Me Later'],
+    type: "question",
+    title: "Config Migration Available",
+    message: "Your config.json uses old format",
+    detail:
+      `Teams for Linux can automatically update your config.json to the new format.\n\n` +
+      `Areas to migrate: ${migrations.join(", ")}\n\n` +
+      `Your current config will be backed up to config.json.backup\n\n` +
+      `Choose "Update Now" to migrate automatically, or "Ask Me Later" to continue with in-memory migration.`,
+    buttons: ["Update Now", "Ask Me Later"],
     defaultId: 0,
-    cancelId: 1
+    cancelId: 1,
   });
 
-  const configFilePath = path.join(configPath, 'config.json');
-  const markerPath = path.join(configPath, '.config-auto-fix-offered');
+  const configFilePath = path.join(configPath, "config.json");
+  const markerPath = path.join(configPath, ".config-auto-fix-offered");
 
   if (result === 0) {
     // User chose "Update Now"
@@ -732,7 +842,7 @@ function promptUserForAutoFix(config, configPath, migrations) {
 function writeUpdatedConfig(config, configFilePath, migrations) {
   try {
     // Backup existing config
-    const backupPath = configFilePath + '.backup';
+    const backupPath = configFilePath + ".backup";
     fs.copyFileSync(configFilePath, backupPath);
     console.info(`[Config Migration] Backup created: ${backupPath}`);
 
@@ -740,18 +850,18 @@ function writeUpdatedConfig(config, configFilePath, migrations) {
     const newConfig = {};
 
     // Copy over migrated nested structures
-    if (migrations.includes('notifications') && config.notifications) {
+    if (migrations.includes("notifications") && config.notifications) {
       newConfig.notifications = config.notifications;
     }
-    if (migrations.includes('window') && config.window) {
+    if (migrations.includes("window") && config.window) {
       newConfig.window = config.window;
     }
-    if (migrations.includes('auth') && config.auth) {
+    if (migrations.includes("auth") && config.auth) {
       newConfig.auth = config.auth;
     }
 
     // Copy over other non-migrated options from original config
-    const originalConfig = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+    const originalConfig = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
     const migratedOldKeys = getMigratedOldKeys(migrations);
 
     for (const key in originalConfig) {
@@ -763,28 +873,51 @@ function writeUpdatedConfig(config, configFilePath, migrations) {
     // Write updated config
     fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2));
     console.info(`[Config Migration] Config file updated successfully`);
-    console.info(`[Config Migration] Old keys removed: ${migratedOldKeys.join(', ')}`);
-
+    console.info(
+      `[Config Migration] Old keys removed: ${migratedOldKeys.join(", ")}`,
+    );
   } catch (error) {
-    console.error('[Config Migration] Failed to write updated config:', error.message);
-    console.info('[Config Migration] Continuing with in-memory migration');
+    console.error(
+      "[Config Migration] Failed to write updated config:",
+      error.message,
+    );
+    console.info("[Config Migration] Continuing with in-memory migration");
   }
 }
 
 function getMigratedOldKeys(migrations) {
   const oldKeys = [];
 
-  if (migrations.includes('notifications')) {
-    oldKeys.push('disableNotifications', 'disableNotificationSound',
-                 'disableNotificationSoundIfNotAvailable', 'disableNotificationWindowFlash',
-                 'notificationMethod', 'defaultNotificationUrgency');
+  if (migrations.includes("notifications")) {
+    oldKeys.push(
+      "disableNotifications",
+      "disableNotificationSound",
+      "disableNotificationSoundIfNotAvailable",
+      "disableNotificationWindowFlash",
+      "notificationMethod",
+      "defaultNotificationUrgency",
+    );
   }
-  if (migrations.includes('window')) {
-    oldKeys.push('frame', 'menubar', 'minimized', 'closeAppOnCross', 'alwaysOnTop', 'class');
+  if (migrations.includes("window")) {
+    oldKeys.push(
+      "frame",
+      "menubar",
+      "minimized",
+      "closeAppOnCross",
+      "alwaysOnTop",
+      "class",
+    );
   }
-  if (migrations.includes('auth')) {
-    oldKeys.push('authServerWhitelist', 'ssoBasicAuthUser', 'ssoBasicAuthPasswordCommand',
-                 'ssoInTuneEnabled', 'ssoInTuneAuthUser', 'clientCertPath', 'clientCertPassword');
+  if (migrations.includes("auth")) {
+    oldKeys.push(
+      "authServerWhitelist",
+      "ssoBasicAuthUser",
+      "ssoBasicAuthPasswordCommand",
+      "ssoInTuneEnabled",
+      "ssoInTuneAuthUser",
+      "clientCertPath",
+      "clientCertPassword",
+    );
   }
 
   return oldKeys;
@@ -940,14 +1073,16 @@ auth: {
 **Backward Compatibility:**
 
 Old flat options remain supported with deprecation warnings:
+
 ```json
 {
-  "disableNotifications": false,  // DEPRECATED: Use notifications.enabled
-  "closeAppOnCross": false        // DEPRECATED: Use window.closeOnCross
+  "disableNotifications": false, // DEPRECATED: Use notifications.enabled
+  "closeAppOnCross": false // DEPRECATED: Use window.closeOnCross
 }
 ```
 
 Auto-migration ensures both work:
+
 ```json
 // User provides old config
 {
@@ -963,6 +1098,7 @@ Auto-migration ensures both work:
 ```
 
 **Deliverables:**
+
 - Updated app/config/index.js with nested options
 - Migration function with auto-conversion
 - Deprecation warnings for old keys
@@ -976,6 +1112,7 @@ Auto-migration ensures both work:
 **Original Goal:** Automatically migrate remaining users without breaking their systems
 
 **Changes:**
+
 1. Remove old flat option definitions from yargs schema (cleanup)
 2. **Keep migration logic** - it still works automatically
 3. **Auto-write migrated config** if old keys detected (no prompt in v3.0)
@@ -985,6 +1122,7 @@ Auto-migration ensures both work:
 **No Breaking Changes:**
 
 Old configs still work via automatic migration:
+
 ```json
 // OLD FORMAT (still works in v3.0)
 {
@@ -1017,23 +1155,29 @@ function migrateConfig(config, configPath) {
   // In v3.0: Automatically write migrated config if old keys detected
   if (migrations.length > 0) {
     console.info(`[Config Migration v3.0] Old config format detected`);
-    console.info(`[Config Migration v3.0] Automatically updating to new format...`);
+    console.info(
+      `[Config Migration v3.0] Automatically updating to new format...`,
+    );
 
     try {
-      const configFilePath = path.join(configPath, 'config.json');
+      const configFilePath = path.join(configPath, "config.json");
       writeUpdatedConfig(config, configFilePath, migrations);
 
       // Show user notification (non-blocking)
-      const { Notification } = require('electron');
+      const { Notification } = require("electron");
       new Notification({
-        title: 'Config Updated',
-        body: 'Your config.json was automatically updated to v3.0 format. Backup saved to config.json.backup'
+        title: "Config Updated",
+        body: "Your config.json was automatically updated to v3.0 format. Backup saved to config.json.backup",
       }).show();
 
       console.info(`[Config Migration v3.0] Migration complete`);
     } catch (error) {
-      console.warn(`[Config Migration v3.0] Could not write to disk: ${error.message}`);
-      console.info(`[Config Migration v3.0] In-memory migration successful, app will work normally`);
+      console.warn(
+        `[Config Migration v3.0] Could not write to disk: ${error.message}`,
+      );
+      console.info(
+        `[Config Migration v3.0] In-memory migration successful, app will work normally`,
+      );
     }
   }
 
@@ -1042,6 +1186,7 @@ function migrateConfig(config, configPath) {
 ```
 
 **Benefits:**
+
 - Zero breakage even for users who never migrated
 - Automatic upgrade on first v3.0 launch
 - Backup created automatically
@@ -1053,6 +1198,7 @@ function migrateConfig(config, configPath) {
 The automatic migration in v3.0 addresses several edge cases:
 
 1. **Read-only config files**: Falls back to in-memory migration with warning log. App continues to work normally.
+
    ```javascript
    catch (error) {
      console.warn(`[Config Migration v3.0] Could not write to disk: ${error.message}`);
@@ -1081,6 +1227,7 @@ The automatic migration in v3.0 addresses several edge cases:
    - User's manual changes take precedence
 
 **Deliverables:**
+
 - Remove old options from yargs schema (cleanup)
 - Update migration module for automatic v3.0 behavior
 - Add notification on auto-migration
@@ -1095,11 +1242,13 @@ The automatic migration in v3.0 addresses several edge cases:
 ### Phase 1: Documentation (2.x - Next Release)
 
 **Week 1:**
+
 - [x] ~~Add MQTT configuration section to docs~~ ✅ **COMPLETED** in PR [#1939](https://github.com/IsmaelMartinez/teams-for-linux/pull/1939)
 - [x] ~~Remove deprecated options (contextIsolation/sandbox)~~ ✅ **COMPLETED** (removed from app/config/index.js)
 - [ ] Reorganize configuration.md categories
 
 **Testing:**
+
 - Documentation builds without errors
 - All existing config.json examples still work
 - No code changes, zero risk
@@ -1111,18 +1260,21 @@ The automatic migration in v3.0 addresses several edge cases:
 **Status:** ⏸️ DEFERRED - Comprehensive migration not planned
 
 **Original Week 1-2: Implementation**
+
 - [ ] Add new nested option definitions to yargs
 - [ ] Implement auto-migration function
 - [ ] Add deprecation warnings for old keys
 - [ ] Update AppConfiguration to handle both patterns
 
 **Week 3: Testing**
+
 - [ ] Test auto-migration with various config combinations
 - [ ] Verify backward compatibility
 - [ ] Update E2E tests to use new format
 - [ ] Manual testing across platforms
 
 **Week 4: Documentation**
+
 - [ ] Update all documentation examples to new format
 - [ ] Add migration guide with examples
 - [ ] Document both old and new patterns during transition
@@ -1132,11 +1284,13 @@ The automatic migration in v3.0 addresses several edge cases:
 ### Phase 3: Automatic Migration (3.0 - NO BREAKING CHANGES)
 
 **Planning Phase:**
+
 - [ ] Announce v3.0 automatic migration in release notes
 - [ ] Update documentation to show new format as primary
 - [ ] Monitor GitHub issues for migration problems
 
 **Implementation Phase:**
+
 - [ ] Update migration logic to automatically write to disk in v3.0
 - [ ] Add notification about automatic migration with backup location
 - [ ] Remove deprecated flat options from schema
@@ -1150,35 +1304,39 @@ The automatic migration in v3.0 addresses several edge cases:
 ## Risk Assessment
 
 ### Phase 1 Risks: LOW
+
 - **No code changes** - Documentation only
 - **No user impact** - Existing configs work unchanged
 - **Mitigation:** N/A - zero risk
 
 ### Phase 2 Risks: MEDIUM
+
 - **Auto-migration bugs** - Could break configs
-  - *Mitigation:* Extensive test coverage, gradual rollout
+  - _Mitigation:_ Extensive test coverage, gradual rollout
 
 - **Confusion during transition** - Two ways to do same thing
-  - *Mitigation:* Clear documentation, deprecation warnings
+  - _Mitigation:_ Clear documentation, deprecation warnings
 
 - **Complexity increase** - Migration logic adds code
-  - *Mitigation:* Well-tested, isolated module, long-term maintenance burden is low
+  - _Mitigation:_ Well-tested, isolated module, long-term maintenance burden is low
 
 ### Phase 3 Risks: LOW-MEDIUM
+
 - **Automatic migration edge cases** - Some configs might not migrate perfectly
-  - *Mitigation:* Extensive testing in v2.x, backup created before migration, user notification
+  - _Mitigation:_ Extensive testing in v2.x, backup created before migration, user notification
 
 - **File write permissions** - Migration might fail in restricted environments
-  - *Mitigation:* Graceful fallback to in-memory migration, clear error messaging
+  - _Mitigation:_ Graceful fallback to in-memory migration, clear error messaging
 
 - **Enterprise deployment awareness** - Admins need to know configs will auto-update
-  - *Mitigation:* Clear release notes, advance notice, backup preservation
+  - _Mitigation:_ Clear release notes, advance notice, backup preservation
 
 ---
 
 ## Success Metrics
 
 ### Phase 1 Success Criteria
+
 - [x] MQTT configuration documented with examples (completed in PR [#1939](https://github.com/IsmaelMartinez/teams-for-linux/pull/1939))
 - [x] Deprecated options removed (completed - contextIsolation, sandbox removed)
 - [ ] All 66 options organized into logical categories
@@ -1186,6 +1344,7 @@ The automatic migration in v3.0 addresses several edge cases:
 - [ ] Documentation builds and deploys successfully
 
 ### Phase 2 Success Criteria
+
 - [ ] New nested options work correctly
 - [ ] Auto-migration handles all edge cases
 - [ ] Deprecation warnings guide users to new format
@@ -1193,6 +1352,7 @@ The automatic migration in v3.0 addresses several edge cases:
 - [ ] E2E tests pass with both old and new config formats
 
 ### Phase 3 Success Criteria
+
 - [ ] Automatic migration works across all platforms (vanilla, snap, flatpak)
 - [ ] All configs auto-migrate on first v3.0 launch
 - [ ] Backups created successfully before migration
@@ -1211,11 +1371,13 @@ The automatic migration in v3.0 addresses several edge cases:
 **Approach:** Implement all changes in one release with breaking changes.
 
 **Pros:**
+
 - Faster to implement
 - Cleaner codebase immediately
 - No migration logic needed
 
 **Cons:**
+
 - High risk of breaking user configs
 - No graceful upgrade path
 - Poor user experience
@@ -1228,11 +1390,13 @@ The automatic migration in v3.0 addresses several edge cases:
 **Approach:** Keep current flat structure, only improve documentation.
 
 **Pros:**
+
 - Zero breaking changes ever
 - No code changes needed
 - Minimal effort
 
 **Cons:**
+
 - Doesn't solve underlying problems
 - Config will continue to grow flat
 - Harder to add new features cleanly
@@ -1245,11 +1409,13 @@ The automatic migration in v3.0 addresses several edge cases:
 **Approach:** Support config.v2.json alongside config.json indefinitely.
 
 **Pros:**
+
 - No breaking changes
 - Users opt-in to new format
 - Both formats work forever
 
 **Cons:**
+
 - Doubles maintenance burden
 - Confusing for users (which to use?)
 - Code complexity from dual support
@@ -1262,22 +1428,26 @@ The automatic migration in v3.0 addresses several edge cases:
 ## References
 
 ### Internal Documentation
+
 - [Configuration Options](../../configuration.md) - Current user documentation
 - [MQTT Integration](https://github.com/IsmaelMartinez/teams-for-linux/blob/develop/app/mqtt/README.md) - MQTT module documentation
 - Architecture Modernization Research (removed — DDD approach rejected, incremental refactoring adopted)
 
 ### Code References
+
 - `app/config/index.js` - Main configuration loader (yargs definitions)
 - `app/appConfiguration/index.js` - AppConfiguration wrapper class
 - `docs-site/docs/configuration.md` - User-facing documentation
 
 ### Related Issues
+
 - Configuration improvements investigation (current)
 - MQTT integration: [#1926](https://github.com/IsmaelMartinez/teams-for-linux/pull/1926), [#1931](https://github.com/IsmaelMartinez/teams-for-linux/pull/1931)
 - MQTT documentation: [#1939](https://github.com/IsmaelMartinez/teams-for-linux/pull/1939) ✅ **MERGED**
 - System-wide config: [#1773](https://github.com/IsmaelMartinez/teams-for-linux/issues/1773)
 
 ### External References
+
 - [Yargs Configuration](https://yargs.js.org/docs/#api-reference-configobject) - Config file handling
 - [Semantic Versioning](https://semver.org/) - Breaking change guidance
 - [Electron App Configuration Best Practices](https://www.electronjs.org/docs/latest/api/app#appgetpathname)
@@ -1469,73 +1639,73 @@ The automatic migration in v3.0 addresses several edge cases:
 
 ### Migration Mapping Table
 
-| Old Flat Key | New Nested Key | Notes |
-|--------------|----------------|-------|
-| `appTitle` | `app.title` | Moved |
-| `url` | `app.url` | Moved |
-| `partition` | `app.partition` | Moved |
-| `frame` | `window.frame` | Moved |
-| `menubar` | `window.menubar` | Moved |
-| `minimized` | `window.minimized` | Moved |
-| `closeAppOnCross` | `window.closeOnCross` | Renamed + moved |
-| `alwaysOnTop` | `window.alwaysOnTop` | Clarified scope |
-| `class` | `window.class` | Moved |
-| `customCSSName` | `appearance.cssName` | Renamed + moved |
-| `customCSSLocation` | `appearance.cssLocation` | Renamed + moved |
-| `followSystemTheme` | `appearance.followSystemTheme` | Moved |
-| `trayIconEnabled` | `tray.enabled` | Renamed + moved |
-| `appIcon` | `tray.icon` | Renamed + moved |
-| `appIconType` | `tray.iconType` | Renamed + moved |
-| `useMutationTitleLogic` | `tray.useMutationTitleLogic` | Moved |
-| `disableNotifications` | `notifications.enabled` | Inverted + moved |
-| `disableNotificationSound` | `notifications.sound.enabled` | Inverted + moved |
-| `disableNotificationSoundIfNotAvailable` | `notifications.sound.onlyWhenAvailable` | Renamed + moved |
-| `disableNotificationWindowFlash` | `notifications.windowFlash` | Inverted + moved |
-| `notificationMethod` | `notifications.method` | Moved |
-| `defaultNotificationUrgency` | `notifications.urgency` | Renamed + moved |
-| `enableIncomingCallToast` | `incomingCalls.toast` | Renamed + moved |
-| `incomingCallCommand` | `incomingCalls.command` | Renamed + moved |
-| `incomingCallCommandArgs` | `incomingCalls.commandArgs` | Renamed + moved |
-| `awayOnSystemIdle` | `idleDetection.setAwayOnIdle` | Renamed + moved |
-| `appIdleTimeout` | `idleDetection.timeout` | Renamed + moved |
-| `appIdleTimeoutCheckInterval` | `idleDetection.checkInterval.idle` | Renamed + moved |
-| `appActiveCheckInterval` | `idleDetection.checkInterval.active` | Renamed + moved |
-| `authServerWhitelist` | `auth.serverWhitelist` | Moved |
-| `ssoBasicAuthUser` | `auth.basic.user` | Renamed + moved |
-| `ssoBasicAuthPasswordCommand` | `auth.basic.passwordCommand` | Renamed + moved |
-| `ssoInTuneEnabled` | `auth.intune.enabled` | Renamed + moved |
-| `ssoInTuneAuthUser` | `auth.intune.user` | Renamed + moved |
-| `clientCertPath` | `auth.certificate.path` | Moved |
-| `clientCertPassword` | `auth.certificate.password` | Moved |
-| `customCACertsFingerprints` | `auth.customCACertsFingerprints` | Moved |
-| `proxyServer` | `network.proxyServer` | Moved |
-| `screenSharingThumbnail` | `screenSharing.thumbnail` | Moved |
-| `screenLockInhibitionMethod` | `screenSharing.lockInhibitionMethod` | Renamed + moved |
-| `disableAutogain` | `media.disableAutogain` | Moved |
-| `videoMenu` | `media.videoMenu` | Moved |
-| `isCustomBackgroundEnabled` | `customBackground.enabled` | Renamed + moved |
-| `customBGServiceBaseUrl` | `customBackground.serviceBaseUrl` | Renamed + moved |
-| `customBGServiceConfigFetchInterval` | `customBackground.configFetchInterval` | Renamed + moved |
-| `defaultURLHandler` | `urlHandling.defaultHandler` | Renamed + moved |
-| `meetupJoinRegEx` | `urlHandling.meetupJoinRegEx` | Moved |
-| `msTeamsProtocols` | `urlHandling.msTeamsProtocols` | Moved |
-| `onNewWindowOpenMeetupJoinUrlInApp` | `urlHandling.openMeetupJoinInApp` | Renamed + moved |
-| `globalShortcuts` | `shortcuts.global` | Moved |
-| `disableGlobalShortcuts` | `shortcuts.disableWhileFocused` | Renamed + moved |
-| `mqtt` | `mqtt` | Already nested |
-| `disableGpu` | `performance.disableGpu` | Moved |
-| `electronCLIFlags` | `performance.electronCLIFlags` | Moved |
-| `cacheManagement` | `storage.cacheManagement` | Moved |
-| `clearStorageData` | `storage.clearStorageData` | Moved |
-| `webDebug` | `development.webDebug` | Moved |
-| `logConfig` | `development.logConfig` | Moved |
-| `watchConfigFile` | `development.watchConfigFile` | Moved |
-| `chromeUserAgent` | `platform.chromeUserAgent` | Moved |
-| `emulateWinChromiumPlatform` | `platform.emulateWinChromiumPlatform` | Moved |
-| `spellCheckerLanguages` | `platform.spellCheckerLanguages` | Moved |
-| `disableTimestampOnCopy` | `platform.disableTimestampOnCopy` | Moved |
-| `contextIsolation` | *REMOVED* | Deprecated, always enabled |
-| `sandbox` | *REMOVED* | Deprecated, always enabled |
+| Old Flat Key                             | New Nested Key                          | Notes                      |
+| ---------------------------------------- | --------------------------------------- | -------------------------- |
+| `appTitle`                               | `app.title`                             | Moved                      |
+| `url`                                    | `app.url`                               | Moved                      |
+| `partition`                              | `app.partition`                         | Moved                      |
+| `frame`                                  | `window.frame`                          | Moved                      |
+| `menubar`                                | `window.menubar`                        | Moved                      |
+| `minimized`                              | `window.minimized`                      | Moved                      |
+| `closeAppOnCross`                        | `window.closeOnCross`                   | Renamed + moved            |
+| `alwaysOnTop`                            | `window.alwaysOnTop`                    | Clarified scope            |
+| `class`                                  | `window.class`                          | Moved                      |
+| `customCSSName`                          | `appearance.cssName`                    | Renamed + moved            |
+| `customCSSLocation`                      | `appearance.cssLocation`                | Renamed + moved            |
+| `followSystemTheme`                      | `appearance.followSystemTheme`          | Moved                      |
+| `trayIconEnabled`                        | `tray.enabled`                          | Renamed + moved            |
+| `appIcon`                                | `tray.icon`                             | Renamed + moved            |
+| `appIconType`                            | `tray.iconType`                         | Renamed + moved            |
+| `useMutationTitleLogic`                  | `tray.useMutationTitleLogic`            | Moved                      |
+| `disableNotifications`                   | `notifications.enabled`                 | Inverted + moved           |
+| `disableNotificationSound`               | `notifications.sound.enabled`           | Inverted + moved           |
+| `disableNotificationSoundIfNotAvailable` | `notifications.sound.onlyWhenAvailable` | Renamed + moved            |
+| `disableNotificationWindowFlash`         | `notifications.windowFlash`             | Inverted + moved           |
+| `notificationMethod`                     | `notifications.method`                  | Moved                      |
+| `defaultNotificationUrgency`             | `notifications.urgency`                 | Renamed + moved            |
+| `enableIncomingCallToast`                | `incomingCalls.toast`                   | Renamed + moved            |
+| `incomingCallCommand`                    | `incomingCalls.command`                 | Renamed + moved            |
+| `incomingCallCommandArgs`                | `incomingCalls.commandArgs`             | Renamed + moved            |
+| `awayOnSystemIdle`                       | `idleDetection.setAwayOnIdle`           | Renamed + moved            |
+| `appIdleTimeout`                         | `idleDetection.timeout`                 | Renamed + moved            |
+| `appIdleTimeoutCheckInterval`            | `idleDetection.checkInterval.idle`      | Renamed + moved            |
+| `appActiveCheckInterval`                 | `idleDetection.checkInterval.active`    | Renamed + moved            |
+| `authServerWhitelist`                    | `auth.serverWhitelist`                  | Moved                      |
+| `ssoBasicAuthUser`                       | `auth.basic.user`                       | Renamed + moved            |
+| `ssoBasicAuthPasswordCommand`            | `auth.basic.passwordCommand`            | Renamed + moved            |
+| `ssoInTuneEnabled`                       | `auth.intune.enabled`                   | Renamed + moved            |
+| `ssoInTuneAuthUser`                      | `auth.intune.user`                      | Renamed + moved            |
+| `clientCertPath`                         | `auth.certificate.path`                 | Moved                      |
+| `clientCertPassword`                     | `auth.certificate.password`             | Moved                      |
+| `customCACertsFingerprints`              | `auth.customCACertsFingerprints`        | Moved                      |
+| `proxyServer`                            | `network.proxyServer`                   | Moved                      |
+| `screenSharingThumbnail`                 | `screenSharing.thumbnail`               | Moved                      |
+| `screenLockInhibitionMethod`             | `screenSharing.lockInhibitionMethod`    | Renamed + moved            |
+| `disableAutogain`                        | `media.disableAutogain`                 | Moved                      |
+| `videoMenu`                              | `media.videoMenu`                       | Moved                      |
+| `isCustomBackgroundEnabled`              | `customBackground.enabled`              | Renamed + moved            |
+| `customBGServiceBaseUrl`                 | `customBackground.serviceBaseUrl`       | Renamed + moved            |
+| `customBGServiceConfigFetchInterval`     | `customBackground.configFetchInterval`  | Renamed + moved            |
+| `defaultURLHandler`                      | `urlHandling.defaultHandler`            | Renamed + moved            |
+| `meetupJoinRegEx`                        | `urlHandling.meetupJoinRegEx`           | Moved                      |
+| `msTeamsProtocols`                       | `urlHandling.msTeamsProtocols`          | Moved                      |
+| `onNewWindowOpenMeetupJoinUrlInApp`      | `urlHandling.openMeetupJoinInApp`       | Renamed + moved            |
+| `globalShortcuts`                        | `shortcuts.global`                      | Moved                      |
+| `disableGlobalShortcuts`                 | `shortcuts.disableWhileFocused`         | Renamed + moved            |
+| `mqtt`                                   | `mqtt`                                  | Already nested             |
+| `disableGpu`                             | `performance.disableGpu`                | Moved                      |
+| `electronCLIFlags`                       | `performance.electronCLIFlags`          | Moved                      |
+| `cacheManagement`                        | `storage.cacheManagement`               | Moved                      |
+| `clearStorageData`                       | `storage.clearStorageData`              | Moved                      |
+| `webDebug`                               | `development.webDebug`                  | Moved                      |
+| `logConfig`                              | `development.logConfig`                 | Moved                      |
+| `watchConfigFile`                        | `development.watchConfigFile`           | Moved                      |
+| `chromeUserAgent`                        | `platform.chromeUserAgent`              | Moved                      |
+| `emulateWinChromiumPlatform`             | `platform.emulateWinChromiumPlatform`   | Moved                      |
+| `spellCheckerLanguages`                  | `platform.spellCheckerLanguages`        | Moved                      |
+| `disableTimestampOnCopy`                 | `platform.disableTimestampOnCopy`       | Moved                      |
+| `contextIsolation`                       | _REMOVED_                               | Deprecated, always enabled |
+| `sandbox`                                | _REMOVED_                               | Deprecated, always enabled |
 
 ---
 
@@ -1544,12 +1714,14 @@ The automatic migration in v3.0 addresses several edge cases:
 **Decision (2026-01-18):** The comprehensive three-phase migration approach has been **deferred in favor of incremental evolution**.
 
 **Rationale:**
+
 - Complexity of auto-migration doesn't justify the benefits
 - New features already use nested configuration patterns successfully
 - Existing flat options work fine and can migrate opportunistically
 - Avoids risk of breaking existing user configurations
 
 **Current Approach:**
+
 1. ✅ **Phase 1 Complete** - Documentation improvements delivered
 2. ⏸️ **Phases 2-3 Deferred** - No coordinated migration effort
 3. ✅ **New features** - Use nested patterns from day one (e.g., `mqtt`, `graphApi`, `customNotification`)
@@ -1576,38 +1748,39 @@ Since this research was completed, several improvements have been implemented:
 
 The following flat options have been migrated to nested structures and are now deprecated:
 
-| Deprecated Option | New Nested Option | Status |
-|-------------------|-------------------|--------|
-| `screenSharingThumbnail` | `screenSharing.thumbnail` | ✅ Migrated, deprecated warning active |
+| Deprecated Option            | New Nested Option                    | Status                                 |
+| ---------------------------- | ------------------------------------ | -------------------------------------- |
+| `screenSharingThumbnail`     | `screenSharing.thumbnail`            | ✅ Migrated, deprecated warning active |
 | `screenLockInhibitionMethod` | `screenSharing.lockInhibitionMethod` | ✅ Migrated, deprecated warning active |
-| `disableAutogain` | `media.microphone.disableAutogain` | ✅ Migrated, deprecated warning active |
-| `videoMenu` | `media.video.menuEnabled` | ✅ Migrated, deprecated warning active |
-| `ssoInTuneEnabled` | `auth.intune.enabled` | ✅ Migrated, deprecated warning active |
-| `ssoInTuneAuthUser` | `auth.intune.user` | ✅ Migrated, deprecated warning active |
+| `disableAutogain`            | `media.microphone.disableAutogain`   | ✅ Migrated, deprecated warning active |
+| `videoMenu`                  | `media.video.menuEnabled`            | ✅ Migrated, deprecated warning active |
+| `ssoInTuneEnabled`           | `auth.intune.enabled`                | ✅ Migrated, deprecated warning active |
+| `ssoInTuneAuthUser`          | `auth.intune.user`                   | ✅ Migrated, deprecated warning active |
 
 **New Nested Configuration Objects (Added from the start):**
 
 These features were added with nested configuration from day one:
 
-| Configuration Object | Options | Added In |
-|---------------------|---------|----------|
-| `mqtt` | `enabled`, `brokerUrl`, `username`, `password`, `clientId`, `topicPrefix`, `statusTopic`, `commandTopic`, `statusCheckInterval` | PR #1926, #1931, #1986 |
-| `graphApi` | `enabled` | PR #1958 |
-| `customNotification` | `toastDuration` | PR #1979 |
-| `media` | `microphone.disableAutogain`, `camera.resolution.*`, `camera.autoAdjustAspectRatio.*`, `video.menuEnabled` | Incremental |
-| `screenSharing` | `thumbnail.enabled`, `thumbnail.alwaysOnTop`, `lockInhibitionMethod` | Incremental |
-| `auth` | `intune.enabled`, `intune.user` | Incremental |
-| `cacheManagement` | `enabled`, `maxCacheSizeMB`, `cacheCheckIntervalMs` | Original |
-| `logConfig` | `transports.console.level`, `transports.file.level` | Original |
-| `msTeamsProtocols` | `v1`, `v2` | Original |
-| `quickChat` | `enabled` | Incremental |
-| `wayland` | `xwaylandOptimizations` | Incremental |
+| Configuration Object | Options                                                                                                                         | Added In               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `mqtt`               | `enabled`, `brokerUrl`, `username`, `password`, `clientId`, `topicPrefix`, `statusTopic`, `commandTopic`, `statusCheckInterval` | PR #1926, #1931, #1986 |
+| `graphApi`           | `enabled`                                                                                                                       | PR #1958               |
+| `customNotification` | `toastDuration`                                                                                                                 | PR #1979               |
+| `media`              | `microphone.disableAutogain`, `camera.resolution.*`, `camera.autoAdjustAspectRatio.*`, `video.menuEnabled`                      | Incremental            |
+| `screenSharing`      | `thumbnail.enabled`, `thumbnail.alwaysOnTop`, `lockInhibitionMethod`                                                            | Incremental            |
+| `auth`               | `intune.enabled`, `intune.user`                                                                                                 | Incremental            |
+| `cacheManagement`    | `enabled`, `maxCacheSizeMB`, `cacheCheckIntervalMs`                                                                             | Original               |
+| `logConfig`          | `transports.console.level`, `transports.file.level`                                                                             | Original               |
+| `msTeamsProtocols`   | `v1`, `v2`                                                                                                                      | Original               |
+| `quickChat`          | `enabled`                                                                                                                       | Incremental            |
+| `wayland`            | `xwaylandOptimizations`                                                                                                         | Incremental            |
 
 **Legacy Backward Compatibility:**
 
 All deprecated flat options continue to work via automatic mapping in the application code. Users are shown deprecation warnings at startup when using old options, guiding them to migrate to the new nested format.
 
 The nested configuration structure will:
+
 - Make related options easier to discover and configure
 - Provide a clear pattern for future features
 - Reduce config file clutter
@@ -1615,6 +1788,7 @@ The nested configuration structure will:
 - Create better user experience with logical grouping
 
 **Future Considerations:**
+
 - **Sensitive Data Security**: Move sensitive configuration (e.g., `clientCertPassword`, MQTT credentials) outside of config.json and implement encryption
   - Separate secure storage for credentials
   - Integration with system keyring/secret service

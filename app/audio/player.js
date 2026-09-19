@@ -1,22 +1,32 @@
-'use strict';
+"use strict";
 
-const { execFile } = require('node:child_process');
-const os = require('node:os');
+const { execFile } = require("node:child_process");
+const os = require("node:os");
 
 const simpleArgs = (f) => [f];
 
 function getPlatformPlayers() {
   const platform = os.platform();
-  if (platform === 'darwin') {
-    return [{ cmd: 'afplay', args: simpleArgs }];
+  if (platform === "darwin") {
+    return [{ cmd: "afplay", args: simpleArgs }];
   }
-  if (platform === 'win32') {
-    return [{ cmd: 'powershell', args: (f) => ['-c', '(New-Object System.Media.SoundPlayer $args[0]).PlaySync()', '-args', f] }];
+  if (platform === "win32") {
+    return [
+      {
+        cmd: "powershell",
+        args: (f) => [
+          "-c",
+          "(New-Object System.Media.SoundPlayer $args[0]).PlaySync()",
+          "-args",
+          f,
+        ],
+      },
+    ];
   }
   return [
-    { cmd: 'paplay', args: simpleArgs },
-    { cmd: 'pw-play', args: simpleArgs },
-    { cmd: 'aplay', args: simpleArgs },
+    { cmd: "paplay", args: simpleArgs },
+    { cmd: "pw-play", args: simpleArgs },
+    { cmd: "aplay", args: simpleArgs },
   ];
 }
 
@@ -27,7 +37,7 @@ let detectionPromise = null;
 function detectPlayer() {
   if (detectionPromise) return detectionPromise;
 
-  const which = os.platform() === 'win32' ? 'where' : 'which';
+  const which = os.platform() === "win32" ? "where" : "which";
 
   detectionPromise = new Promise((resolve) => {
     if (PLAYERS.length === 0) {
@@ -59,7 +69,7 @@ function createPlayer() {
     async play(filePath) {
       const player = await detectPlayer();
       if (!player) {
-        console.warn('[Audio] No audio player available, cannot play sound');
+        console.warn("[Audio] No audio player available, cannot play sound");
         return;
       }
 

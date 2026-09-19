@@ -20,6 +20,7 @@ The current release process forces one release per merge to main, which doesn't 
 4. No control over when changes ship to users
 
 Additionally, writing changelog entries manually when preparing releases is:
+
 - Time-consuming (5-10 minutes per release)
 - Error-prone (remembering all changes after the fact)
 - Inconsistent (varying levels of detail and formatting)
@@ -37,12 +38,14 @@ Additionally, writing changelog entries manually when preparing releases is:
 ### Research Conducted
 
 **Spike 1: Quality Validation**
+
 - Tested Gemini 2.0 Flash on 5 real PRs from the repository
 - Average quality score: 9.0/10
 - Generated summaries averaged 60 characters vs manual 165 characters
 - Better consistency and conciseness than manual entries
 
 **Spike 2: Implementation Validation**
+
 - Tested GitHub Actions permissions for committing to PR branches
 - Validated industry-standard workflow pattern
 - Confirmed secure implementation without script injection vulnerabilities
@@ -54,11 +57,13 @@ Additionally, writing changelog entries manually when preparing releases is:
 ### Architecture
 
 **Changelog Staging Area:**
+
 - `.changelog/` directory stores pending changelog entries
 - Each merged PR creates `.changelog/pr-XXX.txt` with AI-generated summary
 - Files accumulate on PR branches until consumed during release
 
 **Workflow:**
+
 1. PR opened/updated → GitHub Action triggers
 2. Gemini AI analyzes PR title and description
 3. Generates concise one-line summary (max 80 chars)
@@ -72,6 +77,7 @@ Additionally, writing changelog entries manually when preparing releases is:
    - Commit and push → triggers build only when version changes
 
 **Security Measures:**
+
 - Use `actions/github-script@v7` to avoid script injection
 - All user input via `context.payload` (never bash interpolation)
 - Isolated environment with hardcoded PATH for npm operations
@@ -84,10 +90,12 @@ Additionally, writing changelog entries manually when preparing releases is:
 **Approach:** Continue writing changelogs manually when preparing releases
 
 **Pros:**
+
 - No external dependencies
 - Full human control over wording
 
 **Cons:**
+
 - Time-consuming (5-10 min per release)
 - Inconsistent format
 - Written when memory is fading
@@ -100,10 +108,12 @@ Additionally, writing changelog entries manually when preparing releases is:
 **Approach:** Use Claude via official GitHub Action
 
 **Pros:**
+
 - Excellent quality summaries
 - Official Anthropic support
 
 **Cons:**
+
 - Not free (~$0.001 per summary)
 - Requires separate API key
 
@@ -114,10 +124,12 @@ Additionally, writing changelog entries manually when preparing releases is:
 **Approach:** Fully automated Release PR workflow (like Changesets)
 
 **Pros:**
+
 - Fully automated version bumping
 - Industry-standard pattern
 
 **Cons:**
+
 - Complex setup
 - Less flexibility for manual control
 - Overkill for current needs
@@ -129,9 +141,11 @@ Additionally, writing changelog entries manually when preparing releases is:
 **Approach:** Generate changelog and commit to main after PR merge
 
 **Pros:**
+
 - Simpler workflow
 
 **Cons:**
+
 - Creates extra commits on main
 - Triggers extra CI/CD runs (50% overhead)
 - Messy git history
@@ -166,12 +180,14 @@ Additionally, writing changelog entries manually when preparing releases is:
 ## Implementation
 
 **Files Created:**
+
 - `.github/workflows/changelog-generator.yml` - Auto-generates entries
 - `scripts/release-prepare.js` - Optional script to consume changelogs
 - `.changelog/README.md` - Quick setup guide
 - `docs-site/docs/development/manual-release-process.md` - Release guide
 
 **npm Scripts:**
+
 ```json
 {
   "release:prepare": "node scripts/release-prepare.js"
@@ -181,6 +197,7 @@ Additionally, writing changelog entries manually when preparing releases is:
 **Manual changelog entries:** Users can simply create `.changelog/*.txt` files directly.
 
 **GitHub Action Trigger:**
+
 ```yaml
 on:
   pull_request_target:
@@ -193,12 +210,14 @@ permissions:
 > **Note:** The workflow uses `pull_request_target` instead of `pull_request` to enable posting comments on external fork PRs. This ensures the `GITHUB_TOKEN` has write permissions and access to repository secrets. The workflow only uses PR metadata for Gemini API calls and never checks out or executes code from external forks.
 
 **Gemini API Configuration:**
+
 - Model: `gemini-2.5-flash` (stable; migrated from experimental models — see amendment below)
 - Temperature: 0.3 (consistent, less creative)
 - Max tokens: 100 (sufficient for one-liner)
 - Free tier: 1,500 requests/day
 
 **Security Implementation:**
+
 - Module-level constant: `SAFE_PATH = '/usr/bin:/bin'`
 - Isolated environment for npm operations
 - No user input in shell commands
@@ -207,18 +226,21 @@ permissions:
 ## Validation
 
 **Spike 1 Results (Quality):**
+
 - Tested on 5 real PRs from repository
 - Average quality: 9.0/10
 - Average length: 60 chars (vs manual 165 chars)
 - Better conciseness and consistency than manual
 
 **Spike 2 Results (Implementation):**
+
 - GitHub Actions permissions work correctly
 - Commits to PR branch successfully
 - Workflow triggers appropriately
 - Security checks pass (SonarQube)
 
 **Production Test:**
+
 - Validated on PR #1951 (this implementation)
 - Generated entry: "Add AI-powered changelog system to decouple merging from releasing"
 - Workflow executed successfully
@@ -238,17 +260,20 @@ permissions:
 **Context:** The original implementation provided good changelog entries but the release notes were a flat list without categorization or documentation links.
 
 **Enhancement:** Added `generateReleaseNotes.mjs` script that:
+
 - **Categorizes changes** automatically based on conventional commit prefixes (feat, fix, docs, etc.)
 - **Detects Electron updates** and links to Electron release notes
 - **Detects configuration changes** by parsing `docs/configuration.md` and matching option names in changelog entries
 - **Includes documentation links** to relevant sections automatically
 
 **New Features:**
+
 - `npm run generate-release-notes` - Generate categorized release notes
 - `npm run release:prepare -- --dry-run` - Preview release without making changes
 - PR bodies now include full categorized release notes with documentation links
 
 **Benefits:**
+
 - No hardcoded keyword mappings to maintain
 - Config options extracted dynamically from documentation
 - Electron version detection is automatic
@@ -259,11 +284,13 @@ permissions:
 **Context:** The snap release process had a version ambiguity problem. Every push to main published snaps to the edge channel with the same version number (e.g., `2.7.5`). Post-release merges produced edge snaps with the same version as the release, making it impossible to tell which edge revision matched the actual release when promoting to stable.
 
 **Changes:**
+
 - **Edge builds now include commit SHA suffix** — Snaps published to edge are versioned as `2.7.5-edge.g1a2b3c4`, making each build uniquely identifiable
 - **New `snap-release.yml` workflow** — Triggered when a GitHub Release is published, builds snaps from the release tag and uploads them to the **candidate** channel using `snapcraft upload --release=candidate`
 - **Three-channel strategy** — edge (dev builds) → candidate (release builds) → stable (manual promotion)
 
 **Benefits:**
+
 - Clear distinction between development and release snap builds
 - No more version ambiguity when promoting to stable
 - Release builds are automatically published to candidate on GitHub Release
@@ -276,6 +303,7 @@ permissions:
 **Change:** Migrated the changelog generator from `gemini-2.0-flash-exp` to `gemini-2.5-flash`, aligning all AI automation systems in the project on the same stable model.
 
 **Rationale:**
+
 - Experimental models (`-exp` suffix) can be deprecated at any time by Google
 - The triage bot has been running on `gemini-2.5-flash` since v2.7.8 with no quality regressions
 - Having all systems on the same model simplifies quota monitoring and reduces the blast radius of API changes

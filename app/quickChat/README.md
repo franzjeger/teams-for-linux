@@ -44,11 +44,11 @@ app/quickChat/
 
 ## IPC Channels
 
-| Channel | Type | Description |
-|---------|------|-------------|
-| `quick-chat:show` | on | Show the modal |
-| `quick-chat:hide` | on | Hide the modal |
-| `graph-api-search-people` | handle | Search contacts via People API |
+| Channel                       | Type   | Description                        |
+| ----------------------------- | ------ | ---------------------------------- |
+| `quick-chat:show`             | on     | Show the modal                     |
+| `quick-chat:hide`             | on     | Hide the modal                     |
+| `graph-api-search-people`     | handle | Search contacts via People API     |
 | `graph-api-send-chat-message` | handle | Send message to user via Graph API |
 
 ## How It Works

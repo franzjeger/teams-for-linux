@@ -27,12 +27,12 @@ User **vbartik** requested three additional MQTT status fields for RGB LED autom
 
 ### Existing IPC Channels to Leverage
 
-| State | IPC Channel | Location |
-|-------|-------------|----------|
-| Call connected | `call-connected` | `app/mainAppWindow/browserWindowManager.js:150` |
-| Call disconnected | `call-disconnected` | `app/mainAppWindow/browserWindowManager.js:152` |
-| Screen sharing started | `screen-sharing-started` | `app/screenSharing/service.js:22` |
-| Screen sharing stopped | `screen-sharing-stopped` | `app/screenSharing/service.js:24` |
+| State                  | IPC Channel              | Location                                        |
+| ---------------------- | ------------------------ | ----------------------------------------------- |
+| Call connected         | `call-connected`         | `app/mainAppWindow/browserWindowManager.js:150` |
+| Call disconnected      | `call-disconnected`      | `app/mainAppWindow/browserWindowManager.js:152` |
+| Screen sharing started | `screen-sharing-started` | `app/screenSharing/service.js:22`               |
+| Screen sharing stopped | `screen-sharing-stopped` | `app/screenSharing/service.js:24`               |
 
 ### What Still Needs WebRTC Monitoring
 
@@ -52,20 +52,19 @@ User **vbartik** requested three additional MQTT status fields for RGB LED autom
 
 ```javascript
 // Intercept getUserMedia (pattern from disableAutogain.js)
-navigator.mediaDevices.getUserMedia = function(constraints) {
-  return originalGetUserMedia.call(this, constraints).then(stream => {
-
+navigator.mediaDevices.getUserMedia = function (constraints) {
+  return originalGetUserMedia.call(this, constraints).then((stream) => {
     // Skip screen sharing streams (see "Screen Sharing Note" below)
     if (isScreenShare(constraints)) return stream;
 
     // Monitor camera state
-    stream.getVideoTracks().forEach(track => {
-      monitorTrack(track, 'camera');
+    stream.getVideoTracks().forEach((track) => {
+      monitorTrack(track, "camera");
     });
 
     // Monitor microphone state
-    stream.getAudioTracks().forEach(track => {
-      monitorTrack(track, 'microphone');
+    stream.getAudioTracks().forEach((track) => {
+      monitorTrack(track, "microphone");
     });
 
     // In-call = any active stream
@@ -73,12 +72,13 @@ navigator.mediaDevices.getUserMedia = function(constraints) {
 
     return stream;
   });
-}
+};
 ```
 
 ### Track Monitoring (Hybrid Approach)
 
 **Critical**: MediaStreamTrack state can change via two methods:
+
 1. **Events** (mute/unmute) - Fires events
 2. **Property** (track.enabled = false) - Does NOT fire events ⚠️
 
@@ -87,25 +87,25 @@ Teams UI buttons likely use `track.enabled`, so we need both:
 ```javascript
 function monitorTrack(track, type) {
   // Event monitoring (immediate response)
-  track.addEventListener('ended', () => publishState(type, false));
-  track.addEventListener('mute', () => publishState(type, false));
-  track.addEventListener('unmute', () => publishState(type, true));
+  track.addEventListener("ended", () => publishState(type, false));
+  track.addEventListener("mute", () => publishState(type, false));
+  track.addEventListener("unmute", () => publishState(type, true));
 
   // Poll track.enabled property (catches UI button clicks)
-  let lastState = track.enabled && track.readyState === 'live';
+  let lastState = track.enabled && track.readyState === "live";
   const pollInterval = setInterval(() => {
-    if (track.readyState === 'ended') {
+    if (track.readyState === "ended") {
       clearInterval(pollInterval);
       return;
     }
-    const currentState = track.enabled && track.readyState === 'live';
+    const currentState = track.enabled && track.readyState === "live";
     if (currentState !== lastState) {
       publishState(type, currentState);
       lastState = currentState;
     }
   }, 500); // Poll every 500ms
 
-  track.addEventListener('ended', () => clearInterval(pollInterval));
+  track.addEventListener("ended", () => clearInterval(pollInterval));
 }
 ```
 
@@ -123,11 +123,12 @@ function monitorTrack(track, type) {
 
 ```javascript
 function isScreenShare(constraints) {
-  return constraints?.video && (
-    constraints.video.chromeMediaSource === "desktop" ||
-    constraints.video.mandatory?.chromeMediaSource === "desktop" ||
-    constraints.video.chromeMediaSourceId ||
-    constraints.video.mandatory?.chromeMediaSourceId
+  return (
+    constraints?.video &&
+    (constraints.video.chromeMediaSource === "desktop" ||
+      constraints.video.mandatory?.chromeMediaSource === "desktop" ||
+      constraints.video.chromeMediaSourceId ||
+      constraints.video.mandatory?.chromeMediaSourceId)
   );
 }
 ```
@@ -140,14 +141,14 @@ MQTT payloads are **strings**, not JavaScript types. Convert booleans explicitly
 
 ```javascript
 // Renderer → Main IPC
-ipcRenderer.invoke('mqtt-extended-status-changed', {
-  camera: true,      // boolean in JS
+ipcRenderer.invoke("mqtt-extended-status-changed", {
+  camera: true, // boolean in JS
   microphone: false,
-  inCall: true
+  inCall: true,
 });
 
 // Main → MQTT Broker
-publishToMqtt('teams/camera', String(data.camera));  // "true" as string
+publishToMqtt("teams/camera", String(data.camera)); // "true" as string
 ```
 
 ---
@@ -190,7 +191,7 @@ automation:
       target:
         entity_id: light.office_led
       data:
-        rgb_color: [255, 0, 0]  # Red
+        rgb_color: [255, 0, 0] # Red
 ```
 
 ---
@@ -203,7 +204,7 @@ Following the established pattern (see `CustomNotificationManager`, `ScreenShari
 
 ```javascript
 // app/mqtt/mediaStatusService.js
-const { ipcMain } = require('electron');
+const { ipcMain } = require("electron");
 
 class MQTTMediaStatusService {
   #mqttClient;
@@ -216,26 +217,29 @@ class MQTTMediaStatusService {
 
   initialize() {
     // Publish MQTT status when call connects
-    ipcMain.on('call-connected', this.#handleCallConnected.bind(this));
+    ipcMain.on("call-connected", this.#handleCallConnected.bind(this));
 
     // Publish MQTT status when call disconnects
-    ipcMain.on('call-disconnected', this.#handleCallDisconnected.bind(this));
+    ipcMain.on("call-disconnected", this.#handleCallDisconnected.bind(this));
 
     // Publish MQTT status when camera state changes
-    ipcMain.on('camera-state-changed', this.#handleCameraChanged.bind(this));
+    ipcMain.on("camera-state-changed", this.#handleCameraChanged.bind(this));
 
     // Publish MQTT status when microphone state changes
-    ipcMain.on('microphone-state-changed', this.#handleMicrophoneChanged.bind(this));
+    ipcMain.on(
+      "microphone-state-changed",
+      this.#handleMicrophoneChanged.bind(this),
+    );
 
-    console.info('[MQTTMediaStatusService] Initialized');
+    console.info("[MQTTMediaStatusService] Initialized");
   }
 
   async #handleCallConnected() {
     if (this.#config.mqtt?.call?.enabled) {
       await this.#mqttClient.publish(
         `$\{this.#config.mqtt.topicPrefix}/$\{this.#config.mqtt.call.topic}`,
-        'true',
-        { retain: true }
+        "true",
+        { retain: true },
       );
     }
   }
@@ -244,8 +248,8 @@ class MQTTMediaStatusService {
     if (this.#config.mqtt?.call?.enabled) {
       await this.#mqttClient.publish(
         `$\{this.#config.mqtt.topicPrefix}/$\{this.#config.mqtt.call.topic}`,
-        'false',
-        { retain: true }
+        "false",
+        { retain: true },
       );
     }
     // Also reset camera/mic when call ends
@@ -258,7 +262,7 @@ class MQTTMediaStatusService {
       await this.#mqttClient.publish(
         `$\{this.#config.mqtt.topicPrefix}/$\{this.#config.mqtt.camera.topic}`,
         String(enabled),
-        { retain: true }
+        { retain: true },
       );
     }
   }
@@ -268,7 +272,7 @@ class MQTTMediaStatusService {
       await this.#mqttClient.publish(
         `$\{this.#config.mqtt.topicPrefix}/$\{this.#config.mqtt.microphone.topic}`,
         String(enabled),
-        { retain: true }
+        { retain: true },
       );
     }
   }
@@ -333,6 +337,7 @@ Phase 1 provides call state (`in-call`) and connection state (`connected`) via e
 **Deferral Reason**: Awaiting confirmation from user ([#1938](https://github.com/IsmaelMartinez/teams-for-linux/issues/1938)) that the current Phase 1 implementation is insufficient for their RGB LED automation needs. Will implement Phase 2 only if user confirms they need granular camera/mic state in addition to call state.
 
 **If/When Resumed:**
+
 - [ ] Create `app/browser/tools/mediaStatus.js`
 - [ ] Implement getUserMedia interceptor
 - [ ] Add screen sharing detection (reuse `isScreenShare` logic)
@@ -391,6 +396,7 @@ Phase 1 provides call state (`in-call`) and connection state (`connected`) via e
    - Now documents 42 IPC channels (was 40)
 
 **What's working:**
+
 - Call state publishing is fully functional (leverages existing call-connected/call-disconnected events)
 - Infrastructure ready for camera/microphone state monitoring (Phase 2)
 - Generic publish() method ready for any future MQTT publishing needs
@@ -407,10 +413,12 @@ Phase 1 provides call state (`in-call`) and connection state (`connected`) via e
    - Explains retained message behavior
 
 **What's working:**
+
 - Users can now see exactly what topics will be published when MQTT is enabled
 - Clear documentation for home automation integration
 
 **What's next (Phase 1c):**
+
 - Add MQTT Last Will and Testament (LWT) for connection state tracking
 
 ### Phase 1c - Connection State & Last Will (Completed 2025-11-30)
@@ -432,10 +440,12 @@ Phase 1 provides call state (`in-call`) and connection state (`connected`) via e
    - Explained LWT behavior for handling stale state
 
 **Problem solved:**
+
 - App crashes while in a call → `in-call=true` retained forever ❌
 - With LWT → `connected=false` published → consumers can invalidate stale state ✅
 
 **Home automation benefit:**
+
 ```yaml
 # Invalidate all state when app disconnects
 automation:
@@ -451,6 +461,7 @@ automation:
 ```
 
 **What's next (Phase 2):**
+
 - Implement WebRTC monitoring in browser process to detect camera/mic state
 - Create mediaStatus.js browser tool with getUserMedia interception
 - Wire camera/mic state changes to send IPC events that trigger MQTT publishing
@@ -485,7 +496,7 @@ The semantic category pattern scales to many future use cases. This section docu
     "newMessage": {
       "enabled": false,
       "topic": "messages/new",
-      "includeContent": false  // Privacy option
+      "includeContent": false // Privacy option
     },
     "mentions": {
       "enabled": false,
@@ -496,10 +507,12 @@ The semantic category pattern scales to many future use cases. This section docu
 ```
 
 **Detection strategy**: DOM monitoring (title bar badge count: "Teams (3)")
+
 - Existing `mutationTitle.js` already detects this!
 - Just needs wiring to MQTT
 
 **Potential topics**:
+
 - `teams/messages/unread` → `"5"`
 - `teams/messages/new` → JSON with sender, timestamp (if enabled)
 - `teams/messages/mentions` → `"true"` when @mentioned
@@ -529,11 +542,13 @@ The semantic category pattern scales to many future use cases. This section docu
 ```
 
 **Detection strategy**: Microsoft Graph API Calendar (Issue #1832 now implemented!)
+
 - Use `graph-api-get-calendar-view` IPC channel for date range queries
 - Poll periodically or subscribe to events
 - See `app/graphApi/index.js` and `app/graphApi/ipcHandlers.js`
 
 **Potential topics**:
+
 - `teams/calendar/next` → JSON: `{ "subject": "Sprint Planning", "startTime": "2025-11-16T14:00:00Z" }`
 - `teams/calendar/starting-soon` → `"true"` (5 minutes before)
 
@@ -559,11 +574,13 @@ The semantic category pattern scales to many future use cases. This section docu
 ```
 
 **Detection strategy**: Already implemented!
+
 - IPC events: `screen-sharing-started`, `screen-sharing-stopped`
 - See `app/screenSharing/injectedScreenSharing.js`
 - Just needs wiring to MQTT
 
 **Potential topics**:
+
 - `teams/screen-sharing` → `"true"`/`"false"`
 
 **Implementation priority**: High (easy win - already detected)
@@ -592,6 +609,7 @@ The semantic category pattern scales to many future use cases. This section docu
 **Detection strategy**: DOM monitoring (recording indicator banner)
 
 **Potential topics**:
+
 - `teams/recording` → `"true"`/`"false"`
 - `teams/transcription` → `"true"`/`"false"`
 
@@ -623,6 +641,7 @@ The semantic category pattern scales to many future use cases. This section docu
 **Detection strategy**: DOM monitoring of reaction UI elements
 
 **Potential topics**:
+
 - `teams/hand-raised` → `"true"`/`"false"`
 - `teams/reactions/latest` → `"thumbsup"`, `"heart"`, etc.
 
@@ -648,6 +667,7 @@ The semantic category pattern scales to many future use cases. This section docu
 **Detection strategy**: DOM monitoring of participant roster panel
 
 **Potential topics**:
+
 - `teams/participants/count` → `"8"`
 
 **Implementation priority**: Low (wait for user requests)
@@ -657,27 +677,31 @@ The semantic category pattern scales to many future use cases. This section docu
 ### Why Semantic Categories Scale
 
 **Every category is what it represents:**
+
 - `camera` = camera state (not "extended field 1")
 - `messageCount` = message count (not "notification type A")
 - `nextMeeting` = next meeting (not "calendar data")
 
 **Not grouped by:**
+
 - ❌ Technical implementation ("dom-based", "webrtc-based")
 - ❌ Temporal classification ("extended", "new", "v2")
 - ❌ Feature grouping ("notifications", "media")
 
 **Configuration pattern** (consistent for all categories):
+
 ```json
 {
   "categoryName": {
     "enabled": false,
-    "topic": "path/to/topic",
+    "topic": "path/to/topic"
     // Optional category-specific settings
   }
 }
 ```
 
 **Benefits**:
+
 - Self-documenting (category name explains what it does)
 - Independently configurable (enable only what you need)
 - Consistent pattern (easy to understand)
@@ -687,20 +711,21 @@ The semantic category pattern scales to many future use cases. This section docu
 
 ### Detection Strategy Preference
 
-| Category | Detection Method | Complexity | Fragility | Priority |
-|----------|-----------------|------------|-----------|----------|
-| **Camera/Mic/Call** | WebRTC streams | Medium | Low ✅ | Current |
-| **Screen sharing** | IPC events | Low | Low ✅ | High |
-| **Message count** | DOM (title) | Low | Medium | High |
-| **Calendar** | Graph API | Medium | Low ✅ | Medium |
-| **Recording** | DOM (banner) | Low | High ⚠️ | Medium |
-| **Hand raised** | DOM (button) | Low | High ⚠️ | Low |
-| **Reactions** | DOM (elements) | Low | High ⚠️ | Low |
-| **Participants** | DOM (roster) | Medium | High ⚠️ | Low |
+| Category            | Detection Method | Complexity | Fragility | Priority |
+| ------------------- | ---------------- | ---------- | --------- | -------- |
+| **Camera/Mic/Call** | WebRTC streams   | Medium     | Low ✅    | Current  |
+| **Screen sharing**  | IPC events       | Low        | Low ✅    | High     |
+| **Message count**   | DOM (title)      | Low        | Medium    | High     |
+| **Calendar**        | Graph API        | Medium     | Low ✅    | Medium   |
+| **Recording**       | DOM (banner)     | Low        | High ⚠️   | Medium   |
+| **Hand raised**     | DOM (button)     | Low        | High ⚠️   | Low      |
+| **Reactions**       | DOM (elements)   | Low        | High ⚠️   | Low      |
+| **Participants**    | DOM (roster)     | Medium     | High ⚠️   | Low      |
 
 **Note**: Presence via Graph API returns 403 Forbidden (Teams token lacks `Presence.Read` scope). Use existing `user-status-changed` IPC channel instead.
 
 **Preferred order**:
+
 1. **Stable APIs first**: WebRTC, IPC, Graph API (now available!)
 2. **DOM-based second**: Only if users request and accept fragility
 
@@ -711,14 +736,17 @@ The semantic category pattern scales to many future use cases. This section docu
 **Phase 1**: Current implementation (camera, microphone, call)
 
 **Phase 2**: Easy wins (already detected)
+
 - Screen sharing (IPC events exist)
 - Message count (title monitoring exists)
 
 **Phase 3**: Graph API integration (now available!)
+
 - Calendar integration via `graph-api-get-calendar-view`
 - Note: Presence endpoint returns 403 - use `user-status-changed` instead
 
 **Phase 4**: Only if users request (fragile DOM scraping)
+
 - Recording indicators
 - Hand raised
 - Participant count
@@ -733,19 +761,22 @@ The generic `publish()` method handles all current and future categories:
 
 ```javascript
 // Current - camera/mic/call
-await mqttClient.publish('teams/camera', 'true');
+await mqttClient.publish("teams/camera", "true");
 
 // Future - messages
-await mqttClient.publish('teams/messages/unread', '5');
+await mqttClient.publish("teams/messages/unread", "5");
 
 // Future - calendar
-await mqttClient.publish('teams/calendar/next', JSON.stringify({
-  subject: "Sprint Planning",
-  startTime: "2025-11-16T14:00:00Z"
-}));
+await mqttClient.publish(
+  "teams/calendar/next",
+  JSON.stringify({
+    subject: "Sprint Planning",
+    startTime: "2025-11-16T14:00:00Z",
+  }),
+);
 
 // Future - screen sharing
-await mqttClient.publish('teams/screen-sharing', 'true');
+await mqttClient.publish("teams/screen-sharing", "true");
 ```
 
 **One method, infinite use cases** - no refactoring needed when adding new categories.
@@ -785,6 +816,7 @@ Future bidirectional MQTT support with "state queries" would enable:
 **Implement Hybrid Approach: Existing IPC + WebRTC Stream Monitoring**
 
 This approach:
+
 - **Leverages existing infrastructure**: Uses `call-connected`/`call-disconnected` IPC channels already in the codebase
 - **Follows established patterns**: Uses service pattern from `CustomNotificationManager`
 - **Only adds what's missing**: WebRTC monitoring only for camera/mic state
@@ -792,6 +824,7 @@ This approach:
 - **Enables future expansion**: Semantic categories and generic `publish()` support any future use case
 
 **Simplified implementation**:
+
 - Call state → Already detected, just wire to MQTT
 - Screen sharing → Already detected, just wire to MQTT (future Phase 2)
 - Camera/mic → Implement WebRTC monitoring with IPC bridge

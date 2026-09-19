@@ -1,4 +1,4 @@
-const { BrowserWindow } = require('electron');
+const { BrowserWindow } = require("electron");
 
 /**
  * Window for displaying chrome://gpu information
@@ -20,7 +20,7 @@ class GpuInfoWindow {
 
     // Create new window
     this.window = new BrowserWindow({
-      title: 'GPU Information',
+      title: "GPU Information",
       width: 1000,
       height: 800,
       minWidth: 600,
@@ -35,14 +35,14 @@ class GpuInfoWindow {
       },
     });
 
-    this.window.loadURL('chrome://gpu');
+    this.window.loadURL("chrome://gpu");
 
-    this.window.once('ready-to-show', () => {
+    this.window.once("ready-to-show", () => {
       this.window.show();
       this.window.focus();
     });
 
-    this.window.on('closed', () => {
+    this.window.on("closed", () => {
       this.window = null;
     });
   }

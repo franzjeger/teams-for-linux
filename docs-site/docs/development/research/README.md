@@ -46,8 +46,6 @@ These documents capture in-depth analysis and strategic insights that inform dev
 
 - **[Project Management Tools Research](project-management-tools-research.md)** - Evaluation of Beads, release-please, release-it, and other tooling for solo OSS maintainer workflows. Status: Research complete, no implementation decision.
 
-
-
 ### Historical (Migrated)
 
 - **[Configuration Organization Research](configuration-organization-research.md)** - Configuration system improvements
@@ -65,28 +63,28 @@ These documents capture in-depth analysis and strategic insights that inform dev
 
 Research documents are deleted once a feature is fully shipped and the document provides no ongoing reference value. The ADRs and git history preserve the decisions and context.
 
-| Feature | Version | Reference |
-|---------|---------|-----------|
-| Issue-PR Release Linking | v2.7.11 | GraphQL `closingIssuesReferences` query; `closes:` metadata in changelog files. See [PR #2317](https://github.com/IsmaelMartinez/teams-for-linux/pull/2317) |
-| Codebase Review (March 2026) | v2.7.x | Code quality, maintainability, performance, and DX review; findings addressed incrementally |
-| Issue Triage Bot | v2.7.x | All four phases implemented; migrated to standalone Go service. See [ADR-018](../adr/018-issue-triage-bot-github-app-migration.md) and [github-issue-triage-bot](https://github.com/IsmaelMartinez/github-issue-triage-bot) |
-| Dependency Cleanup | v2.7.10 | Removed `node-sound`, `lodash`, `electron-positioner`; project now has 6 production deps |
-| Speaking Indicator | v2.7.11 | WebRTC `getStats()` for three-state mute/speaking detection. See [PR #2299](https://github.com/IsmaelMartinez/teams-for-linux/pull/2299) |
-| Electron-Updater Auto-Update | v2.7.6 | [ADR-011](../adr/011-appimage-update-info.md); research covered electron-updater integration |
-| External Changelog Generation | v2.7.x | [ADR-005](../adr/005-ai-powered-changelog-generation.md); fork detection + release automation shipped |
-| Screen Lock Media Privacy | --- | Closed ([#2106](https://github.com/IsmaelMartinez/teams-for-linux/issues/2106)); no user interest; work preserved in branch |
-| Tray Icon Logout Indicator | --- | Archived ([#1987](https://github.com/IsmaelMartinez/teams-for-linux/issues/1987)); user not responding; work preserved in branch |
-| External Browser Authentication | --- | Not feasible; Teams manages OAuth internally ([#2017](https://github.com/IsmaelMartinez/teams-for-linux/issues/2017)) |
-| GNOME Search Provider | --- | Not recommended; latency too high for acceptable UX ([#2075](https://github.com/IsmaelMartinez/teams-for-linux/issues/2075)) |
-| Code Quality Hardening (Phases 1-3) | v2.7.5 | Logging hygiene, resilience, input handling, IPC hardening, CI/CD gates |
-| Wayland/X11 Ozone Platform | v2.7.4 | Force X11 by default due to Electron 38+ Wayland regressions |
-| Quick Chat / Chat Modal | v2.7.4 | [ADR-014](../adr/014-quick-chat-deep-link-approach.md), [ADR-015](../adr/015-quick-chat-inline-messaging.md) |
-| PII Log Sanitization | v2.7.2 | [ADR-013](../adr/013-pii-log-sanitization.md) |
-| DOM Access Restoration | v2.5.2 | Hybrid API + DOM approach for React compatibility |
-| Architecture Modernization | --- | Rejected (DDD too complex) --- incremental refactoring adopted instead |
-| MQTT Commands | v2.6.x | Bidirectional MQTT support for toggle-mute, toggle-video, etc. |
-| Calendar Data Export | v2.6.x | MQTT `get-calendar` command |
-| useSystemPicker | --- | Rejected --- [ADR-008](../adr/008-usesystempicker-electron-38.md) |
+| Feature                             | Version | Reference                                                                                                                                                                                                                   |
+| ----------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Issue-PR Release Linking            | v2.7.11 | GraphQL `closingIssuesReferences` query; `closes:` metadata in changelog files. See [PR #2317](https://github.com/IsmaelMartinez/teams-for-linux/pull/2317)                                                                 |
+| Codebase Review (March 2026)        | v2.7.x  | Code quality, maintainability, performance, and DX review; findings addressed incrementally                                                                                                                                 |
+| Issue Triage Bot                    | v2.7.x  | All four phases implemented; migrated to standalone Go service. See [ADR-018](../adr/018-issue-triage-bot-github-app-migration.md) and [github-issue-triage-bot](https://github.com/IsmaelMartinez/github-issue-triage-bot) |
+| Dependency Cleanup                  | v2.7.10 | Removed `node-sound`, `lodash`, `electron-positioner`; project now has 6 production deps                                                                                                                                    |
+| Speaking Indicator                  | v2.7.11 | WebRTC `getStats()` for three-state mute/speaking detection. See [PR #2299](https://github.com/IsmaelMartinez/teams-for-linux/pull/2299)                                                                                    |
+| Electron-Updater Auto-Update        | v2.7.6  | [ADR-011](../adr/011-appimage-update-info.md); research covered electron-updater integration                                                                                                                                |
+| External Changelog Generation       | v2.7.x  | [ADR-005](../adr/005-ai-powered-changelog-generation.md); fork detection + release automation shipped                                                                                                                       |
+| Screen Lock Media Privacy           | ---     | Closed ([#2106](https://github.com/IsmaelMartinez/teams-for-linux/issues/2106)); no user interest; work preserved in branch                                                                                                 |
+| Tray Icon Logout Indicator          | ---     | Archived ([#1987](https://github.com/IsmaelMartinez/teams-for-linux/issues/1987)); user not responding; work preserved in branch                                                                                            |
+| External Browser Authentication     | ---     | Not feasible; Teams manages OAuth internally ([#2017](https://github.com/IsmaelMartinez/teams-for-linux/issues/2017))                                                                                                       |
+| GNOME Search Provider               | ---     | Not recommended; latency too high for acceptable UX ([#2075](https://github.com/IsmaelMartinez/teams-for-linux/issues/2075))                                                                                                |
+| Code Quality Hardening (Phases 1-3) | v2.7.5  | Logging hygiene, resilience, input handling, IPC hardening, CI/CD gates                                                                                                                                                     |
+| Wayland/X11 Ozone Platform          | v2.7.4  | Force X11 by default due to Electron 38+ Wayland regressions                                                                                                                                                                |
+| Quick Chat / Chat Modal             | v2.7.4  | [ADR-014](../adr/014-quick-chat-deep-link-approach.md), [ADR-015](../adr/015-quick-chat-inline-messaging.md)                                                                                                                |
+| PII Log Sanitization                | v2.7.2  | [ADR-013](../adr/013-pii-log-sanitization.md)                                                                                                                                                                               |
+| DOM Access Restoration              | v2.5.2  | Hybrid API + DOM approach for React compatibility                                                                                                                                                                           |
+| Architecture Modernization          | ---     | Rejected (DDD too complex) --- incremental refactoring adopted instead                                                                                                                                                      |
+| MQTT Commands                       | v2.6.x  | Bidirectional MQTT support for toggle-mute, toggle-video, etc.                                                                                                                                                              |
+| Calendar Data Export                | v2.6.x  | MQTT `get-calendar` command                                                                                                                                                                                                 |
+| useSystemPicker                     | ---     | Rejected --- [ADR-008](../adr/008-usesystempicker-electron-38.md)                                                                                                                                                           |
 
 ## Purpose
 

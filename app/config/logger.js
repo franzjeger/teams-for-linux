@@ -3,13 +3,18 @@ const { sanitizeLogData } = require("../utils/logSanitizer");
 
 function mergeWith(target, source, customizer) {
   for (const key of Object.keys(source)) {
-    if (key === "__proto__" || key === "constructor" || key === "prototype") continue;
+    if (key === "__proto__" || key === "constructor" || key === "prototype")
+      continue;
     const customResult = customizer(target[key], source[key], key);
     if (customResult !== undefined) {
       target[key] = customResult;
     } else if (
-      source[key] && typeof source[key] === "object" && !Array.isArray(source[key]) &&
-      target[key] && typeof target[key] === "object" && !Array.isArray(target[key])
+      source[key] &&
+      typeof source[key] === "object" &&
+      !Array.isArray(source[key]) &&
+      target[key] &&
+      typeof target[key] === "object" &&
+      !Array.isArray(target[key])
     ) {
       mergeWith(target[key], source[key], customizer);
     } else {

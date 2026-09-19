@@ -55,7 +55,11 @@ class ConnectionManager {
       powerMonitor.removeListener("resume", boundRefresh);
     }
 
-    if (boundDidFailLoad && this.isWindowAvailable() && this.window.webContents) {
+    if (
+      boundDidFailLoad &&
+      this.isWindowAvailable() &&
+      this.window.webContents
+    ) {
       this.window.webContents.removeListener("did-fail-load", boundDidFailLoad);
     }
 
@@ -112,7 +116,9 @@ class ConnectionManager {
       // Re-check window availability after async isOnline() call,
       // as the window may have been destroyed during the network check
       if (!this.isWindowAvailable()) {
-        console.warn("[CONNECTION] Window was destroyed during network check. Aborting refresh.");
+        console.warn(
+          "[CONNECTION] Window was destroyed during network check. Aborting refresh.",
+        );
         return;
       }
 
@@ -209,13 +215,19 @@ const RECOVERABLE_NETWORK_ERRORS = new Set(NETWORK_ERROR_PATTERNS);
 function assignOnDidFailLoadEventHandler(cm) {
   return (event, code, description, validatedURL, isMainFrame) => {
     if (isMainFrame) {
-      console.error(`[CONNECTION] Main frame failed to load: ${description} (code: ${code})`);
+      console.error(
+        `[CONNECTION] Main frame failed to load: ${description} (code: ${code})`,
+      );
       if (RECOVERABLE_NETWORK_ERRORS.has(description)) {
-        console.debug(`Network error detected: ${description}, scheduling debounced refresh...`);
+        console.debug(
+          `Network error detected: ${description}, scheduling debounced refresh...`,
+        );
         cm.debouncedRefresh();
       }
     } else {
-      console.warn(`[CONNECTION] Sub-frame failed to load: ${description} (code: ${code})`);
+      console.warn(
+        `[CONNECTION] Sub-frame failed to load: ${description} (code: ${code})`,
+      );
     }
   };
 }

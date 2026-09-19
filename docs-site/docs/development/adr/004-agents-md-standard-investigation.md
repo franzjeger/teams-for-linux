@@ -14,13 +14,14 @@ The project currently uses multiple instruction files for AI coding assistants:
 
 1. **CLAUDE.md** (root) - Official Claude Code instructions (verified standard)
 2. **.github/copilot-instructions.md** - GitHub Copilot instructions (verified standard)
-3. **.github/instructions/*.instructions.md** - Custom workflow instructions (3 files)
+3. **.github/instructions/\*.instructions.md** - Custom workflow instructions (3 files)
 
 During an instruction files consolidation review, we identified significant duplication (28% of content duplicated across files) and discovered the **agents.md** standard (https://agents.md/).
 
 ### What is agents.md?
 
 The agents.md initiative proposes a standardized format for AI agent instructions that could potentially:
+
 - Provide a unified instruction format across different AI tools
 - Reduce duplication by having a single source of truth
 - Enable cross-tool compatibility
@@ -28,12 +29,14 @@ The agents.md initiative proposes a standardized format for AI agent instruction
 ### Current Duplication Problem
 
 **Markdown Standards** - Duplicated identically in 4 files:
+
 - `.github/copilot-instructions.md`
 - `.github/instructions/process-tasks-list.instructions.md`
 - `.github/instructions/create-prd.instructions.md`
 - `.github/instructions/generate-tasks.instructions.md`
 
 **Architecture & Patterns** - 90% duplicated in:
+
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
 
@@ -98,22 +101,26 @@ Instead of adopting agents.md, we implemented a consolidation strategy:
 ## Alternatives Considered
 
 **Alternative 1: Adopt agents.md immediately**
+
 - ❌ Not supported by Claude Code or GitHub Copilot
 - ❌ Risk of breaking existing workflows
 - ❌ No verified benefits
 - ❌ Could require reverting if tools don't support it
 
 **Alternative 2: Create custom agents.md without standard compliance**
+
 - ❌ Confusing to use non-standard file name
 - ❌ Tools won't automatically recognize it
 - ❌ Doesn't solve the real problem (tool support)
 
 **Alternative 3: Keep current structure with duplication**
+
 - ❌ Maintenance burden (update in 4 places)
 - ❌ Risk of inconsistency
 - ❌ Already identified as problematic
 
 **Alternative 4: Consolidate via references (Selected)**
+
 - ✅ Reduces duplication immediately
 - ✅ Uses verified standards
 - ✅ Low risk approach
@@ -156,6 +163,7 @@ The consolidation was successfully implemented with the following changes:
 ## Future Consideration
 
 If Claude Code or GitHub Copilot officially announce support for agents.md in the future:
+
 1. Re-evaluate this decision based on confirmed tool support
 2. Assess migration effort vs. benefits
 3. Update this ADR with new findings

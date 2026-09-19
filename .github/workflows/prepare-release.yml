@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version bump (patch/minor/major) or specific version (e.g., 2.7.0)'
+        description: "Version bump (patch/minor/major) or specific version (e.g., 2.7.0)"
         required: true
-        default: 'minor'
+        default: "minor"
         type: string
 
 permissions:

@@ -23,14 +23,17 @@ const BROKER_PATH = "/com/microsoft/identity/broker1";
 const BROKER_INTERFACE = "com.microsoft.identity.Broker1";
 
 // Direct invocation - works with all broker versions
-sessionBus.invoke({
-  destination: BROKER_SERVICE,
-  path: BROKER_PATH,
-  interface: BROKER_INTERFACE,
-  member: methodName,
-  signature: "sss",
-  body: [protocolVersion, correlationId, JSON.stringify(request)]
-}, callback);
+sessionBus.invoke(
+  {
+    destination: BROKER_SERVICE,
+    path: BROKER_PATH,
+    interface: BROKER_INTERFACE,
+    member: methodName,
+    signature: "sss",
+    body: [protocolVersion, correlationId, JSON.stringify(request)],
+  },
+  callback,
+);
 ```
 
 ### Broker Version Compatibility
@@ -52,6 +55,7 @@ See [ADR-012: Intune SSO Broker Version Compatibility](../../docs-site/docs/deve
 ### Configuration Integration
 
 The module integrates with the main configuration system to read:
+
 - `auth.intune.enabled`: Enable/disable Intune SSO integration
 - `auth.intune.user`: Specific user account to use for authentication
 
@@ -60,6 +64,7 @@ Legacy flat options (`ssoInTuneEnabled`, `ssoInTuneAuthUser`) are automatically 
 ## Diagnostic Logging
 
 The module provides comprehensive diagnostic logging with `[INTUNE_DIAG]` prefixes:
+
 - SSO initialization status and errors
 - Available account enumeration
 - PRT token acquisition details
@@ -68,6 +73,7 @@ The module provides comprehensive diagnostic logging with `[INTUNE_DIAG]` prefix
 ## Error Handling
 
 Robust error handling includes:
+
 - D-Bus connection failures
 - Missing Identity Broker service
 - Account authentication failures

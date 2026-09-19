@@ -26,17 +26,17 @@ cd tests/cross-distro
 
 ## Configurations
 
-| Service | Distro | Display | noVNC | VNC |
-|---------|--------|---------|:-----:|:---:|
-| `ubuntu-x11` | Ubuntu 24.04 | X11 | 6081 | 5901 |
-| `ubuntu-wayland` | Ubuntu 24.04 | Wayland | 6082 | 5902 |
-| `ubuntu-xwayland` | Ubuntu 24.04 | XWayland | 6083 | 5903 |
-| `fedora-x11` | Fedora 41 | X11 | 6084 | 5904 |
-| `fedora-wayland` | Fedora 41 | Wayland | 6085 | 5905 |
-| `fedora-xwayland` | Fedora 41 | XWayland | 6086 | 5906 |
-| `debian-x11` | Debian Bookworm | X11 | 6087 | 5907 |
-| `debian-wayland` | Debian Bookworm | Wayland | 6088 | 5908 |
-| `debian-xwayland` | Debian Bookworm | XWayland | 6089 | 5909 |
+| Service           | Distro          | Display  | noVNC | VNC  |
+| ----------------- | --------------- | -------- | :---: | :--: |
+| `ubuntu-x11`      | Ubuntu 24.04    | X11      | 6081  | 5901 |
+| `ubuntu-wayland`  | Ubuntu 24.04    | Wayland  | 6082  | 5902 |
+| `ubuntu-xwayland` | Ubuntu 24.04    | XWayland | 6083  | 5903 |
+| `fedora-x11`      | Fedora 41       | X11      | 6084  | 5904 |
+| `fedora-wayland`  | Fedora 41       | Wayland  | 6085  | 5905 |
+| `fedora-xwayland` | Fedora 41       | XWayland | 6086  | 5906 |
+| `debian-x11`      | Debian Bookworm | X11      | 6087  | 5907 |
+| `debian-wayland`  | Debian Bookworm | Wayland  | 6088  | 5908 |
+| `debian-xwayland` | Debian Bookworm | XWayland | 6089  | 5909 |
 
 ## Usage
 
@@ -145,13 +145,13 @@ docker build --build-arg NODE_VERSION=22.14.0 --build-arg NODE_SHA256=<sha256> \
 
 The entrypoint handles these automatically:
 
-| Concern | Solution |
-|---------|----------|
-| No GPU | `--disable-gpu`, `LIBGL_ALWAYS_SOFTWARE=1` (Mesa llvmpipe) |
-| Shared memory | `--disable-dev-shm-usage`, `shm_size: 2gb` |
-| No namespaces | `--no-sandbox` |
-| Wayland detection | `XDG_SESSION_TYPE` set per display server |
-| Ozone override | AppImage ships `--ozone-platform=x11`; Wayland script overrides to `=wayland` |
+| Concern           | Solution                                                                      |
+| ----------------- | ----------------------------------------------------------------------------- |
+| No GPU            | `--disable-gpu`, `LIBGL_ALWAYS_SOFTWARE=1` (Mesa llvmpipe)                    |
+| Shared memory     | `--disable-dev-shm-usage`, `shm_size: 2gb`                                    |
+| No namespaces     | `--no-sandbox`                                                                |
+| Wayland detection | `XDG_SESSION_TYPE` set per display server                                     |
+| Ozone override    | AppImage ships `--ozone-platform=x11`; Wayland script overrides to `=wayland` |
 
 **X11** -- high confidence, mirrors CI exactly (`xvfb-run` + Electron).
 **XWayland** -- high confidence, app sees X11 through Sway's XWayland bridge.

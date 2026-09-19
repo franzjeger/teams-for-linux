@@ -8,50 +8,65 @@
  * occasionally changes URL formats.
  */
 
-const { describe, it } = require('node:test');
-const assert = require('node:assert');
+const { describe, it } = require("node:test");
+const assert = require("node:assert");
 
 // The default regex pattern from app/config/index.js
 const meetupJoinRegEx = String.raw`^https://teams\.(?:microsoft|live)\.com/(meet|l/(?:app|call|channel|chat|entity|file|meet(?:ing|up-join)|message|task|team))/`;
 
 function isValidTeamsMeetingUrl(text) {
-  if (typeof text !== 'string') {
+  if (typeof text !== "string") {
     return false;
   }
   const pattern = new RegExp(meetupJoinRegEx);
   return pattern.test(text);
 }
 
-describe('Teams Meeting URL Validation', () => {
-  describe('Valid URLs - should be accepted', () => {
+describe("Teams Meeting URL Validation", () => {
+  describe("Valid URLs - should be accepted", () => {
     const validUrls = [
       // Classic meetup-join format
-      ['https://teams.microsoft.com/l/meetup-join/19%3ameeting_abc123@thread.v2/0', 'classic meetup-join'],
-      ['https://teams.microsoft.com/l/meetup-join/19:meeting_YWZmYTIzNj@thread.v2/0?context=%7B%7D', 'meetup-join with context'],
+      [
+        "https://teams.microsoft.com/l/meetup-join/19%3ameeting_abc123@thread.v2/0",
+        "classic meetup-join",
+      ],
+      [
+        "https://teams.microsoft.com/l/meetup-join/19:meeting_YWZmYTIzNj@thread.v2/0?context=%7B%7D",
+        "meetup-join with context",
+      ],
 
       // Meeting format
-      ['https://teams.microsoft.com/l/meeting/19%3ameeting_xyz789', 'meeting format'],
+      [
+        "https://teams.microsoft.com/l/meeting/19%3ameeting_xyz789",
+        "meeting format",
+      ],
 
       // Meet format (personal meetings)
-      ['https://teams.microsoft.com/meet/user@example.com', 'meet format'],
-      ['https://teams.live.com/meet/user@example.com', 'teams.live.com meet'],
+      ["https://teams.microsoft.com/meet/user@example.com", "meet format"],
+      ["https://teams.live.com/meet/user@example.com", "teams.live.com meet"],
 
       // Channel meetings
-      ['https://teams.microsoft.com/l/channel/19%3achannel_abc123', 'channel format'],
+      [
+        "https://teams.microsoft.com/l/channel/19%3achannel_abc123",
+        "channel format",
+      ],
 
       // Call format
-      ['https://teams.microsoft.com/l/call/19%3acall_abc123', 'call format'],
+      ["https://teams.microsoft.com/l/call/19%3acall_abc123", "call format"],
 
       // Chat format
-      ['https://teams.microsoft.com/l/chat/19%3achat_abc123', 'chat format'],
+      ["https://teams.microsoft.com/l/chat/19%3achat_abc123", "chat format"],
 
       // Other supported formats
-      ['https://teams.microsoft.com/l/app/some-app-id', 'app format'],
-      ['https://teams.microsoft.com/l/entity/some-entity', 'entity format'],
-      ['https://teams.microsoft.com/l/file/some-file-id', 'file format'],
-      ['https://teams.microsoft.com/l/message/19%3amessage_abc', 'message format'],
-      ['https://teams.microsoft.com/l/task/some-task', 'task format'],
-      ['https://teams.microsoft.com/l/team/19%3ateam_abc', 'team format'],
+      ["https://teams.microsoft.com/l/app/some-app-id", "app format"],
+      ["https://teams.microsoft.com/l/entity/some-entity", "entity format"],
+      ["https://teams.microsoft.com/l/file/some-file-id", "file format"],
+      [
+        "https://teams.microsoft.com/l/message/19%3amessage_abc",
+        "message format",
+      ],
+      ["https://teams.microsoft.com/l/task/some-task", "task format"],
+      ["https://teams.microsoft.com/l/team/19%3ateam_abc", "team format"],
     ];
 
     for (const [url, description] of validUrls) {
@@ -61,31 +76,34 @@ describe('Teams Meeting URL Validation', () => {
     }
   });
 
-  describe('Invalid URLs - should be rejected', () => {
+  describe("Invalid URLs - should be rejected", () => {
     const invalidUrls = [
       // Other meeting platforms
-      ['https://zoom.us/j/123456789', 'Zoom URL'],
-      ['https://meet.google.com/abc-defg-hij', 'Google Meet URL'],
-      ['https://webex.com/meet/user', 'Webex URL'],
+      ["https://zoom.us/j/123456789", "Zoom URL"],
+      ["https://meet.google.com/abc-defg-hij", "Google Meet URL"],
+      ["https://webex.com/meet/user", "Webex URL"],
 
       // Wrong domain
-      ['https://teams.example.com/l/meetup-join/123', 'wrong domain'],
-      ['https://faketeams.microsoft.com/l/meetup-join/123', 'fake teams domain'],
+      ["https://teams.example.com/l/meetup-join/123", "wrong domain"],
+      [
+        "https://faketeams.microsoft.com/l/meetup-join/123",
+        "fake teams domain",
+      ],
 
       // Wrong path structure
-      ['https://teams.microsoft.com/other/path', 'wrong path'],
-      ['https://teams.microsoft.com/', 'root path only'],
-      ['https://teams.microsoft.com/l/', 'incomplete l/ path'],
-      ['https://teams.microsoft.com/l/unknown/123', 'unknown l/ subpath'],
+      ["https://teams.microsoft.com/other/path", "wrong path"],
+      ["https://teams.microsoft.com/", "root path only"],
+      ["https://teams.microsoft.com/l/", "incomplete l/ path"],
+      ["https://teams.microsoft.com/l/unknown/123", "unknown l/ subpath"],
 
       // Malformed URLs
-      ['not a url at all', 'plain text'],
-      ['', 'empty string'],
-      ['https://', 'incomplete URL'],
-      ['teams.microsoft.com/l/meetup-join/123', 'missing protocol'],
+      ["not a url at all", "plain text"],
+      ["", "empty string"],
+      ["https://", "incomplete URL"],
+      ["teams.microsoft.com/l/meetup-join/123", "missing protocol"],
 
       // HTTP (not HTTPS)
-      ['http://teams.microsoft.com/l/meetup-join/123', 'http instead of https'],
+      ["http://teams.microsoft.com/l/meetup-join/123", "http instead of https"],
     ];
 
     for (const [url, description] of invalidUrls) {
@@ -94,37 +112,39 @@ describe('Teams Meeting URL Validation', () => {
       });
     }
 
-    it('rejects null value', () => {
+    it("rejects null value", () => {
       assert.strictEqual(isValidTeamsMeetingUrl(null), false);
     });
 
-    it('rejects undefined value', () => {
+    it("rejects undefined value", () => {
       assert.strictEqual(isValidTeamsMeetingUrl(undefined), false);
     });
 
-    it('rejects number value', () => {
+    it("rejects number value", () => {
       assert.strictEqual(isValidTeamsMeetingUrl(123), false);
     });
   });
 
-  describe('Edge cases', () => {
-    it('URL with query parameters is valid', () => {
-      const url = 'https://teams.microsoft.com/l/meetup-join/123?foo=bar&baz=qux';
+  describe("Edge cases", () => {
+    it("URL with query parameters is valid", () => {
+      const url =
+        "https://teams.microsoft.com/l/meetup-join/123?foo=bar&baz=qux";
       assert.strictEqual(isValidTeamsMeetingUrl(url), true);
     });
 
-    it('URL with fragment is valid', () => {
-      const url = 'https://teams.microsoft.com/l/meetup-join/123#section';
+    it("URL with fragment is valid", () => {
+      const url = "https://teams.microsoft.com/l/meetup-join/123#section";
       assert.strictEqual(isValidTeamsMeetingUrl(url), true);
     });
 
-    it('URL with encoded characters is valid', () => {
-      const url = 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_OGQ4ZGY5%40thread.v2/0';
+    it("URL with encoded characters is valid", () => {
+      const url =
+        "https://teams.microsoft.com/l/meetup-join/19%3ameeting_OGQ4ZGY5%40thread.v2/0";
       assert.strictEqual(isValidTeamsMeetingUrl(url), true);
     });
 
-    it('Case sensitivity - uppercase domain should fail', () => {
-      const url = 'https://TEAMS.MICROSOFT.COM/l/meetup-join/123';
+    it("Case sensitivity - uppercase domain should fail", () => {
+      const url = "https://TEAMS.MICROSOFT.COM/l/meetup-join/123";
       // Regex is case-sensitive by default, uppercase should fail
       assert.strictEqual(isValidTeamsMeetingUrl(url), false);
     });

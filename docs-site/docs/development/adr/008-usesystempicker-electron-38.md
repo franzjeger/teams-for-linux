@@ -18,19 +18,23 @@ Electron 38 introduced `useSystemPicker: true` option for `session.setDisplayMed
 ### Platform Support Analysis
 
 **macOS (Sonoma+):** ⚠️ Good with caveats
+
 - Works but has known toggle-hang bugs with `applyConstraints()`
 - [Electron Issue #45306](https://github.com/electron/electron/issues/45306)
 
 **Windows 10/11:** ✅ Good
+
 - Native picker via Chromium works reliably
 - Aligns with Chrome behavior
 
 **Linux (Wayland + PipeWire):** ❌ **Not Ready - BLOCKER**
+
 - `useSystemPicker` does not actually invoke system picker on Linux
 - Apps forced back through custom handler path
 - Feature request exists but not implemented: [Electron Issue #48223](https://github.com/electron/electron/issues/48223)
 
 **Linux (X11):** N/A
+
 - No true system picker concept; custom picker remains standard
 
 ## Decision
@@ -75,20 +79,23 @@ Electron 38 introduced `useSystemPicker: true` option for `session.setDisplayMed
 
 ```javascript
 // Pseudo-code
-session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
-  if (appPrefs.useSystemPicker && canUseSystemPicker(process.platform)) {
-    callback({ useSystemPicker: true });
-    return;
-  }
-  // Custom picker fallback
-});
+session.defaultSession.setDisplayMediaRequestHandler(
+  async (request, callback) => {
+    if (appPrefs.useSystemPicker && canUseSystemPicker(process.platform)) {
+      callback({ useSystemPicker: true });
+      return;
+    }
+    // Custom picker fallback
+  },
+);
 
 function canUseSystemPicker(platform) {
-  return platform === 'darwin' || platform === 'win32';
+  return platform === "darwin" || platform === "win32";
 }
 ```
 
 **Why rejected:**
+
 - Adds significant complexity for limited benefit
 - Linux Wayland (primary platform) cannot use it
 - Inconsistent UX across platforms
@@ -101,6 +108,7 @@ function canUseSystemPicker(platform) {
 - Add detection logic for Wayland vs X11 on Linux
 
 **Why rejected:**
+
 - Same concerns as Option 1
 - X11 lenience is not guaranteed to continue
 
@@ -113,6 +121,7 @@ function canUseSystemPicker(platform) {
 3. [Electron Issue #38722](https://github.com/electron/electron/issues/38722) - macOS Sonoma picker API
 
 **Revisit when:**
+
 - Linux Wayland/PipeWire support lands in Electron (no ETA; no active development visible)
 - macOS toggle-hang bug is resolved
 - Electron exposes proper API for macOS Screen Sharing Picker integration

@@ -9,6 +9,7 @@ This directory stores pending changelog entries for the next release.
 The automatic changelog generation uses Google's Gemini AI. You need to add the API key to GitHub Secrets:
 
 **Steps:**
+
 1. Go to https://aistudio.google.com/
 2. Click "Get API key" (free tier available)
 3. Create a new API key or use existing one
@@ -24,7 +25,9 @@ The automatic changelog generation uses Google's Gemini AI. You need to add the 
 ## How It Works
 
 ### Automatic (via AI)
+
 When you open or update a PR, a GitHub Action automatically:
+
 1. Uses Gemini AI to generate a one-line summary
 2. Creates a file: `.changelog/pr-XXXX.txt`
 3. Commits it to the PR branch (for internal PRs)
@@ -33,6 +36,7 @@ When you open or update a PR, a GitHub Action automatically:
 **External Fork PRs:** For PRs from external forks, the workflow cannot commit directly to your branch. Instead, it posts a comment with the generated changelog entry and instructions to add it manually. Just copy-paste the provided command or create the file yourself.
 
 ### Manual (if needed)
+
 If you want to add or edit a changelog entry manually:
 
 ```bash
@@ -49,6 +53,7 @@ npm run release:prepare
 ```
 
 This script will:
+
 1. Read all `.changelog/*.txt` files
 2. Generate `appdata.xml` release entry
 3. Prompt for version bump (patch/minor/major)
@@ -57,6 +62,7 @@ This script will:
 6. Show you what to commit
 
 Then just:
+
 ```bash
 git add .
 git commit -m "chore: release vX.Y.Z"

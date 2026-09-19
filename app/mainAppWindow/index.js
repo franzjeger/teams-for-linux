@@ -84,13 +84,15 @@ function handleScreenSourceSelection(source, callback) {
       console.error("[SCREEN_SHARE] Failed to get sources for selection:", {
         error: error.message,
         stack: error.stack,
-        sourceId: source?.id
+        sourceId: source?.id,
       });
       setImmediate(() => {
         try {
           callback({});
         } catch {
-          console.debug("[SCREEN_SHARE] Failed to complete screen selection callback");
+          console.debug(
+            "[SCREEN_SHARE] Failed to complete screen selection callback",
+          );
         }
       });
     });
@@ -114,21 +116,26 @@ function createScreenSharePreviewWindow() {
     alwaysOnTop: thumbnailConfig.alwaysOnTop || false,
     existingWindow: previewWindow && !previewWindow.isDestroyed(),
     activeSource: activeSource,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   if (!thumbnailConfig.enabled) {
-    console.debug("[SCREEN_SHARE_DIAG] Preview window disabled in configuration");
+    console.debug(
+      "[SCREEN_SHARE_DIAG] Preview window disabled in configuration",
+    );
     return;
   }
 
   // Don't create duplicate windows - this is critical for preventing echo
   if (previewWindow && !previewWindow.isDestroyed()) {
-    console.warn("[SCREEN_SHARE_DIAG] Preview window already exists, focusing existing", {
-      riskLevel: "MEDIUM - multiple preview windows could cause audio issues",
-      action: "focusing existing window instead of creating new",
-      windowId: previewWindow.id
-    });
+    console.warn(
+      "[SCREEN_SHARE_DIAG] Preview window already exists, focusing existing",
+      {
+        riskLevel: "MEDIUM - multiple preview windows could cause audio issues",
+        action: "focusing existing window instead of creating new",
+        windowId: previewWindow.id,
+      },
+    );
     previewWindow.focus();
     return;
   }
@@ -136,7 +143,7 @@ function createScreenSharePreviewWindow() {
   console.debug("[SCREEN_SHARE_DIAG] Creating new preview window", {
     dimensions: "320x180",
     alwaysOnTop: thumbnailConfig.alwaysOnTop || false,
-    partition: "persist:teams-for-linux-session"
+    partition: "persist:teams-for-linux-session",
   });
 
   const newPreviewWindow = new BrowserWindow({
@@ -153,7 +160,7 @@ function createScreenSharePreviewWindow() {
         __dirname,
         "..",
         "screenSharing",
-        "previewWindowPreload.js"
+        "previewWindowPreload.js",
       ),
       partition: "persist:teams-for-linux-session",
     },
@@ -166,11 +173,11 @@ function createScreenSharePreviewWindow() {
   console.debug("[SCREEN_SHARE_DIAG] Preview BrowserWindow created", {
     windowId: windowId,
     creationTimeMs: Date.now() - startTime,
-    alwaysOnTop: thumbnailConfig.alwaysOnTop || false
+    alwaysOnTop: thumbnailConfig.alwaysOnTop || false,
   });
 
   newPreviewWindow.loadFile(
-    path.join(__dirname, "..", "screenSharing", "previewWindow.html")
+    path.join(__dirname, "..", "screenSharing", "previewWindow.html"),
   );
 
   newPreviewWindow.once("ready-to-show", () => {
@@ -178,7 +185,7 @@ function createScreenSharePreviewWindow() {
       windowId: windowId,
       totalCreationTimeMs: Date.now() - startTime,
       focused: newPreviewWindow.isFocused(),
-      visible: newPreviewWindow.isVisible()
+      visible: newPreviewWindow.isVisible(),
     });
     newPreviewWindow.show();
   });
@@ -187,13 +194,13 @@ function createScreenSharePreviewWindow() {
   newPreviewWindow.on("focus", () => {
     console.debug("[SCREEN_SHARE_DIAG] Preview window gained focus", {
       windowId: windowId,
-      potentialIssue: "Focus on preview might interfere with main Teams window"
+      potentialIssue: "Focus on preview might interfere with main Teams window",
     });
   });
 
   newPreviewWindow.on("blur", () => {
     console.debug("[SCREEN_SHARE_DIAG] Preview window lost focus", {
-      windowId: windowId
+      windowId: windowId,
     });
   });
 
@@ -202,7 +209,7 @@ function createScreenSharePreviewWindow() {
     console.debug("[SCREEN_SHARE_DIAG] Preview window closed", {
       windowId: windowId,
       hadActiveSource: !!closedSource,
-      closedSource: closedSource
+      closedSource: closedSource,
     });
     // Clear both preview window and selected source when window closes
     screenSharingService.setPreviewWindow(null);
@@ -212,43 +219,52 @@ function createScreenSharePreviewWindow() {
 
 // Microsoft auth domains whose cookies should be checked/cleaned
 const AUTH_DOMAINS = [
-  'login.microsoftonline.com',
-  'login.microsoft.com',
-  'teams.microsoft.com',
-  'teams.cloud.microsoft',
-  'microsoft.com',
-  'office.com',
-  'office365.com',
-  'live.com',
-  'microsoftonline.com',
+  "login.microsoftonline.com",
+  "login.microsoft.com",
+  "teams.microsoft.com",
+  "teams.cloud.microsoft",
+  "microsoft.com",
+  "office.com",
+  "office365.com",
+  "live.com",
+  "microsoftonline.com",
 ];
 
 // Azure AD / MSAL / SharePoint auth cookie names
 const AUTH_COOKIE_NAMES = new Set([
-  'ESTSAUTH',
-  'ESTSAUTHPERSISTENT',
-  'ESTSAUTHLIGHT',
-  'SignInStateCookie',
-  'AADSSO',
-  'buid',
-  'fpc',
-  'x-ms-gateway-slice',
-  'stsservicecookie',
-  'CCState',
-  'FedAuth',
-  'rtFa',
+  "ESTSAUTH",
+  "ESTSAUTHPERSISTENT",
+  "ESTSAUTHLIGHT",
+  "SignInStateCookie",
+  "AADSSO",
+  "buid",
+  "fpc",
+  "x-ms-gateway-slice",
+  "stsservicecookie",
+  "CCState",
+  "FedAuth",
+  "rtFa",
 ]);
 
 // Auth cookies preserved during force-clean recovery so the Microsoft
 // account chooser stays prefilled after session expiry (issue #2364).
-const PRESERVE_ON_RECOVERY = new Set(['ESTSAUTHPERSISTENT']);
+const PRESERVE_ON_RECOVERY = new Set(["ESTSAUTHPERSISTENT"]);
 
 // localStorage key patterns for MSAL/Teams auth tokens
 const AUTH_LOCAL_STORAGE_PATTERNS = [
-  'tmp.auth.v1.', 'refresh_token', 'msal.token', 'msal.',
-  'EncryptionKey', 'authSessionId', 'LogoutState',
-  'accessToken', 'idtoken', 'Account', 'Authority', 'ClientInfo',
-  'secure_teams_'
+  "tmp.auth.v1.",
+  "refresh_token",
+  "msal.token",
+  "msal.",
+  "EncryptionKey",
+  "authSessionId",
+  "LogoutState",
+  "accessToken",
+  "idtoken",
+  "Account",
+  "Authority",
+  "ClientInfo",
+  "secure_teams_",
 ];
 
 /**
@@ -263,46 +279,66 @@ async function cleanExpiredAuthCookies(windowSession, forceCleanAll = false) {
     const allCookies = await windowSession.cookies.get({});
     const nowSeconds = Date.now() / 1000;
 
-    const authCookies = allCookies.filter(cookie => {
-      const domain = (cookie.domain || '').replace(/^\./, '');
-      const isAuthDomain = AUTH_DOMAINS.some(d => domain === d || domain.endsWith('.' + d));
+    const authCookies = allCookies.filter((cookie) => {
+      const domain = (cookie.domain || "").replace(/^\./, "");
+      const isAuthDomain = AUTH_DOMAINS.some(
+        (d) => domain === d || domain.endsWith("." + d),
+      );
       return isAuthDomain && AUTH_COOKIE_NAMES.has(cookie.name);
     });
 
-    const expired = authCookies.filter(c => c.expirationDate && c.expirationDate < nowSeconds);
+    const expired = authCookies.filter(
+      (c) => c.expirationDate && c.expirationDate < nowSeconds,
+    );
     const cookiesToRemove = forceCleanAll
-      ? authCookies.filter(c => !PRESERVE_ON_RECOVERY.has(c.name))
+      ? authCookies.filter((c) => !PRESERVE_ON_RECOVERY.has(c.name))
       : expired;
 
     if (cookiesToRemove.length === 0) {
-      console.debug('[AUTH_RECOVERY] Cookie check:', { total: authCookies.length, expired: expired.length });
+      console.debug("[AUTH_RECOVERY] Cookie check:", {
+        total: authCookies.length,
+        expired: expired.length,
+      });
       return { cleaned: 0, total: authCookies.length, expired: expired.length };
     }
 
-    console.info('[AUTH_RECOVERY] Cleaning auth cookies:', {
-      mode: forceCleanAll ? 'force-all' : 'expired-only',
+    console.info("[AUTH_RECOVERY] Cleaning auth cookies:", {
+      mode: forceCleanAll ? "force-all" : "expired-only",
       removing: cookiesToRemove.length,
       total: authCookies.length,
     });
 
-    const results = await Promise.all(cookiesToRemove.map(async (cookie) => {
-      try {
-        const protocol = cookie.secure ? 'https' : 'http';
-        const domain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
-        const url = `${protocol}://${domain}${cookie.path || '/'}`;
-        await windowSession.cookies.remove(url, cookie.name);
-        return true;
-      } catch (err) {
-        console.warn('[AUTH_RECOVERY] Failed to remove cookie:', { name: cookie.name, error: err.message });
-        return false;
-      }
-    }));
+    const results = await Promise.all(
+      cookiesToRemove.map(async (cookie) => {
+        try {
+          const protocol = cookie.secure ? "https" : "http";
+          const domain = cookie.domain.startsWith(".")
+            ? cookie.domain.substring(1)
+            : cookie.domain;
+          const url = `${protocol}://${domain}${cookie.path || "/"}`;
+          await windowSession.cookies.remove(url, cookie.name);
+          return true;
+        } catch (err) {
+          console.warn("[AUTH_RECOVERY] Failed to remove cookie:", {
+            name: cookie.name,
+            error: err.message,
+          });
+          return false;
+        }
+      }),
+    );
     const removedCount = results.filter(Boolean).length;
 
-    console.info(`[AUTH_RECOVERY] Cleaned ${removedCount}/${cookiesToRemove.length} auth cookies`);
-    return { cleaned: removedCount, total: authCookies.length, expired: expired.length };
+    console.info(
+      `[AUTH_RECOVERY] Cleaned ${removedCount}/${cookiesToRemove.length} auth cookies`,
+    );
+    return {
+      cleaned: removedCount,
+      total: authCookies.length,
+      expired: expired.length,
+    };
   } catch (error) {
-    console.error('[AUTH_RECOVERY] Cookie check failed:', error.message);
+    console.error("[AUTH_RECOVERY] Cookie check failed:", error.message);
     return { cleaned: 0, total: 0, expired: 0 };
   }
 }
@@ -312,7 +348,7 @@ async function cleanExpiredAuthCookies(windowSession, forceCleanAll = false) {
  * the page to force a fresh interactive login.
  */
 async function triggerAuthRecovery() {
-  console.info('[AUTH_RECOVERY] Clearing auth state and reloading...');
+  console.info("[AUTH_RECOVERY] Clearing auth state and reloading...");
 
   // Clear localStorage auth tokens via renderer
   try {
@@ -333,18 +369,24 @@ async function triggerAuthRecovery() {
         return keysToRemove.length;
       })()
     `);
-    console.info('[AUTH_RECOVERY] Cleared localStorage auth entries', { count: cleared });
+    console.info("[AUTH_RECOVERY] Cleared localStorage auth entries", {
+      count: cleared,
+    });
   } catch (err) {
-    console.warn('[AUTH_RECOVERY] Failed to clear localStorage:', err.message);
+    console.warn("[AUTH_RECOVERY] Failed to clear localStorage:", err.message);
   }
 
   await cleanExpiredAuthCookies(window.webContents.session, true);
 
-  console.info('[AUTH_RECOVERY] Reloading for fresh auth...');
+  console.info("[AUTH_RECOVERY] Reloading for fresh auth...");
   window.loadURL(config.url, { userAgent: config.chromeUserAgent });
 }
 
-exports.onAppReady = async function onAppReady(configGroup, customBackground, sharingService) {
+exports.onAppReady = async function onAppReady(
+  configGroup,
+  customBackground,
+  sharingService,
+) {
   appConfig = configGroup;
   config = configGroup.startupConfig;
   customBackgroundService = customBackground;
@@ -352,7 +394,8 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
 
   // Support both new (auth.intune.*) and deprecated (ssoInTune*) config options
   const intuneEnabled = config.auth?.intune?.enabled || config.ssoInTuneEnabled;
-  const intuneUser = config.auth?.intune?.user ?? config.ssoInTuneAuthUser ?? "";
+  const intuneUser =
+    config.auth?.intune?.user ?? config.ssoInTuneAuthUser ?? "";
   if (intuneEnabled) {
     intune = require("../intune");
     await intune.initSso(intuneUser);
@@ -364,20 +407,20 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
     if (isMac) {
       console.info("Setting Dock icon for macOS");
       let dockIconPath;
-      
+
       // Use custom icon if specified, otherwise use default 256x256 icon for dock
       if (config.appIcon && config.appIcon.trim() !== "") {
         dockIconPath = config.appIcon;
       } else {
         dockIconPath = path.join(config.appPath, "assets/icons/icon-96x96.png");
       }
-      
+
       const icon = nativeImage.createFromPath(dockIconPath);
       const iconSize = icon.getSize();
-      
+
       if (iconSize.width < 128) {
         console.warn(
-          `Unable to set dock icon for macOS, icon size is less than 128x128, current size ${iconSize.width}x${iconSize.height}. Using resized icon.`
+          `Unable to set dock icon for macOS, icon size is less than 128x128, current size ${iconSize.width}x${iconSize.height}. Using resized icon.`,
         );
         // Resize the icon to meet macOS dock requirements
         const resizedIcon = icon.resize({ width: 128, height: 128 });
@@ -402,12 +445,18 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
   // replies and drops calls to OnHold.
   if (config.network.webRTCIPHandlingPolicy) {
     console.info(`[WebRTC] IP handling policy applied`);
-    window.webContents.setWebRTCIPHandlingPolicy(config.network.webRTCIPHandlingPolicy);
+    window.webContents.setWebRTCIPHandlingPolicy(
+      config.network.webRTCIPHandlingPolicy,
+    );
   }
 
   // Permission, device and navigation guards. Applied before any content
   // loads so the very first request is already covered.
-  applyWebContentsGuards(window.webContents.session, window.webContents, config);
+  applyWebContentsGuards(
+    window.webContents.session,
+    window.webContents,
+    config,
+  );
 
   window.webContents.session.setDisplayMediaRequestHandler(
     (_request, callback) => {
@@ -425,14 +474,19 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
           });
         }
       });
-    }
+    },
   );
 
   // Initialize connection manager
   connectionManager = new ConnectionManager();
 
   if (iconChooser) {
-    menus = new Menus(window, configGroup, iconChooser.getFile(), connectionManager);
+    menus = new Menus(
+      window,
+      configGroup,
+      iconChooser.getFile(),
+      connectionManager,
+    );
     menus.onSpellCheckerLanguageChanged = onSpellCheckerLanguageChanged;
   }
 
@@ -446,31 +500,42 @@ exports.onAppReady = async function onAppReady(configGroup, customBackground, sh
   // When Teams can't refresh tokens silently (e.g., after overnight idle),
   // it logs InteractionRequired. We detect this, clear stale auth state,
   // and reload to force a clean interactive login.
-  const AUTH_FAILURE_PATTERNS = ['InteractionRequired', 'AuthFailed'];
+  const AUTH_FAILURE_PATTERNS = ["InteractionRequired", "AuthFailed"];
   // Only trust auth failure signals from Teams/Microsoft origins
-  const TRUSTED_AUTH_SOURCES = ['teams.cloud.microsoft', 'teams.microsoft.com', 'login.microsoftonline.com'];
+  const TRUSTED_AUTH_SOURCES = [
+    "teams.cloud.microsoft",
+    "teams.microsoft.com",
+    "login.microsoftonline.com",
+  ];
   let authRecoveryTriggered = false;
-  window.webContents.on('console-message', (event) => {
+  window.webContents.on("console-message", (event) => {
     if (authRecoveryTriggered) return;
-    const message = event.message || '';
-    if (!AUTH_FAILURE_PATTERNS.some(p => message.includes(p))) return;
+    const message = event.message || "";
+    if (!AUTH_FAILURE_PATTERNS.some((p) => message.includes(p))) return;
 
     // Verify the message originates from a trusted Microsoft source
-    const sourceId = event.sourceId || '';
-    if (sourceId && !TRUSTED_AUTH_SOURCES.some(s => sourceId.includes(s))) return;
+    const sourceId = event.sourceId || "";
+    if (sourceId && !TRUSTED_AUTH_SOURCES.some((s) => sourceId.includes(s)))
+      return;
 
     authRecoveryTriggered = true;
-    console.info('[AUTH_RECOVERY] Auth failure detected, scheduling recovery');
+    console.info("[AUTH_RECOVERY] Auth failure detected, scheduling recovery");
 
     // Delay to let Teams' own retry mechanism attempt recovery first
     setTimeout(() => {
       triggerAuthRecovery();
       // Reset flag after 60s to allow retry if recovery fails
-      setTimeout(() => { authRecoveryTriggered = false; }, 60000);
+      setTimeout(() => {
+        authRecoveryTriggered = false;
+      }, 60000);
     }, 5000);
   });
 
-  login.handleLoginDialogTry(window, config.ssoBasicAuthUser, config.ssoBasicAuthPasswordCommand);
+  login.handleLoginDialogTry(
+    window,
+    config.ssoBasicAuthUser,
+    config.ssoBasicAuthPasswordCommand,
+  );
 
   const url = processArgs(process.argv);
   connectionManager.start(url, {
@@ -529,10 +594,8 @@ function applyAppConfiguration(config, window) {
         password: config.clientCertPassword || "",
       },
       (result) => {
-        console.info(
-          `[CERT] Client certificate loaded, result: ${result}`
-        );
-      }
+        console.info(`[CERT] Client certificate loaded, result: ${result}`);
+      },
     );
   }
   window.webContents.setUserAgent(config.chromeUserAgent);
@@ -579,18 +642,28 @@ function onDidFinishLoad() {
   // navigator.mediaDevices are unavailable.
   const currentUrl = window.webContents.getURL();
   if (!currentUrl.startsWith("https://")) {
-    console.debug(`[CONNECTION] Skipping script injection on non-Teams page: ${currentUrl.split("?")[0]}`);
+    console.debug(
+      `[CONNECTION] Skipping script injection on non-Teams page: ${currentUrl.split("?")[0]}`,
+    );
     return;
   }
 
-  window.webContents.executeJavaScript(`
+  window.webContents
+    .executeJavaScript(
+      `
 			openBrowserButton = document.querySelector('[data-tid=joinOnWeb]');
 			openBrowserButton && openBrowserButton.click();
-		`).catch(() => {});
-  window.webContents.executeJavaScript(`
+		`,
+    )
+    .catch(() => {});
+  window.webContents
+    .executeJavaScript(
+      `
 			tryAgainLink = document.getElementById('try-again-link');
 			tryAgainLink && tryAgainLink.click()
-		`).catch(() => {});
+		`,
+    )
+    .catch(() => {});
 
   // Inject browser functionality
   injectScreenSharingLogic();
@@ -605,12 +678,15 @@ function injectScreenSharingLogic() {
     __dirname,
     "..",
     "screenSharing",
-    "injectedScreenSharing.js"
+    "injectedScreenSharing.js",
   );
   try {
     const script = fs.readFileSync(scriptPath, "utf8");
     window.webContents.executeJavaScript(script).catch((err) => {
-      console.error("[SCREEN_SHARE] Failed to execute injected script:", err.message);
+      console.error(
+        "[SCREEN_SHARE] Failed to execute injected script:",
+        err.message,
+      );
     });
   } catch (err) {
     console.error("Failed to load injected screen sharing script:", err);
@@ -622,13 +698,13 @@ function initSystemThemeFollow(config) {
     nativeTheme.on("updated", () => {
       window.webContents.send(
         "system-theme-changed",
-        nativeTheme.shouldUseDarkColors
+        nativeTheme.shouldUseDarkColors,
       );
     });
     setTimeout(() => {
       window.webContents.send(
         "system-theme-changed",
-        nativeTheme.shouldUseDarkColors
+        nativeTheme.shouldUseDarkColors,
       );
     }, 2500);
   }
@@ -638,7 +714,7 @@ function onDidFrameFinishLoad(
   event,
   isMainFrame,
   frameProcessId,
-  frameRoutingId
+  frameRoutingId,
 ) {
   console.debug("did-frame-finish-load", event, isMainFrame);
 
@@ -681,8 +757,8 @@ function processArgs(args) {
   for (const arg of args) {
     console.debug(
       `testing RegExp processArgs ${new RegExp(config.meetupJoinRegEx).test(
-        arg
-      )}`
+        arg,
+      )}`,
     );
     if (new RegExp(config.meetupJoinRegEx).test(arg)) {
       console.debug("A url argument received with https protocol");
@@ -729,10 +805,10 @@ function onBeforeRequestHandler(details, callback) {
 
 // Teams domains whose enforcing CSP we never touch
 const TEAMS_DOMAINS = [
-  'teams.cloud.microsoft',
-  'teams.microsoft.com',
-  'teams.live.com',
-  'statics.teams.cdn.office.net',
+  "teams.cloud.microsoft",
+  "teams.microsoft.com",
+  "teams.live.com",
+  "statics.teams.cdn.office.net",
 ];
 
 /**
@@ -742,10 +818,12 @@ const TEAMS_DOMAINS = [
 function isTeamsDomain(url) {
   try {
     let hostname = new URL(url).hostname;
-    if (hostname.endsWith('.mcas.ms')) {
+    if (hostname.endsWith(".mcas.ms")) {
       hostname = hostname.slice(0, -8);
     }
-    return TEAMS_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
+    return TEAMS_DOMAINS.some(
+      (d) => hostname === d || hostname.endsWith("." + d),
+    );
   } catch {
     return false;
   }
@@ -763,12 +841,12 @@ function stripCspForAuthPages(responseHeaders, url) {
   if (isTeamsDomain(url)) return;
 
   for (const key of Object.keys(responseHeaders)) {
-    if (key.toLowerCase() === 'content-security-policy-report-only') {
+    if (key.toLowerCase() === "content-security-policy-report-only") {
       let hostname;
       try {
         hostname = new URL(url).hostname;
       } catch {
-        hostname = 'unknown';
+        hostname = "unknown";
       }
       console.debug(`[CSP] Stripping report-only header from: ${hostname}`);
       delete responseHeaders[key];
@@ -824,7 +902,11 @@ function onNavigationChanged() {
   if (window?.webContents?.navigationHistory) {
     const canGoBack = window.webContents.navigationHistory.canGoBack();
     const canGoForward = window.webContents.navigationHistory.canGoForward();
-    window.webContents.send("navigation-state-changed", canGoBack, canGoForward);
+    window.webContents.send(
+      "navigation-state-changed",
+      canGoBack,
+      canGoForward,
+    );
   }
 }
 
@@ -852,10 +934,10 @@ function addEventHandlers() {
   // use to transparently refresh tokens, so we handle expiry ourselves.
   const { powerMonitor } = require("electron");
   powerMonitor.on("resume", async () => {
-    console.debug('[AUTH_RECOVERY] System resumed, checking auth cookies');
+    console.debug("[AUTH_RECOVERY] System resumed, checking auth cookies");
     const result = await cleanExpiredAuthCookies(window.webContents.session);
     if (result.expired > 0) {
-      console.info('[AUTH_RECOVERY] Cleaned expired cookies after resume', {
+      console.info("[AUTH_RECOVERY] Cleaned expired cookies after resume", {
         cleaned: result.cleaned,
         expired: result.expired,
       });
@@ -868,15 +950,15 @@ function addEventHandlers() {
   window.webContents.setWindowOpenHandler(onNewWindow);
   window.webContents.session.webRequest.onBeforeRequest(
     { urls: ["https://*/*"] },
-    onBeforeRequestHandler
+    onBeforeRequestHandler,
   );
   window.webContents.session.webRequest.onHeadersReceived(
     { urls: ["https://*/*"] },
-    onHeadersReceivedHandler
+    onHeadersReceivedHandler,
   );
   window.webContents.session.webRequest.onBeforeSendHeaders(
     getWebRequestFilterFromURL(),
-    onBeforeSendHeadersHandler
+    onBeforeSendHeadersHandler,
   );
   window.webContents.on("did-finish-load", onDidFinishLoad);
   window.webContents.on("did-frame-finish-load", onDidFrameFinishLoad);
@@ -904,7 +986,7 @@ function onBeforeInput(_event, input) {
 }
 
 function secureOpenLink(details) {
-  console.debug('[LINK] Requesting to open external link');
+  console.debug("[LINK] Requesting to open external link");
   const action = getLinkAction();
 
   if (action === 0) {
@@ -937,7 +1019,7 @@ function openInBrowser(details) {
     execFile(
       config.defaultURLHandler.trim(),
       [details.url],
-      openInBrowserErrorHandler
+      openInBrowserErrorHandler,
     );
   }
 }

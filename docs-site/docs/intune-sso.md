@@ -25,6 +25,7 @@ Before enabling Intune SSO, ensure the following components are installed and co
 Enable Intune SSO in your configuration file. You can place the configuration in either:
 
 **User-specific**: `~/.config/teams-for-linux/config.json`
+
 ```json
 {
   "auth": {
@@ -37,6 +38,7 @@ Enable Intune SSO in your configuration file. You can place the configuration in
 ```
 
 **System-wide** (common in enterprise environments): `/etc/teams-for-linux/config.json`
+
 ```json
 {
   "auth": {
@@ -49,12 +51,14 @@ Enable Intune SSO in your configuration file. You can place the configuration in
 ```
 
 **Configuration Options:**
+
 - `auth.intune.enabled`: Enable/disable Intune SSO integration (default: false)
 - `auth.intune.user`: Specific user account to use (default: "" - uses first available account)
 
 **Legacy Configuration (deprecated):**
 
 The old flat configuration keys are still supported but deprecated:
+
 ```json
 {
   "ssoInTuneEnabled": true,
@@ -67,18 +71,22 @@ The old flat configuration keys are still supported but deprecated:
 ### Common Issues
 
 **1. "Failed to find microsoft-identity-broker DBus interface"**
+
 - Ensure Microsoft Identity Broker is installed and running
 - Check if the broker service is accessible: `busctl list | grep microsoft.identity`
 
 **2. "No InTune accounts found"**
+
 - Configure accounts in Microsoft Intune Company Portal
 - Verify accounts are properly enrolled and have valid tokens
 
 **3. "Failed to find matching InTune account"**
+
 - Check if `auth.intune.user` matches an available account (case-insensitive)
 - Verify the account is enrolled in Microsoft Identity Broker
 
 **4. "Failed to retrieve Intune SSO cookie"**
+
 - Account may need reauthentication in Company Portal
 - Check if Primary Refresh Token (PRT) is valid
 
@@ -91,6 +99,7 @@ ELECTRON_ENABLE_LOGGING=true teams-for-linux
 ```
 
 Look for `[INTUNE_DIAG]` prefixed messages that provide information about:
+
 - SSO initialization status
 - Account configuration status
 - Authentication flow
@@ -99,6 +108,7 @@ Look for `[INTUNE_DIAG]` prefixed messages that provide information about:
 ### Verification
 
 To verify Intune integration is working:
+
 1. Start teams-for-linux with debug logging enabled
 2. Look for `[INTUNE_DIAG] InTune SSO account configured successfully`
 3. The app should automatically authenticate

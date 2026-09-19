@@ -1,13 +1,13 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
-import type * as Preset from '@docusaurus/preset-classic';
+import { themes as prismThemes } from "prism-react-renderer";
+import type { Config } from "@docusaurus/types";
+import type * as Preset from "@docusaurus/preset-classic";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Teams for Linux Documentation',
-  tagline: 'Unofficial Microsoft Teams client for Linux - Documentation',
-  favicon: 'img/favicon.ico',
+  title: "Teams for Linux Documentation",
+  tagline: "Unofficial Microsoft Teams client for Linux - Documentation",
+  favicon: "img/favicon.ico",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -15,41 +15,41 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://ismaelmartinez.github.io',
+  url: "https://ismaelmartinez.github.io",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/teams-for-linux/',
+  baseUrl: "/teams-for-linux/",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'IsmaelMartinez', // Usually your GitHub org/user name.
-  projectName: 'teams-for-linux', // Usually your repo name.
+  organizationName: "IsmaelMartinez", // Usually your GitHub org/user name.
+  projectName: "teams-for-linux", // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: "throw",
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: "en",
+    locales: ["en"],
   },
 
   presets: [
     [
-      'classic',
+      "classic",
       {
         docs: {
-          sidebarPath: './sidebars.ts',
+          sidebarPath: "./sidebars.ts",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/IsmaelMartinez/teams-for-linux/tree/main/docs-site/',
-          routeBasePath: '/', // Serve the docs at the site's root
+            "https://github.com/IsmaelMartinez/teams-for-linux/tree/main/docs-site/",
+          routeBasePath: "/", // Serve the docs at the site's root
         },
         blog: false, // Disable blog for this documentation site
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: "./src/css/custom.css",
         },
       } satisfies Preset.Options,
     ],
@@ -57,7 +57,7 @@ const config: Config = {
 
   plugins: [
     [
-      require.resolve('@easyops-cn/docusaurus-search-local'),
+      require.resolve("@easyops-cn/docusaurus-search-local"),
       {
         // Whether to index blog pages (we have blog disabled)
         indexBlog: false,
@@ -66,7 +66,7 @@ const config: Config = {
         // Explode search terms for better matching
         explicitSearchResultPath: true,
         // Route base path must match docs route
-        docsRouteBasePath: '/',
+        docsRouteBasePath: "/",
         // Hash search index for better caching
         hashed: true,
       },
@@ -77,49 +77,49 @@ const config: Config = {
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'throw',
+      onBrokenMarkdownLinks: "throw",
     },
   },
 
-  themes: ['@docusaurus/theme-mermaid'],
+  themes: ["@docusaurus/theme-mermaid"],
 
   themeConfig: {
     mermaid: {
       theme: {
-        light: 'default',
-        dark: 'dark',
+        light: "default",
+        dark: "dark",
       },
       options: {
-        fontFamily: 'var(--ifm-font-family-base)',
+        fontFamily: "var(--ifm-font-family-base)",
       },
     },
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: "img/docusaurus-social-card.jpg",
     navbar: {
-      title: 'Teams for Linux',
+      title: "Teams for Linux",
       logo: {
-        alt: 'Teams for Linux Logo',
-        src: 'img/logo.svg',
+        alt: "Teams for Linux Logo",
+        src: "img/logo.svg",
       },
       hideOnScroll: true,
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'docsSidebar',
-          position: 'left',
-          label: 'Documentation',
+          type: "docSidebar",
+          sidebarId: "docsSidebar",
+          position: "left",
+          label: "Documentation",
         },
         {
-          href: 'https://github.com/IsmaelMartinez/teams-for-linux',
-          label: 'GitHub',
-          position: 'right',
-          className: 'header-github-link',
-          'aria-label': 'GitHub repository',
+          href: "https://github.com/IsmaelMartinez/teams-for-linux",
+          label: "GitHub",
+          position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub repository",
         },
         {
-          href: 'https://github.com/IsmaelMartinez/teams-for-linux/releases',
-          label: 'Releases',
-          position: 'right',
+          href: "https://github.com/IsmaelMartinez/teams-for-linux/releases",
+          label: "Releases",
+          position: "right",
         },
       ],
     },
@@ -130,52 +130,52 @@ const config: Config = {
       },
     },
     footer: {
-      style: 'dark',
+      style: "dark",
       links: [
         {
-          title: 'Documentation',
+          title: "Documentation",
           items: [
             {
-              label: 'Getting Started',
-              to: '/',
+              label: "Getting Started",
+              to: "/",
             },
             {
-              label: 'Configuration',
-              to: '/configuration',
+              label: "Configuration",
+              to: "/configuration",
             },
             {
-              label: 'Troubleshooting',
-              to: '/troubleshooting',
+              label: "Troubleshooting",
+              to: "/troubleshooting",
             },
           ],
         },
         {
-          title: 'Community',
+          title: "Community",
           items: [
             {
-              label: 'GitHub Issues',
-              href: 'https://github.com/IsmaelMartinez/teams-for-linux/issues',
+              label: "GitHub Issues",
+              href: "https://github.com/IsmaelMartinez/teams-for-linux/issues",
             },
             {
-              label: 'GitHub Discussions',
-              href: 'https://github.com/IsmaelMartinez/teams-for-linux/discussions',
+              label: "GitHub Discussions",
+              href: "https://github.com/IsmaelMartinez/teams-for-linux/discussions",
             },
           ],
         },
         {
-          title: 'Project',
+          title: "Project",
           items: [
             {
-              label: 'GitHub',
-              href: 'https://github.com/IsmaelMartinez/teams-for-linux',
+              label: "GitHub",
+              href: "https://github.com/IsmaelMartinez/teams-for-linux",
             },
             {
-              label: 'Releases',
-              href: 'https://github.com/IsmaelMartinez/teams-for-linux/releases',
+              label: "Releases",
+              href: "https://github.com/IsmaelMartinez/teams-for-linux/releases",
             },
             {
-              label: 'License',
-              href: 'https://github.com/IsmaelMartinez/teams-for-linux/blob/main/LICENSE.md',
+              label: "License",
+              href: "https://github.com/IsmaelMartinez/teams-for-linux/blob/main/LICENSE.md",
             },
           ],
         },

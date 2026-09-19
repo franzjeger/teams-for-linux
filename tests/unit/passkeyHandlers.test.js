@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -12,7 +12,10 @@ const {
   GET_CHANNEL,
   CREATE_CHANNEL,
 } = require("../../app/passkey");
-const { ArcaRequestError, ArcaUnavailableError } = require("../../app/passkey/arcaClient");
+const {
+  ArcaRequestError,
+  ArcaUnavailableError,
+} = require("../../app/passkey/arcaClient");
 
 const eventFrom = (url) => ({ senderFrame: { url } });
 
@@ -46,7 +49,7 @@ test("the origin comes from the frame, not from the payload", async () => {
       origin: "https://evil.example",
       rpId: "login.microsoft.com",
     },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
 
   assert.equal(reply.ok, true);
@@ -61,7 +64,7 @@ test("the frame's own URL wins even when it is an iframe on another host", async
   await handleGet(
     eventFrom("https://login.microsoftonline.com/frame.html"),
     { challenge: [1] },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
   assert.equal(arca.calls[0].origin, "https://login.microsoftonline.com");
   assert.equal(arca.calls[0].rpId, "login.microsoftonline.com");
@@ -72,7 +75,7 @@ test("an rpId the frame cannot claim is refused before the provider is contacted
   const reply = await handleGet(
     eventFrom("https://evil.example"),
     { challenge: [1], rpId: "login.microsoft.com" },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
 
   assert.deepEqual(reply, { ok: false, reason: "invalid-request" });
@@ -82,11 +85,19 @@ test("an rpId the frame cannot claim is refused before the provider is contacted
 test("an insecure or unparseable frame is refused", async () => {
   const arca = recordingClient();
   for (const url of ["http://login.microsoft.com", "about:blank", ""]) {
-    const reply = await handleGet(eventFrom(url), { challenge: [1] }, { getAssertion: arca.fn });
+    const reply = await handleGet(
+      eventFrom(url),
+      { challenge: [1] },
+      { getAssertion: arca.fn },
+    );
     assert.equal(reply.ok, false, url);
     assert.equal(reply.reason, "invalid-request", url);
   }
-  const gone = await handleGet({ senderFrame: null }, { challenge: [1] }, { getAssertion: arca.fn });
+  const gone = await handleGet(
+    { senderFrame: null },
+    { challenge: [1] },
+    { getAssertion: arca.fn },
+  );
   assert.equal(gone.reason, "invalid-request");
   assert.deepEqual(arca.calls, []);
 });
@@ -96,7 +107,7 @@ test("clientDataJSON is returned and its hash is what the provider signs", async
   const reply = await handleGet(
     eventFrom("https://login.microsoft.com/x"),
     { challenge: [9, 9, 9] },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
 
   const json = Buffer.from(reply.clientDataJSON);
@@ -108,7 +119,7 @@ test("clientDataJSON is returned and its hash is what the provider signs", async
   });
   assert.deepEqual(
     arca.calls[0].clientDataHash,
-    Array.from(crypto.createHash("sha256").update(json).digest())
+    Array.from(crypto.createHash("sha256").update(json).digest()),
   );
 });
 
@@ -117,7 +128,7 @@ test("a serviced get returns the assertion the shim expects", async () => {
   const reply = await handleGet(
     eventFrom("https://login.microsoft.com"),
     { challenge: [1], allowCredentials: [{ id: [7] }, { id: [] }] },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
 
   assert.equal(reply.ok, true);
@@ -133,7 +144,7 @@ test("a missing userHandle is normalised to null", async () => {
   const reply = await handleGet(
     eventFrom("https://login.microsoft.com"),
     { challenge: [1] },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
   assert.equal(reply.userHandle, null);
 });
@@ -143,39 +154,53 @@ test("excluded is the one failure the page is told about", async () => {
   const reply = await handleCreate(
     eventFrom("https://login.microsoft.com"),
     { challenge: [1], userName: "someone", userHandle: [2] },
-    { createCredential: arca.fn }
+    { createCredential: arca.fn },
   );
-  assert.deepEqual(reply, { ok: false, reason: "excluded", surfaceToPage: true });
+  assert.deepEqual(reply, {
+    ok: false,
+    reason: "excluded",
+    surfaceToPage: true,
+  });
 });
 
 test("every other provider failure becomes a plain fallback", async () => {
-  for (const reason of ["locked", "not_found", "denied", "origin_mismatch", "internal"]) {
+  for (const reason of [
+    "locked",
+    "not_found",
+    "denied",
+    "origin_mismatch",
+    "internal",
+  ]) {
     const arca = recordingClient(new ArcaRequestError(reason));
     const reply = await handleGet(
       eventFrom("https://login.microsoft.com"),
       { challenge: [1] },
-      { getAssertion: arca.fn }
+      { getAssertion: arca.fn },
     );
     assert.deepEqual(reply, { ok: false, reason }, reason);
   }
 });
 
 test("an absent provider is a fallback, not an error", async () => {
-  const arca = recordingClient(new ArcaUnavailableError("not there", "not-running"));
+  const arca = recordingClient(
+    new ArcaUnavailableError("not there", "not-running"),
+  );
   const reply = await handleGet(
     eventFrom("https://login.microsoft.com"),
     { challenge: [1] },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
   assert.deepEqual(reply, { ok: false, reason: "not-running" });
 });
 
 test("an unexpected failure does not leak its message to the page", async () => {
-  const arca = recordingClient(new Error("connect ECONNREFUSED 127.0.0.1:41234"));
+  const arca = recordingClient(
+    new Error("connect ECONNREFUSED 127.0.0.1:41234"),
+  );
   const reply = await handleGet(
     eventFrom("https://login.microsoft.com"),
     { challenge: [1] },
-    { getAssertion: arca.fn }
+    { getAssertion: arca.fn },
   );
   assert.deepEqual(reply, { ok: false, reason: "unavailable" });
 });
@@ -191,7 +216,7 @@ test("create forwards the registration fields and returns the attestation", asyn
       userHandle: [2],
       excludeCredentials: [{ id: [3] }],
     },
-    { createCredential: arca.fn }
+    { createCredential: arca.fn },
   );
 
   assert.equal(reply.ok, true);
@@ -214,7 +239,7 @@ test("create tolerates a payload with no user fields", async () => {
   await handleCreate(
     eventFrom("https://login.microsoft.com"),
     { challenge: [1] },
-    { createCredential: arca.fn }
+    { createCredential: arca.fn },
   );
   assert.equal(arca.calls[0].userName, "");
   assert.deepEqual(arca.calls[0].userHandle, []);
@@ -222,7 +247,10 @@ test("create tolerates a payload with no user fields", async () => {
 
 test("registerPasskeyHandlers claims both channels", () => {
   const handlers = new Map();
-  registerPasskeyHandlers({ handle: (channel, fn) => handlers.set(channel, fn) }, {});
+  registerPasskeyHandlers(
+    { handle: (channel, fn) => handlers.set(channel, fn) },
+    {},
+  );
   assert.deepEqual([...handlers.keys()], [GET_CHANNEL, CREATE_CHANNEL]);
 });
 
@@ -230,7 +258,7 @@ test("passkey.enabled=false short-circuits both channels", async () => {
   const handlers = new Map();
   registerPasskeyHandlers(
     { handle: (channel, fn) => handlers.set(channel, fn) },
-    { passkey: { enabled: false } }
+    { passkey: { enabled: false } },
   );
 
   const event = eventFrom("https://login.microsoft.com");
@@ -244,7 +272,11 @@ test("passkey.enabled=false short-circuits both channels", async () => {
 
 test("frameOrigin strips everything after the origin", () => {
   assert.equal(
-    frameOrigin(eventFrom("https://login.microsoft.com:443/common/oauth2?code=secret#frag")),
-    "https://login.microsoft.com"
+    frameOrigin(
+      eventFrom(
+        "https://login.microsoft.com:443/common/oauth2?code=secret#frag",
+      ),
+    ),
+    "https://login.microsoft.com",
   );
 });

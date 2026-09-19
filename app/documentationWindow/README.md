@@ -30,6 +30,7 @@ The documentation window is automatically initialized when the Menus class is in
 ### Security
 
 The documentation window uses:
+
 - `nodeIntegration: false` - Prevents Node.js integration
 - `contextIsolation: true` - Isolates context from the main app
 - `sandbox: true` - Runs in a sandboxed environment
@@ -48,7 +49,7 @@ The documentation window uses:
 The module is integrated into the application through the Menus class in `app/menus/index.js`:
 
 ```javascript
-const DocumentationWindow = require('../documentationWindow');
+const DocumentationWindow = require("../documentationWindow");
 
 class Menus {
   constructor(window, configGroup, iconPath) {
@@ -66,6 +67,7 @@ class Menus {
 ## Future Enhancements
 
 Potential improvements could include:
+
 - Offline documentation caching
 - Deep linking to specific documentation pages
 - Theme synchronization with the main app

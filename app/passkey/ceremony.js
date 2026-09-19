@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * WebAuthn Ceremony Helpers
@@ -79,7 +79,11 @@ function resolveRpId(origin, requestedRpId) {
     throw new CeremonyError("passkey: ceremonies require a secure origin");
   }
 
-  if (requestedRpId === undefined || requestedRpId === null || requestedRpId === "") {
+  if (
+    requestedRpId === undefined ||
+    requestedRpId === null ||
+    requestedRpId === ""
+  ) {
     return host;
   }
   if (typeof requestedRpId !== "string") {
@@ -95,7 +99,9 @@ function resolveRpId(origin, requestedRpId) {
     return rpId;
   }
 
-  throw new CeremonyError(`passkey: rpId '${requestedRpId}' is not valid for this origin`);
+  throw new CeremonyError(
+    `passkey: rpId '${requestedRpId}' is not valid for this origin`,
+  );
 }
 
 /**

@@ -35,12 +35,12 @@ the Teams page --- Teams itself, an injected custom script, or anything achieved
 through an XSS in Teams --- could call all of them. Reading the user's mail
 through `graphApi.getMailMessages` required one line of page JavaScript.
 
-The IPC allowlist does not help here. It validates *channel names*, not
-*callers*. Every one of those calls used an allowlisted channel.
+The IPC allowlist does not help here. It validates _channel names_, not
+_callers_. Every one of those calls used an allowlisted channel.
 
 That surface has since been reduced to two functions (see "Work already
 completed"), which removes the exfiltration path. Context isolation remains the
-structural fix, because it removes the *category* rather than the instances.
+structural fix, because it removes the _category_ rather than the instances.
 
 ### Why the flag cannot simply be flipped
 
@@ -54,7 +54,7 @@ const internalRoot =
   reactElement?._reactRootContainer;
 ```
 
-DOM *nodes* are shared between the isolated world and the main world.
+DOM _nodes_ are shared between the isolated world and the main world.
 JavaScript properties that page scripts attach to those nodes are not.
 `_reactRootContainer` is written by React in the main world, so an isolated
 preload sees `undefined`. Turning the flag on silently disables everything
@@ -68,20 +68,20 @@ calling the original.
 
 Of the 16 preload-loaded browser tools, these depend on main-world execution:
 
-| Module | Main-world dependency |
-|---|---|
-| `reactHandler.js` | React internals via `_reactRootContainer` |
-| `activityHub.js` | `reactHandler` |
-| `settings.js` | `reactHandler` |
-| `theme.js` | `reactHandler` |
-| `timestampCopyOverride.js` | `reactHandler` |
-| `tokenCache.js` | injects into Teams' MSAL auth provider |
-| `mqttStatusMonitor.js` | `activityHub` |
-| `notifications/activityManager.js` | `activityHub` |
-| `speakingIndicator.js` | patches `RTCPeerConnection` |
-| `cameraResolution.js`, `cameraAspectRatio.js` | patch `getUserMedia` |
-| `disableAutogain.js` | patches `getUserMedia` |
-| `preload.js` (Notification override) | replaces `globalThis.Notification` |
+| Module                                        | Main-world dependency                     |
+| --------------------------------------------- | ----------------------------------------- |
+| `reactHandler.js`                             | React internals via `_reactRootContainer` |
+| `activityHub.js`                              | `reactHandler`                            |
+| `settings.js`                                 | `reactHandler`                            |
+| `theme.js`                                    | `reactHandler`                            |
+| `timestampCopyOverride.js`                    | `reactHandler`                            |
+| `tokenCache.js`                               | injects into Teams' MSAL auth provider    |
+| `mqttStatusMonitor.js`                        | `activityHub`                             |
+| `notifications/activityManager.js`            | `activityHub`                             |
+| `speakingIndicator.js`                        | patches `RTCPeerConnection`               |
+| `cameraResolution.js`, `cameraAspectRatio.js` | patch `getUserMedia`                      |
+| `disableAutogain.js`                          | patches `getUserMedia`                    |
+| `preload.js` (Notification override)          | replaces `globalThis.Notification`        |
 
 These are DOM-only and work unchanged under isolation: `zoom.js`,
 `shortcuts.js`, `mutationTitle.js`, `trayIconRenderer.js`,
@@ -132,7 +132,7 @@ the isolated world must be validated:
 - a per-session nonce, so page scripts cannot guess the channel
 - a schema check on the payload before it reaches `ipcRenderer`
 
-A bridge that forwards unvalidated page messages to `ipcRenderer` is *worse*
+A bridge that forwards unvalidated page messages to `ipcRenderer` is _worse_
 than the current arrangement: it re-exposes the same surface while looking
 secure.
 
@@ -176,7 +176,7 @@ works. Each of these stages requires the authenticated Playwright suite
 (`npm run test:authenticated`) against a real tenant.
 
 `tests/e2e/authenticated/integration-surface.spec.js` exists for exactly this.
-Every assertion in it evaluates in the *page* world, which is where the
+Every assertion in it evaluates in the _page_ world, which is where the
 instrumentation has to land for Teams to be affected by it, so a patch that
 quietly moves to the isolated world fails there rather than degrading in
 silence. It covers the Notification override and its lifecycle interface,

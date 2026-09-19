@@ -1,14 +1,18 @@
-import { test, expect } from '@playwright/test';
-import { launchAuthenticatedApp, waitForTeamsWindow, closeApp } from './helpers.js';
+import { test, expect } from "@playwright/test";
+import {
+  launchAuthenticatedApp,
+  waitForTeamsWindow,
+  closeApp,
+} from "./helpers.js";
 
-test.describe('Window management', () => {
+test.describe("Window management", () => {
   let electronApp;
 
   test.afterEach(async () => {
     await closeApp(electronApp);
   });
 
-  test('main window has a reasonable size', async ({}, testInfo) => {
+  test("main window has a reasonable size", async ({}, testInfo) => {
     const sessionDir = testInfo.project.use.sessionDir;
     electronApp = await launchAuthenticatedApp(sessionDir);
 
@@ -26,7 +30,7 @@ test.describe('Window management', () => {
     expect(dimensions.innerHeight).toBeGreaterThan(300);
   });
 
-  test('app is responsive and has no crash indicators', async ({}, testInfo) => {
+  test("app is responsive and has no crash indicators", async ({}, testInfo) => {
     const sessionDir = testInfo.project.use.sessionDir;
     electronApp = await launchAuthenticatedApp(sessionDir);
 
@@ -35,12 +39,14 @@ test.describe('Window management', () => {
 
     // Teams maintains constant WebSocket activity so networkidle never
     // triggers. Use domcontentloaded instead.
-    await mainWindow.waitForLoadState('domcontentloaded', { timeout: 60000 });
+    await mainWindow.waitForLoadState("domcontentloaded", { timeout: 60000 });
 
     const url = mainWindow.url();
-    expect(url).toContain('teams');
+    expect(url).toContain("teams");
 
-    const crashCount = await mainWindow.locator('text=/something went wrong/i').count();
+    const crashCount = await mainWindow
+      .locator("text=/something went wrong/i")
+      .count();
     expect(crashCount).toBe(0);
   });
 });

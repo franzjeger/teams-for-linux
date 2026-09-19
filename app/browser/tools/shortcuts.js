@@ -52,7 +52,11 @@ function whenWindowReady(callback, attempt = 0) {
   if (globalThis.window) {
     callback();
   } else if (attempt >= MAX_READY_RETRIES) {
-    console.warn('[SHORTCUTS] Window not available after', MAX_READY_RETRIES, 'attempts, giving up');
+    console.warn(
+      "[SHORTCUTS] Window not available after",
+      MAX_READY_RETRIES,
+      "attempts, giving up",
+    );
   } else {
     setTimeout(() => whenWindowReady(callback, attempt + 1), 1000);
   }
@@ -78,7 +82,11 @@ function whenIframeReady(callback, attempt = 0) {
   if (iframe) {
     callback(iframe);
   } else if (attempt >= MAX_READY_RETRIES) {
-    console.warn('[SHORTCUTS] Iframe not available after', MAX_READY_RETRIES, 'attempts, giving up');
+    console.warn(
+      "[SHORTCUTS] Iframe not available after",
+      MAX_READY_RETRIES,
+      "attempts, giving up",
+    );
   } else {
     setTimeout(() => whenIframeReady(callback, attempt + 1), 1000);
   }
