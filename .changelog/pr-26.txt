@@ -1,0 +1,1 @@
+docs: say where the pacman package is and where to run the script from - by @franzjeger (#26)
